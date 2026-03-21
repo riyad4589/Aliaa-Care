@@ -4,112 +4,110 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Premium Boutique Home & Lifestyle Design System
-   Warm Scandinavian-inspired palette with elevated visual language
-*/
+/* ALIAA Natural Care — Botanical Green & Cream Design System */
 
 @layer base {
   :root {
-    /* Warm neutral palette */
-    --background: 40 33% 97%;
-    --foreground: 30 10% 15%;
+    /* Botanical green palette */
+    --background: 80 25% 96%;
+    --foreground: 120 10% 15%;
 
-    --card: 40 30% 95%;
-    --card-foreground: 30 10% 15%;
+    --card: 80 20% 94%;
+    --card-foreground: 120 10% 15%;
 
-    --popover: 40 33% 97%;
-    --popover-foreground: 30 10% 15%;
+    --popover: 80 25% 96%;
+    --popover-foreground: 120 10% 15%;
 
-    /* Muted terracotta primary */
-    --primary: 18 45% 45%;
-    --primary-foreground: 40 33% 97%;
+    /* Deep sage green primary */
+    --primary: 120 25% 32%;
+    --primary-foreground: 80 25% 96%;
 
-    /* Warm taupe secondary */
-    --secondary: 30 15% 85%;
-    --secondary-foreground: 30 10% 20%;
+    /* Soft sage secondary */
+    --secondary: 90 15% 85%;
+    --secondary-foreground: 120 10% 20%;
 
-    --muted: 30 10% 90%;
-    --muted-foreground: 30 8% 45%;
+    --muted: 80 10% 90%;
+    --muted-foreground: 100 8% 45%;
 
-    /* Soft cream accent */
-    --accent: 35 40% 92%;
-    --accent-foreground: 30 10% 20%;
+    /* Light cream accent */
+    --accent: 60 30% 92%;
+    --accent-foreground: 120 10% 20%;
 
     --destructive: 0 65% 50%;
-    --destructive-foreground: 40 33% 97%;
+    --destructive-foreground: 80 25% 96%;
 
-    --border: 30 15% 88%;
-    --input: 30 15% 88%;
-    --ring: 18 45% 45%;
+    --border: 80 15% 86%;
+    --input: 80 15% 86%;
+    --ring: 120 25% 32%;
 
-    --radius: 0.25rem;
+    --radius: 0.375rem;
 
     /* Custom tokens */
-    --terracotta: 18 45% 45%;
-    --terracotta-light: 18 45% 55%;
-    --warm-cream: 40 33% 97%;
-    --warm-taupe: 30 15% 75%;
-    --charcoal: 30 10% 15%;
-    --linen: 35 25% 93%;
+    --botanical: 120 25% 32%;
+    --botanical-light: 120 20% 45%;
+    --warm-cream: 55 40% 95%;
+    --sage: 100 15% 70%;
+    --charcoal: 120 10% 15%;
+    --linen: 60 20% 93%;
     
     /* Typography */
     --font-serif: 'Cormorant Garamond', Georgia, serif;
     --font-sans: 'Inter', system-ui, sans-serif;
 
-    --sidebar-background: 40 30% 95%;
-    --sidebar-foreground: 30 10% 25%;
-    --sidebar-primary: 18 45% 45%;
-    --sidebar-primary-foreground: 40 33% 97%;
-    --sidebar-accent: 35 40% 92%;
-    --sidebar-accent-foreground: 30 10% 20%;
-    --sidebar-border: 30 15% 88%;
-    --sidebar-ring: 18 45% 45%;
+    --sidebar-background: 80 20% 94%;
+    --sidebar-foreground: 120 10% 25%;
+    --sidebar-primary: 120 25% 32%;
+    --sidebar-primary-foreground: 80 25% 96%;
+    --sidebar-accent: 60 30% 92%;
+    --sidebar-accent-foreground: 120 10% 20%;
+    --sidebar-border: 80 15% 86%;
+    --sidebar-ring: 120 25% 32%;
   }
 
   .dark {
-    --background: 30 10% 10%;
-    --foreground: 40 20% 90%;
+    --background: 120 10% 10%;
+    --foreground: 80 20% 90%;
 
-    --card: 30 10% 12%;
-    --card-foreground: 40 20% 90%;
+    --card: 120 10% 12%;
+    --card-foreground: 80 20% 90%;
 
-    --popover: 30 10% 10%;
-    --popover-foreground: 40 20% 90%;
+    --popover: 120 10% 10%;
+    --popover-foreground: 80 20% 90%;
 
-    --primary: 18 50% 55%;
-    --primary-foreground: 30 10% 10%;
+    --primary: 120 30% 45%;
+    --primary-foreground: 120 10% 10%;
 
-    --secondary: 30 10% 20%;
-    --secondary-foreground: 40 20% 90%;
+    --secondary: 120 10% 20%;
+    --secondary-foreground: 80 20% 90%;
 
-    --muted: 30 10% 18%;
-    --muted-foreground: 30 10% 60%;
+    --muted: 120 10% 18%;
+    --muted-foreground: 100 10% 60%;
 
-    --accent: 30 15% 18%;
-    --accent-foreground: 40 20% 90%;
+    --accent: 100 15% 18%;
+    --accent-foreground: 80 20% 90%;
 
     --destructive: 0 60% 45%;
-    --destructive-foreground: 40 20% 90%;
+    --destructive-foreground: 80 20% 90%;
 
-    --border: 30 10% 20%;
-    --input: 30 10% 20%;
-    --ring: 18 50% 55%;
+    --border: 120 10% 20%;
+    --input: 120 10% 20%;
+    --ring: 120 30% 45%;
 
-    --terracotta: 18 50% 55%;
-    --terracotta-light: 18 50% 65%;
-    --warm-cream: 30 10% 10%;
-    --warm-taupe: 30 10% 30%;
-    --charcoal: 40 20% 90%;
-    --linen: 30 10% 15%;
+    --botanical: 120 30% 45%;
+    --botanical-light: 120 25% 55%;
+    --warm-cream: 120 10% 10%;
+    --sage: 100 10% 30%;
+    --charcoal: 80 20% 90%;
+    --linen: 120 10% 15%;
 
-    --sidebar-background: 30 10% 12%;
-    --sidebar-foreground: 40 20% 90%;
-    --sidebar-primary: 18 50% 55%;
-    --sidebar-primary-foreground: 30 10% 10%;
-    --sidebar-accent: 30 15% 18%;
-    --sidebar-accent-foreground: 40 20% 90%;
-    --sidebar-border: 30 10% 20%;
-    --sidebar-ring: 18 50% 55%;
+    --sidebar-background: 120 10% 12%;
+    --sidebar-foreground: 80 20% 90%;
+    --sidebar-primary: 120 30% 45%;
+    --sidebar-primary-foreground: 120 10% 10%;
+    --sidebar-accent: 100 15% 18%;
+    --sidebar-accent-foreground: 80 20% 90%;
+    --sidebar-border: 120 10% 20%;
+    --sidebar-ring: 120 30% 45%;
   }
 }
 
@@ -134,11 +132,10 @@
   }
 
   ::selection {
-    background: hsl(var(--terracotta) / 0.15);
+    background: hsl(var(--botanical) / 0.15);
     color: hsl(var(--foreground));
   }
 
-  /* Premium scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -148,12 +145,12 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--warm-taupe) / 0.4);
+    background: hsl(var(--sage) / 0.4);
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--warm-taupe) / 0.6);
+    background: hsl(var(--sage) / 0.6);
   }
 }
 
@@ -170,19 +167,16 @@
     @apply max-w-[1600px] mx-auto px-6 lg:px-12;
   }
 
-  /* Editorial grid for products */
   .editorial-grid {
     @apply grid gap-8 md:gap-10;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
 
-  /* Premium editorial grid with featured item */
   .editorial-grid-featured {
     @apply grid gap-6 md:gap-8;
     grid-template-columns: repeat(12, 1fr);
   }
 
-  /* Elegant link underline animation */
   .link-underline {
     @apply relative;
   }
@@ -196,13 +190,11 @@
     @apply scale-x-100;
   }
 
-  /* Linen texture background */
   .bg-linen {
     background-color: hsl(var(--linen));
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23d4c4b5' fill-opacity='0.15' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23a8b5a0' fill-opacity='0.1' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
   }
 
-  /* Subtle hover scale */
   .hover-lift {
     @apply transition-all duration-500 ease-out;
   }
@@ -211,7 +203,6 @@
     @apply -translate-y-1 shadow-lg;
   }
 
-  /* Premium image reveal */
   .image-reveal {
     @apply overflow-hidden;
   }
@@ -224,7 +215,6 @@
     @apply scale-105;
   }
 
-  /* Horizontal divider with style */
   .divider-ornament {
     @apply flex items-center gap-6;
   }
@@ -235,7 +225,6 @@
     @apply flex-1 h-px bg-border;
   }
 
-  /* Product card image swap */
   .product-image-swap {
     @apply relative overflow-hidden;
   }
@@ -261,7 +250,6 @@
     @apply opacity-100;
   }
 
-  /* Marquee animation */
   .marquee {
     @apply flex overflow-hidden;
   }
@@ -270,7 +258,6 @@
     @apply flex shrink-0 animate-marquee;
   }
 
-  /* Stagger children animations */
   .stagger-children > * {
     @apply opacity-0;
     animation: stagger-fade-in 0.6s ease-out forwards;
@@ -283,7 +270,6 @@
   .stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
   .stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
 
-  /* Elegant button styles */
   .btn-premium {
     @apply relative overflow-hidden;
   }
@@ -297,7 +283,6 @@
     @apply translate-y-0;
   }
 
-  /* Text reveal animation */
   .text-reveal {
     @apply overflow-hidden;
   }
@@ -320,7 +305,6 @@
     font-family: var(--font-sans);
   }
 
-  /* Aspect ratios for editorial layouts */
   .aspect-editorial {
     aspect-ratio: 3/4;
   }
@@ -333,13 +317,11 @@
     aspect-ratio: 2/3;
   }
 
-  /* Letter spacing utilities */
   .tracking-editorial {
     letter-spacing: 0.15em;
   }
 }
 
-/* Keyframe animations */
 @keyframes stagger-fade-in {
   from {
     opacity: 0;

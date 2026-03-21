@@ -1,18 +1,19 @@
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowRight, ArrowDown, Instagram } from "lucide-react";
+import { ArrowRight, ArrowDown, Instagram, Leaf, Heart, Sparkles } from "lucide-react";
 import { useRef } from "react";
 import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
 import { CollectionCard } from "@/components/CollectionCard";
-import { collections, getNewProducts, products } from "@/data/products";
+import { collections, products, getFeaturedProducts } from "@/data/products";
 import { Button } from "@/components/ui/button";
+import coffretImg from "@/assets/coffret-aliaa.jpeg";
 
 const Index = () => {
-  const newProducts = getNewProducts();
+  const featuredProducts = getFeaturedProducts();
   const latestProducts = products.slice(0, 4);
-  const displayedCollections = collections.slice(0, 6);
-  const featuredCollection = collections[0]; // Lighting
+  const displayedCollections = collections.slice(0, 4);
+  const featuredCollection = collections.find(c => c.id === "coffrets") || collections[0];
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -21,27 +22,17 @@ const Index = () => {
   const heroImageY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
-  // Instagram placeholder images
-  const instagramImages = [
-    "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=400&q=80",
-    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=400&q=80",
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&q=80",
-    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&q=80",
-    "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=400&q=80",
-    "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=400&q=80",
-  ];
-
   return (
     <Layout>
-      {/* Hero Section — Full Viewport */}
+      {/* Hero Section */}
       <section ref={heroRef} className="relative h-[100svh] -mt-16 md:-mt-20 overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: heroImageY }}>
           <img
-            src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1920&q=80"
-            alt="Curated home lifestyle"
+            src={coffretImg}
+            alt="ALIAA Natural Care - Coffret de plantes naturelles"
             className="w-full h-[120%] object-cover animate-ken-burns"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-charcoal/30 via-charcoal/10 to-charcoal/50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-charcoal/40 via-charcoal/20 to-charcoal/60" />
         </motion.div>
 
         <motion.div
@@ -60,16 +51,16 @@ const Index = () => {
               transition={{ duration: 0.8, delay: 0.6 }}
               className="text-[11px] font-semibold tracking-[0.3em] uppercase text-white/70 mb-6"
             >
-              Curated for Considered Living
+              Pure Plants, True Relief
             </motion.p>
             <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl xl:text-9xl text-white mb-8 leading-[0.9] tracking-tight">
-              Objects of
+              Rituels
               <br />
-              <span className="italic font-normal">Quiet Beauty</span>
+              <span className="italic font-normal">Naturels</span>
             </h1>
             <p className="text-base md:text-lg text-white/80 mb-10 leading-relaxed max-w-lg">
-              Handcrafted home goods and lifestyle pieces designed to bring
-              warmth and intention to everyday moments.
+              Mélanges de plantes traditionnels, préparés avec soin pour le bien-être 
+              de chaque femme. Sans conservateurs, 100% naturel.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
@@ -78,14 +69,13 @@ const Index = () => {
                 className="rounded-none px-10 py-6 text-sm tracking-[0.15em] uppercase btn-premium"
               >
                 <Link to="/products">
-                  Shop Now
+                  Découvrir
                   <ArrowRight className="ml-3 w-4 h-4" />
                 </Link>
               </Button>
             </div>
           </motion.div>
 
-          {/* Scroll indicator */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -130,14 +120,14 @@ const Index = () => {
               className="md:py-12"
             >
               <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-4">
-                Featured Collection
+                Collection Vedette
               </p>
               <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground mb-6 leading-[0.95]">
                 {featuredCollection.name}
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-8 max-w-md">
-                {featuredCollection.description}. Discover sculptural forms that cast warmth and shadow, 
-                designed to transform any space into a sanctuary of light.
+                {featuredCollection.description}. Offrez un moment de bien-être avec notre sélection 
+                de produits naturels, présentés dans un élégant coffret.
               </p>
               <Button
                 asChild
@@ -145,7 +135,7 @@ const Index = () => {
                 className="rounded-none px-10 py-6 text-sm tracking-[0.15em] uppercase btn-premium"
               >
                 <Link to={`/products?collection=${featuredCollection.slug}`}>
-                  Shop {featuredCollection.name}
+                  Découvrir les {featuredCollection.name}
                   <ArrowRight className="ml-3 w-4 h-4" />
                 </Link>
               </Button>
@@ -165,17 +155,17 @@ const Index = () => {
               transition={{ duration: 0.6 }}
             >
               <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">
-                Just Arrived
+                Nos Produits
               </p>
               <h2 className="font-serif text-4xl md:text-5xl text-foreground">
-                Latest Products
+                Derniers Arrivages
               </h2>
             </motion.div>
             <Link
               to="/products"
               className="hidden md:flex items-center gap-3 text-sm font-medium tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground transition-colors group"
             >
-              View All
+              Tout Voir
               <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
             </Link>
           </div>
@@ -192,7 +182,7 @@ const Index = () => {
               variant="outline"
               className="rounded-none px-8 py-5 text-sm tracking-[0.15em] uppercase"
             >
-              <Link to="/products">View All Products</Link>
+              <Link to="/products">Voir Tous les Produits</Link>
             </Button>
           </div>
         </div>
@@ -209,84 +199,73 @@ const Index = () => {
             className="text-center mb-16"
           >
             <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">
-              Browse By
+              Parcourir Par
             </p>
             <h2 className="font-serif text-4xl md:text-5xl text-foreground">
               Collections
             </h2>
           </motion.div>
 
-          {/* Asymmetric grid layout */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
-            {/* First row: 2 items */}
             <div className="md:col-span-7">
-              <CollectionCard
-                collection={displayedCollections[0]}
-                index={0}
-                variant="wide"
-              />
+              <CollectionCard collection={displayedCollections[0]} index={0} variant="wide" />
             </div>
             <div className="md:col-span-5">
-              <CollectionCard
-                collection={displayedCollections[1]}
-                index={1}
-              />
+              <CollectionCard collection={displayedCollections[1]} index={1} />
             </div>
-
-            {/* Second row: 3 items */}
-            <div className="md:col-span-4">
-              <CollectionCard
-                collection={displayedCollections[2]}
-                index={2}
-              />
+            <div className="md:col-span-6">
+              <CollectionCard collection={displayedCollections[2]} index={2} />
             </div>
-            <div className="md:col-span-4">
-              <CollectionCard
-                collection={displayedCollections[3]}
-                index={3}
-              />
-            </div>
-            <div className="md:col-span-4">
-              <CollectionCard
-                collection={displayedCollections[4]}
-                index={4}
-              />
-            </div>
-
-            {/* Third row: 1 wide item */}
-            <div className="md:col-span-12">
-              <CollectionCard
-                collection={displayedCollections[5]}
-                index={5}
-                variant="wide"
-              />
+            <div className="md:col-span-6">
+              <CollectionCard collection={displayedCollections[3]} index={3} />
             </div>
           </div>
         </div>
       </section>
 
-      {/* About Us Section */}
+      {/* Values / About Section */}
       <section className="py-24 md:py-32 bg-linen">
-        <div className="container-narrow text-center">
+        <div className="container-full">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
           >
-            <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-6">
-              About Us
+            <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">
+              Nos Engagements
             </p>
             <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground leading-[1.3] mb-8">
-              We believe in the beauty of slow living—in objects made with care,
-              materials that age gracefully, and spaces that invite{" "}
-              <span className="italic">pause</span>.
+              Des plantes pures pour un soulagement{" "}
+              <span className="italic">véritable</span>
             </h2>
-            <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-10">
-              Every piece in our collection is selected for its material integrity, 
-              its maker's story, and its ability to endure beautifully. We work with 
-              artisans who share our commitment to craft and sustainability.
-            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-12 md:gap-16 max-w-4xl mx-auto">
+            {[
+              { icon: Leaf, title: "100% Naturel", desc: "Plantes soigneusement sélectionnées, sans conservateurs ni additifs artificiels." },
+              { icon: Heart, title: "Bien-être Féminin", desc: "Formules traditionnelles dédiées au soin et au confort de chaque femme." },
+              { icon: Sparkles, title: "Savoir Ancestral", desc: "Recettes transmises de génération en génération, préparées avec amour." },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, delay: i * 0.15 }}
+                className="text-center"
+              >
+                <div className="w-12 h-12 mx-auto mb-5 rounded-full bg-primary/10 flex items-center justify-center">
+                  <item.icon className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="font-serif text-xl text-foreground mb-3">{item.title}</h3>
+                <p className="text-muted-foreground leading-relaxed text-sm">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-14">
             <Button
               asChild
               variant="outline"
@@ -294,15 +273,15 @@ const Index = () => {
               className="rounded-none px-10 py-6 text-sm tracking-[0.15em] uppercase"
             >
               <Link to="/about">
-                Read Our Story
+                Notre Histoire
                 <ArrowRight className="ml-3 w-4 h-4" />
               </Link>
             </Button>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Follow Us / Instagram Section */}
+      {/* Follow Us */}
       <section className="py-20 md:py-28">
         <div className="container-full">
           <motion.div
@@ -313,19 +292,25 @@ const Index = () => {
             className="text-center mb-12"
           >
             <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">
-              Follow Us
+              Suivez-Nous
             </p>
             <h2 className="font-serif text-3xl md:text-4xl text-foreground mb-4">
-              @maisonhome
+              @aliaacare
             </h2>
             <p className="text-muted-foreground max-w-md mx-auto">
-              Join our community and get inspired by curated spaces and behind-the-scenes moments.
+              Rejoignez notre communauté et découvrez nos rituels naturels au quotidien.
             </p>
           </motion.div>
 
-          {/* Instagram Grid */}
           <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
-            {instagramImages.map((image, index) => (
+            {[
+              coffretImg,
+              "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&q=80",
+              "https://images.unsplash.com/photo-1515694346937-94d85e39d29c?w=400&q=80",
+              "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&q=80",
+              "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
+              "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&q=80",
+            ].map((image, index) => (
               <motion.a
                 key={index}
                 href="https://instagram.com"
@@ -339,7 +324,7 @@ const Index = () => {
               >
                 <img
                   src={image}
-                  alt="Instagram post"
+                  alt="Instagram"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/40 transition-colors duration-300 flex items-center justify-center">

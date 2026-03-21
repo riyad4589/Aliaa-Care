@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "@/hooks/useWishlist";
 import { CartIcon } from "@/components/CartIcon";
 import { collections } from "@/data/products";
+import logoImg from "@/assets/aaliacare-logo.jpeg";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -47,9 +48,12 @@ export const Header = () => {
           {/* Logo */}
           <Link
             to="/"
-            className="font-serif text-2xl md:text-3xl tracking-tight text-foreground hover:text-primary transition-colors duration-300"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-300"
           >
-            Maison
+            <img src={logoImg} alt="ALIAA Natural Care" className="h-10 md:h-12 w-auto rounded-full" />
+            <span className="font-serif text-xl md:text-2xl tracking-tight text-foreground">
+              ALIAA
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -91,20 +95,19 @@ export const Header = () => {
               to="/products"
               className="text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 link-underline"
             >
-              Shop All
+              Boutique
             </Link>
 
             <Link
               to="/about"
               className="text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 link-underline"
             >
-              About
+              Notre Histoire
             </Link>
           </div>
 
           {/* Right side actions */}
           <div className="flex items-center gap-2">
-            {/* Wishlist Icon with Tooltip */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <button className="relative p-2 hover:bg-accent transition-colors duration-300 group">
@@ -125,10 +128,10 @@ export const Header = () => {
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-xs">
                 {items.length === 0 ? (
-                  <p className="text-sm">Your wishlist is empty</p>
+                  <p className="text-sm">Votre liste de souhaits est vide</p>
                 ) : (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium">{items.length} saved {items.length === 1 ? 'item' : 'items'}</p>
+                    <p className="text-sm font-medium">{items.length} article{items.length > 1 ? 's' : ''} sauvegardé{items.length > 1 ? 's' : ''}</p>
                     <div className="space-y-1">
                       {items.slice(0, 3).map((item) => (
                         <p key={item.id} className="text-xs text-muted-foreground truncate">
@@ -136,7 +139,7 @@ export const Header = () => {
                         </p>
                       ))}
                       {items.length > 3 && (
-                        <p className="text-xs text-muted-foreground">+{items.length - 3} more</p>
+                        <p className="text-xs text-muted-foreground">+{items.length - 3} de plus</p>
                       )}
                     </div>
                   </div>
@@ -144,10 +147,8 @@ export const Header = () => {
               </TooltipContent>
             </Tooltip>
 
-            {/* Cart Icon */}
             <CartIcon />
 
-            {/* Mobile menu button */}
             <button
               className="md:hidden p-2 hover:bg-accent transition-colors duration-300"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -194,7 +195,7 @@ export const Header = () => {
                   <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-muted-foreground/50 px-2 mb-3">
                     Collections
                   </p>
-                  {collections.slice(0, 6).map((collection, i) => (
+                  {collections.map((collection, i) => (
                     <motion.div
                       key={collection.id}
                       initial={{ opacity: 0, x: -10 }}
@@ -213,9 +214,9 @@ export const Header = () => {
                 </div>
                 <div className="pt-6 border-t border-border space-y-1">
                   {[
-                    { to: "/products", label: "Shop All" },
-                    { to: "/about", label: "About" },
-                    { to: "/cart", label: "Shopping Bag" },
+                    { to: "/products", label: "Boutique" },
+                    { to: "/about", label: "Notre Histoire" },
+                    { to: "/cart", label: "Panier" },
                   ].map((link, i) => (
                     <motion.div
                       key={link.to}
