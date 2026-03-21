@@ -14,6 +14,7 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardProps) => {
   const { addItem, removeItem, isInWishlist } = useWishlist();
+  const { collections } = useClientProducts();
   const inWishlist = isInWishlist(product.id);
   const collection = collections.find((c) => c.id === product.collection);
   const hasSecondImage = product.images.length > 1;
