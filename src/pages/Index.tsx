@@ -19,7 +19,7 @@ const Index = () => {
   const featuredProducts = getFeaturedProducts();
   const latestProducts = products.slice(0, 4);
   const displayedCollections = collections.slice(0, 4);
-  const featuredCollection = collections.find(c => c.id === "coffrets") || collections[0];
+  const featuredCollection = collections.find(c => c.id === "coffrets") || collections[0] || null;
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
