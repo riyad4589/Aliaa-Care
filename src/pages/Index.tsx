@@ -19,7 +19,7 @@ const Index = () => {
   const featuredProducts = getFeaturedProducts();
   const latestProducts = products.slice(0, 4);
   const displayedCollections = collections.slice(0, 4);
-  const featuredCollection = collections.find(c => c.id === "coffrets") || collections[0];
+  const featuredCollection = collections.find(c => c.id === "coffrets") || collections[0] || null;
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -106,6 +106,7 @@ const Index = () => {
       </section>
 
       {/* Featured Collection */}
+      {featuredCollection && (
       <section className="py-20 md:py-28">
         <div className="container-full">
           <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-center">
@@ -155,6 +156,7 @@ const Index = () => {
           </div>
         </div>
       </section>
+      )}
 
       {/* Latest Products */}
       <section className="py-20 md:py-28 bg-linen">
@@ -219,18 +221,26 @@ const Index = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+            {displayedCollections[0] && (
             <div className="md:col-span-7">
               <CollectionCard collection={displayedCollections[0]} index={0} variant="wide" />
             </div>
+            )}
+            {displayedCollections[1] && (
             <div className="md:col-span-5">
               <CollectionCard collection={displayedCollections[1]} index={1} />
             </div>
+            )}
+            {displayedCollections[2] && (
             <div className="md:col-span-6">
               <CollectionCard collection={displayedCollections[2]} index={2} />
             </div>
+            )}
+            {displayedCollections[3] && (
             <div className="md:col-span-6">
               <CollectionCard collection={displayedCollections[3]} index={3} />
             </div>
+            )}
           </div>
         </div>
       </section>
