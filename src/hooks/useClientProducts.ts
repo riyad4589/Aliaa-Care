@@ -1,4 +1,4 @@
-import { useAdminStore, AdminProduct } from "@/hooks/useAdminStore";
+import { useAdminStore } from "@/hooks/useAdminStore";
 import { Product, Collection } from "@/data/products";
 
 /** Returns only active+visible products and active collections from admin store */
