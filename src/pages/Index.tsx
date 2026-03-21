@@ -8,6 +8,11 @@ import { CollectionCard } from "@/components/CollectionCard";
 import { useClientProducts } from "@/hooks/useClientProducts";
 import { Button } from "@/components/ui/button";
 import coffretImg from "@/assets/coffret-aliaa.jpeg";
+import gommageCorpsImg from "@/assets/gommage-corps.jpeg";
+import eauDeRoseImg from "@/assets/eau-de-rose.jpeg";
+import infusionHerbaleImg from "@/assets/infusion-herbale.jpeg";
+import selsDeBainImg from "@/assets/sels-de-bain.jpeg";
+import laitCorporelImg from "@/assets/lait-corporel.jpeg";
 
 const Index = () => {
   const { products, collections, getFeaturedProducts, banner } = useClientProducts();
@@ -312,11 +317,11 @@ const Index = () => {
           <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
             {[
               coffretImg,
-              "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&q=80",
-              "https://images.unsplash.com/photo-1515694346937-94d85e39d29c?w=400&q=80",
-              "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&q=80",
-              "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
-              "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&q=80",
+              gommageCorpsImg,
+              eauDeRoseImg,
+              infusionHerbaleImg,
+              selsDeBainImg,
+              laitCorporelImg,
             ].map((image, index) => (
               <motion.a
                 key={index}
