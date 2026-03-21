@@ -97,12 +97,12 @@ const AdminProducts = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="font-serif text-2xl text-foreground">Gestion du Catalogue</h1>
+            <h1 className="font-serif text-xl sm:text-2xl text-foreground">Gestion du Catalogue</h1>
             <p className="text-sm text-muted-foreground">{products.length} produits · {collections.length} catégories</p>
           </div>
-          <Button onClick={openNew} className="rounded-none gap-2">
+          <Button onClick={openNew} className="rounded-none gap-2 w-full sm:w-auto">
             <Plus className="w-4 h-4" /> Ajouter Produit
           </Button>
         </div>
