@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
-import { products, collections, getCollectionBySlug } from "@/data/products";
+import { useClientProducts } from "@/hooks/useClientProducts";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -28,6 +28,7 @@ const sortOptions: { value: SortOption; label: string }[] = [
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { products, collections, getCollectionBySlug } = useClientProducts();
   const activeCollection = searchParams.get("collection") || "all";
   const activeSort = (searchParams.get("sort") as SortOption) || "featured";
 
@@ -61,7 +62,7 @@ const Products = () => {
     }
 
     return result;
-  }, [activeCollection, activeSort]);
+  }, [activeCollection, activeSort, products, collections]);
 
   const currentCollection = activeCollection !== "all"
     ? getCollectionBySlug(activeCollection)

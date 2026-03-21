@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { collections } from "@/data/products";
+import { useClientProducts } from "@/hooks/useClientProducts";
 
 export const Footer = () => {
+  const { collections } = useClientProducts();
   return (
     <footer className="bg-foreground text-background">
       <div className="border-b border-background/10">
