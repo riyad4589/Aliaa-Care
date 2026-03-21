@@ -8,6 +8,11 @@ import { CollectionCard } from "@/components/CollectionCard";
 import { useClientProducts } from "@/hooks/useClientProducts";
 import { Button } from "@/components/ui/button";
 import coffretImg from "@/assets/coffret-aliaa.jpeg";
+import gommageCorpsImg from "@/assets/gommage-corps.jpeg";
+import eauDeRoseImg from "@/assets/eau-de-rose.jpeg";
+import infusionHerbaleImg from "@/assets/infusion-herbale.jpeg";
+import selsDeBainImg from "@/assets/sels-de-bain.jpeg";
+import laitCorporelImg from "@/assets/lait-corporel.jpeg";
 
 const Index = () => {
   const { products, collections, getFeaturedProducts, banner } = useClientProducts();
