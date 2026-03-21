@@ -1,4 +1,4 @@
-import { Package, Eye, TrendingUp, ArrowLeft } from "lucide-react";
+import { Package, Eye, TrendingUp, ArrowLeft, FolderOpen } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
