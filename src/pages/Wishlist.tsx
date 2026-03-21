@@ -66,7 +66,7 @@ const Wishlist = () => {
                         {item.name}
                       </Link>
                       <p className="text-sm text-muted-foreground line-clamp-1 mt-1">{item.description}</p>
-                      <p className="font-serif text-foreground mt-2">{item.price.toLocaleString()} €</p>
+                      <p className="font-serif text-foreground mt-2">{item.price.toLocaleString()} DH</p>
                     </div>
                     <div className="flex flex-col gap-2 shrink-0">
                       <Button size="sm" variant="outline" className="rounded-none text-xs" onClick={() => handleAddToCart(item)}>
