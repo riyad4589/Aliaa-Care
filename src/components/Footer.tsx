@@ -5,7 +5,6 @@ import { collections } from "@/data/products";
 export const Footer = () => {
   return (
     <footer className="bg-foreground text-background">
-      {/* Top bar */}
       <div className="border-b border-background/10">
         <div className="container-full py-12 md:py-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
@@ -14,22 +13,21 @@ export const Footer = () => {
                 to="/"
                 className="font-serif text-3xl md:text-4xl tracking-tight text-background"
               >
-                Maison
+                ALIAA
               </Link>
               <p className="mt-3 text-sm text-background/50 leading-relaxed max-w-xs">
-                Curated home objects and lifestyle pieces for considered living.
+                Pure Plants, True Relief. Rituels naturels pour chaque femme.
               </p>
             </div>
 
-            {/* Newsletter in footer */}
             <div className="max-w-sm w-full">
               <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-background/40 mb-3">
-                Stay Connected
+                Restez Connectée
               </p>
               <form className="flex gap-0">
                 <input
                   type="email"
-                  placeholder="Your email"
+                  placeholder="Votre email"
                   className="flex-1 h-12 px-4 text-sm bg-background/5 border border-background/15 text-background placeholder:text-background/30 focus:outline-none focus:border-background/40 transition-colors"
                 />
                 <button
@@ -44,16 +42,14 @@ export const Footer = () => {
         </div>
       </div>
 
-      {/* Main footer content */}
       <div className="container-full py-12 md:py-16">
         <div className="grid gap-10 md:grid-cols-4">
-          {/* Collections */}
           <div>
             <h4 className="text-[11px] font-semibold tracking-[0.25em] uppercase text-background/40 mb-5">
               Collections
             </h4>
             <ul className="space-y-3">
-              {collections.slice(0, 6).map((collection) => (
+              {collections.map((collection) => (
                 <li key={collection.id}>
                   <Link
                     to={`/products?collection=${collection.slug}`}
@@ -66,10 +62,9 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Explore */}
           <div>
             <h4 className="text-[11px] font-semibold tracking-[0.25em] uppercase text-background/40 mb-5">
-              Explore
+              Explorer
             </h4>
             <ul className="space-y-3">
               <li>
@@ -77,7 +72,7 @@ export const Footer = () => {
                   to="/products"
                   className="text-sm text-background/60 hover:text-background transition-colors duration-300"
                 >
-                  Shop All
+                  Boutique
                 </Link>
               </li>
               <li>
@@ -85,7 +80,7 @@ export const Footer = () => {
                   to="/about"
                   className="text-sm text-background/60 hover:text-background transition-colors duration-300"
                 >
-                  Our Story
+                  Notre Histoire
                 </Link>
               </li>
               <li>
@@ -93,46 +88,35 @@ export const Footer = () => {
                   to="/cart"
                   className="text-sm text-background/60 hover:text-background transition-colors duration-300"
                 >
-                  Shopping Bag
+                  Panier
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Support */}
           <div>
             <h4 className="text-[11px] font-semibold tracking-[0.25em] uppercase text-background/40 mb-5">
               Support
             </h4>
             <ul className="space-y-3">
               <li>
-                <a
-                  href="#"
-                  className="text-sm text-background/60 hover:text-background transition-colors duration-300"
-                >
-                  Shipping & Returns
+                <a href="#" className="text-sm text-background/60 hover:text-background transition-colors duration-300">
+                  Livraison & Retours
                 </a>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-sm text-background/60 hover:text-background transition-colors duration-300"
-                >
-                  Care Guide
+                <a href="#" className="text-sm text-background/60 hover:text-background transition-colors duration-300">
+                  Guide d'Utilisation
                 </a>
               </li>
               <li>
-                <a
-                  href="#"
-                  className="text-sm text-background/60 hover:text-background transition-colors duration-300"
-                >
+                <a href="#" className="text-sm text-background/60 hover:text-background transition-colors duration-300">
                   FAQ
                 </a>
               </li>
             </ul>
           </div>
 
-          {/* Contact */}
           <div>
             <h4 className="text-[11px] font-semibold tracking-[0.25em] uppercase text-background/40 mb-5">
               Contact
@@ -140,15 +124,15 @@ export const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="mailto:hello@maison.com"
+                  href="mailto:contact@aliaacare.com"
                   className="text-sm text-background/60 hover:text-background transition-colors duration-300"
                 >
-                  hello@maison.com
+                  contact@aliaacare.com
                 </a>
               </li>
               <li>
                 <p className="text-sm text-background/40 leading-relaxed">
-                  Mon–Fri, 9am–6pm CET
+                  Lun–Ven, 9h–18h
                 </p>
               </li>
             </ul>
@@ -156,30 +140,17 @@ export const Footer = () => {
         </div>
       </div>
 
-      {/* Bottom bar */}
       <div className="border-t border-background/10">
         <div className="container-full py-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-background/30">
-            © {new Date().getFullYear()} Maison. All rights reserved.
+            © {new Date().getFullYear()} ALIAA Natural Care. Tous droits réservés.
           </p>
           <div className="flex gap-8">
-            <a
-              href="#"
-              className="text-xs text-background/30 hover:text-background/60 transition-colors duration-300"
-            >
-              Privacy Policy
+            <a href="#" className="text-xs text-background/30 hover:text-background/60 transition-colors duration-300">
+              Politique de Confidentialité
             </a>
-            <a
-              href="#"
-              className="text-xs text-background/30 hover:text-background/60 transition-colors duration-300"
-            >
-              Terms of Service
-            </a>
-            <a
-              href="#"
-              className="text-xs text-background/30 hover:text-background/60 transition-colors duration-300"
-            >
-              Cookie Policy
+            <a href="#" className="text-xs text-background/30 hover:text-background/60 transition-colors duration-300">
+              CGV
             </a>
           </div>
         </div>
