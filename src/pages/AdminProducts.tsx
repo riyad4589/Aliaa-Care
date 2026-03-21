@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, AlertTriangle, Package, Upload, X, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertTriangle, Package, Upload, X, Loader2, Search } from "lucide-react";
 
 interface EditingProduct {
   id?: string;
