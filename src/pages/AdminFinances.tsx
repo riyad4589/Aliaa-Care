@@ -174,16 +174,16 @@ const AdminFinances = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="font-serif text-2xl text-foreground">Gestion Financière</h1>
+            <h1 className="font-serif text-xl sm:text-2xl text-foreground">Gestion Financière</h1>
             <p className="text-sm text-muted-foreground">{orders.length} commandes enregistrées</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={exportCSV} className="gap-2 rounded-none">
+            <Button variant="outline" size="sm" onClick={exportCSV} className="gap-2 rounded-none flex-1 sm:flex-none">
               <Download className="w-4 h-4" /> CSV
             </Button>
-            <Button variant="outline" size="sm" onClick={exportPDF} className="gap-2 rounded-none">
+            <Button variant="outline" size="sm" onClick={exportPDF} className="gap-2 rounded-none flex-1 sm:flex-none">
               <Download className="w-4 h-4" /> PDF
             </Button>
           </div>

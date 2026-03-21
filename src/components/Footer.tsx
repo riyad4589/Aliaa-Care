@@ -44,7 +44,7 @@ export const Footer = () => {
       </div>
 
       <div className="container-full py-12 md:py-16">
-        <div className="grid gap-10 md:grid-cols-4">
+        <div className="grid gap-10 md:grid-cols-3">
           <div>
             <h4 className="text-[11px] font-semibold tracking-[0.25em] uppercase text-background/40 mb-5">
               Collections
@@ -91,29 +91,6 @@ export const Footer = () => {
                 >
                   Panier
                 </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-[11px] font-semibold tracking-[0.25em] uppercase text-background/40 mb-5">
-              Support
-            </h4>
-            <ul className="space-y-3">
-              <li>
-                <a href="#" className="text-sm text-background/60 hover:text-background transition-colors duration-300">
-                  Livraison & Retours
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-background/60 hover:text-background transition-colors duration-300">
-                  Guide d'Utilisation
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-sm text-background/60 hover:text-background transition-colors duration-300">
-                  FAQ
-                </a>
               </li>
             </ul>
           </div>
