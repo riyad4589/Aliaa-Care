@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, AlertTriangle, Package, FolderPlus } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertTriangle, Package } from "lucide-react";
 
 const emptyProduct: Partial<AdminProduct> = {
   name: "", slug: "", collection: "", price: 0, description: "", longDescription: "",
@@ -17,14 +17,11 @@ const emptyProduct: Partial<AdminProduct> = {
 };
 
 const AdminProducts = () => {
-  const { products, collections, addProduct, updateProduct, deleteProduct, toggleProductActive, getLowStockProducts, addCollection, deleteCollection } = useAdminStore();
+  const { products, collections, addProduct, updateProduct, deleteProduct, toggleProductActive, getLowStockProducts } = useAdminStore();
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [catDialogOpen, setCatDialogOpen] = useState(false);
+  
   const [editingProduct, setEditingProduct] = useState<Partial<AdminProduct> | null>(null);
-  const [newCatName, setNewCatName] = useState("");
-  const [newCatDesc, setNewCatDesc] = useState("");
-  const [newCatImage, setNewCatImage] = useState("");
   const [search, setSearch] = useState("");
   const [filterCollection, setFilterCollection] = useState("all");
 
@@ -64,26 +61,6 @@ const AdminProducts = () => {
   const openNew = () => { setEditingProduct({ ...emptyProduct }); setDialogOpen(true); };
   const openEdit = (p: AdminProduct) => { setEditingProduct({ ...p }); setDialogOpen(true); };
 
-  const handleAddCategory = () => {
-    if (!newCatName.trim()) {
-      toast({ title: "Erreur", description: "Le nom est obligatoire", variant: "destructive" });
-      return;
-    }
-    const slug = newCatName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-    addCollection({
-      id: slug,
-      name: newCatName,
-      slug,
-      description: newCatDesc,
-      image: newCatImage || "/placeholder.svg",
-      active: true,
-    });
-    toast({ title: "Catégorie ajoutée" });
-    setNewCatName("");
-    setNewCatDesc("");
-    setNewCatImage("");
-    setCatDialogOpen(false);
-  };
 
   return (
     <AdminLayout>
@@ -93,14 +70,9 @@ const AdminProducts = () => {
             <h1 className="font-serif text-2xl text-foreground">Gestion du Catalogue</h1>
             <p className="text-sm text-muted-foreground">{products.length} produits · {collections.length} catégories</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setCatDialogOpen(true)} className="rounded-none gap-2">
-              <FolderPlus className="w-4 h-4" /> Ajouter Catégorie
-            </Button>
-            <Button onClick={openNew} className="rounded-none gap-2">
-              <Plus className="w-4 h-4" /> Ajouter Produit
-            </Button>
-          </div>
+          <Button onClick={openNew} className="rounded-none gap-2">
+            <Plus className="w-4 h-4" /> Ajouter Produit
+          </Button>
         </div>
 
         {/* Low stock alert */}
@@ -247,29 +219,6 @@ const AdminProducts = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Category Dialog */}
-      <Dialog open={catDialogOpen} onOpenChange={setCatDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-serif">Ajouter une Catégorie</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Nom *</label>
-              <Input value={newCatName} onChange={(e) => setNewCatName(e.target.value)} placeholder="Ex: Huiles essentielles" />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Description</label>
-              <Textarea value={newCatDesc} onChange={(e) => setNewCatDesc(e.target.value)} placeholder="Description de la catégorie..." rows={2} />
-            </div>
-            <div>
-              <label className="text-sm font-medium">URL image</label>
-              <Input value={newCatImage} onChange={(e) => setNewCatImage(e.target.value)} placeholder="https://..." />
-            </div>
-            <Button onClick={handleAddCategory} className="w-full rounded-none">Ajouter</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </AdminLayout>
   );
 };

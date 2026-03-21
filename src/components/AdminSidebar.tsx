@@ -1,4 +1,4 @@
-import { Package, Eye, TrendingUp, ArrowLeft } from "lucide-react";
+import { Package, Eye, TrendingUp, ArrowLeft, FolderOpen } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 
 const items = [
   { title: "Catalogue", url: "/admin/products", icon: Package },
+  { title: "Catégories", url: "/admin/categories", icon: FolderOpen },
   { title: "Affichage Client", url: "/admin/display", icon: Eye },
   { title: "Finances", url: "/admin/finances", icon: TrendingUp },
 ];

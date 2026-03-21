@@ -14,6 +14,7 @@ import Wishlist from "./pages/Wishlist";
 import AdminProducts from "./pages/AdminProducts";
 import AdminDisplay from "./pages/AdminDisplay";
 import AdminFinances from "./pages/AdminFinances";
+import AdminCategories from "./pages/AdminCategories";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/display" element={<AdminDisplay />} />
           <Route path="/admin/finances" element={<AdminFinances />} />
+          <Route path="/admin/categories" element={<AdminCategories />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
