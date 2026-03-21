@@ -123,7 +123,8 @@ const AdminProducts = () => {
           <Input placeholder="Rechercher..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
         </div>
 
-        <div className="border border-border rounded-lg overflow-hidden">
+        {/* Desktop table */}
+        <div className="border border-border rounded-lg overflow-hidden hidden md:block">
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr>
@@ -171,6 +172,47 @@ const AdminProducts = () => {
               })}
             </tbody>
           </table>
+          {filtered.length === 0 && (
+            <div className="p-12 text-center text-muted-foreground">
+              <Package className="w-10 h-10 mx-auto mb-3 opacity-30" />
+              <p>Aucun produit trouvé</p>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-3">
+          {filtered.map((p) => {
+            const productCols = (p.collections || [p.collection]).map(cId => collections.find(c => c.id === cId)).filter(Boolean);
+            return (
+              <div key={p.id} className="border border-border rounded-lg p-3 space-y-3">
+                <div className="flex items-center gap-3">
+                  <img src={p.images[0]} alt={p.name} className="w-14 h-14 rounded object-cover" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{p.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{productCols.map(c => c?.name).join(", ")}</p>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-sm font-medium">{p.price} DH</span>
+                      <span className={`text-xs ${p.stock < 5 ? "text-destructive font-medium" : "text-muted-foreground"}`}>Stock: {p.stock}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Switch checked={p.active} onCheckedChange={() => toggleProductActive(p.id)} />
+                    <span className="text-xs text-muted-foreground">{p.active ? "Actif" : "Inactif"}</span>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil className="w-4 h-4" /></Button>
+                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => {
+                      deleteProduct(p.id);
+                      toast({ title: "Produit supprimé" });
+                    }}><Trash2 className="w-4 h-4" /></Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
           {filtered.length === 0 && (
             <div className="p-12 text-center text-muted-foreground">
               <Package className="w-10 h-10 mx-auto mb-3 opacity-30" />
