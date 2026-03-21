@@ -93,9 +93,14 @@ const AdminProducts = () => {
             <h1 className="font-serif text-2xl text-foreground">Gestion du Catalogue</h1>
             <p className="text-sm text-muted-foreground">{products.length} produits · {collections.length} catégories</p>
           </div>
-          <Button onClick={openNew} className="rounded-none gap-2">
-            <Plus className="w-4 h-4" /> Ajouter un Produit
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setCatDialogOpen(true)} className="rounded-none gap-2">
+              <FolderPlus className="w-4 h-4" /> Ajouter Catégorie
+            </Button>
+            <Button onClick={openNew} className="rounded-none gap-2">
+              <Plus className="w-4 h-4" /> Ajouter Produit
+            </Button>
+          </div>
         </div>
 
         {/* Low stock alert */}
