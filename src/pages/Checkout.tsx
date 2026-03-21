@@ -8,11 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useAddOrder } from "@/hooks/useOrders";
+
+const WHATSAPP_NUMBER = "212652535301";
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { items, getSubtotal, clearCart } = useCart();
+  const addOrder = useAddOrder();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", email: "", phone: "",
@@ -44,14 +48,53 @@ const Checkout = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const buildWhatsAppMessage = (orderNumber: string) => {
+    let msg = `✅ *Nouvelle commande #${orderNumber}*\n\n`;
+    msg += `👤 *Client :* ${formData.firstName} ${formData.lastName}\n`;
+    msg += `📧 ${formData.email}\n`;
+    if (formData.phone) msg += `📞 ${formData.phone}\n`;
+    msg += `\n📍 *Adresse :*\n${formData.address}\n${formData.city}, ${formData.postalCode}\n${formData.country}\n`;
+    msg += `\n🛒 *Articles :*\n`;
+    items.forEach((item) => {
+      msg += `• ${item.product.name} × ${item.quantity} — ${(item.product.price * item.quantity).toLocaleString()} DH\n`;
+    });
+    msg += `\n💰 Sous-total : ${subtotal.toLocaleString()} DH`;
+    msg += `\n🚚 Livraison : ${shipping === 0 ? "Offerte" : `${shipping} DH`}`;
+    msg += `\n*🧾 Total : ${total.toLocaleString()} DH*`;
+    if (formData.notes) msg += `\n\n📝 Notes : ${formData.notes}`;
+    return msg;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    toast({ title: "Commande envoyée", description: "Merci ! Nous vous contacterons pour finaliser votre commande." });
-    clearCart();
-    setIsSubmitting(false);
-    navigate("/");
+    try {
+      const orderNumber = `CMD-${Date.now().toString(36).toUpperCase()}`;
+      await addOrder.mutateAsync({
+        order_number: orderNumber,
+        total,
+        total_cost: items.reduce((sum, i) => sum + (i.product.costPrice || 0) * i.quantity, 0),
+        items: items.map((i) => ({
+          product_id: i.product.id,
+          product_name: i.product.name,
+          quantity: i.quantity,
+          unit_price: i.product.price,
+          cost_price: i.product.costPrice || 0,
+        })),
+      });
+
+      const waMsg = encodeURIComponent(buildWhatsAppMessage(orderNumber));
+      const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMsg}`;
+
+      toast({ title: "Commande enregistrée !", description: "Vous allez être redirigé vers WhatsApp pour confirmer." });
+      clearCart();
+      window.open(waUrl, "_blank");
+      navigate("/");
+    } catch {
+      toast({ title: "Erreur", description: "Impossible d'enregistrer la commande.", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
