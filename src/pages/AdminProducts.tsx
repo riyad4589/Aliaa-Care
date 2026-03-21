@@ -22,9 +22,6 @@ const AdminProducts = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   
   const [editingProduct, setEditingProduct] = useState<Partial<AdminProduct> | null>(null);
-  const [newCatName, setNewCatName] = useState("");
-  const [newCatDesc, setNewCatDesc] = useState("");
-  const [newCatImage, setNewCatImage] = useState("");
   const [search, setSearch] = useState("");
   const [filterCollection, setFilterCollection] = useState("all");
 
