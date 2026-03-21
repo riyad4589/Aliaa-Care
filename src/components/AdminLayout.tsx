@@ -11,7 +11,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <SidebarTrigger />
             <span className="font-serif text-lg text-foreground">ALIAA Admin</span>
           </header>
-          <main className="flex-1 p-6 overflow-auto">{children}</main>
+          <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto max-w-full">
+            <div className="overflow-x-auto">{children}</div>
+          </main>
         </div>
       </div>
     </SidebarProvider>
