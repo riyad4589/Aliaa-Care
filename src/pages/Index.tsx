@@ -25,6 +25,12 @@ const Index = () => {
 
   return (
     <Layout>
+      {/* Banner */}
+      {banner.enabled && (
+        <div className="bg-primary text-primary-foreground text-center py-2.5 text-sm tracking-wide">
+          {banner.message}
+        </div>
+      )}
       {/* Hero Section */}
       <section ref={heroRef} className="relative h-[100svh] -mt-16 md:-mt-20 overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: heroImageY }}>
