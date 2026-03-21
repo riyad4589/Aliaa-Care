@@ -219,29 +219,6 @@ const AdminProducts = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Category Dialog */}
-      <Dialog open={catDialogOpen} onOpenChange={setCatDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-serif">Ajouter une Catégorie</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Nom *</label>
-              <Input value={newCatName} onChange={(e) => setNewCatName(e.target.value)} placeholder="Ex: Huiles essentielles" />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Description</label>
-              <Textarea value={newCatDesc} onChange={(e) => setNewCatDesc(e.target.value)} placeholder="Description de la catégorie..." rows={2} />
-            </div>
-            <div>
-              <label className="text-sm font-medium">URL image</label>
-              <Input value={newCatImage} onChange={(e) => setNewCatImage(e.target.value)} placeholder="https://..." />
-            </div>
-            <Button onClick={handleAddCategory} className="w-full rounded-none">Ajouter</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </AdminLayout>
   );
 };
