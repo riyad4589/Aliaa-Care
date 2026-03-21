@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, AlertTriangle, Package } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertTriangle, Package, FolderPlus } from "lucide-react";
 
 const emptyProduct: Partial<AdminProduct> = {
   name: "", slug: "", collection: "", price: 0, description: "", longDescription: "",
