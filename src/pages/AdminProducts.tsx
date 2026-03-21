@@ -1,0 +1,223 @@
+import { useState } from "react";
+import { AdminLayout } from "@/components/AdminLayout";
+import { useAdminStore, AdminProduct } from "@/hooks/useAdminStore";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { Plus, Pencil, Trash2, AlertTriangle, Package } from "lucide-react";
+
+const emptyProduct: Partial<AdminProduct> = {
+  name: "", slug: "", collection: "", price: 0, description: "", longDescription: "",
+  materials: "", dimensions: "", images: [""], stock: 10, active: true, visible: true, costPrice: 0,
+};
+
+const AdminProducts = () => {
+  const { products, collections, addProduct, updateProduct, deleteProduct, toggleProductActive, getLowStockProducts } = useAdminStore();
+  const { toast } = useToast();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Partial<AdminProduct> | null>(null);
+  const [search, setSearch] = useState("");
+  const [filterCollection, setFilterCollection] = useState("all");
+
+  const lowStock = getLowStockProducts();
+
+  const filtered = products.filter((p) => {
+    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
+    const matchCol = filterCollection === "all" || p.collection === filterCollection;
+    return matchSearch && matchCol;
+  });
+
+  const handleSave = () => {
+    if (!editingProduct?.name || !editingProduct?.collection || !editingProduct?.price) {
+      toast({ title: "Erreur", description: "Remplissez les champs obligatoires", variant: "destructive" });
+      return;
+    }
+    const slug = editingProduct.slug || editingProduct.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    
+    if (editingProduct.id) {
+      updateProduct(editingProduct.id, { ...editingProduct, slug } as Partial<AdminProduct>);
+      toast({ title: "Produit mis à jour" });
+    } else {
+      const newProduct: AdminProduct = {
+        ...emptyProduct,
+        ...editingProduct,
+        id: `prod-${Date.now()}`,
+        slug,
+        images: editingProduct.images?.filter(Boolean).length ? editingProduct.images.filter(Boolean) : ["/placeholder.svg"],
+      } as AdminProduct;
+      addProduct(newProduct);
+      toast({ title: "Produit ajouté" });
+    }
+    setDialogOpen(false);
+    setEditingProduct(null);
+  };
+
+  const openNew = () => { setEditingProduct({ ...emptyProduct }); setDialogOpen(true); };
+  const openEdit = (p: AdminProduct) => { setEditingProduct({ ...p }); setDialogOpen(true); };
+
+  return (
+    <AdminLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="font-serif text-2xl text-foreground">Gestion du Catalogue</h1>
+            <p className="text-sm text-muted-foreground">{products.length} produits · {collections.length} catégories</p>
+          </div>
+          <Button onClick={openNew} className="rounded-none gap-2">
+            <Plus className="w-4 h-4" /> Ajouter un Produit
+          </Button>
+        </div>
+
+        {/* Low stock alert */}
+        {lowStock.length > 0 && (
+          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-destructive text-sm">Stock faible !</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {lowStock.map((p) => `${p.name} (${p.stock})`).join(", ")}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Filters */}
+        <div className="flex gap-3">
+          <Input placeholder="Rechercher..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
+          <Select value={filterCollection} onValueChange={setFilterCollection}>
+            <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toutes catégories</SelectItem>
+              {collections.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Products table */}
+        <div className="border border-border rounded-lg overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50">
+              <tr>
+                <th className="text-left p-3 font-medium">Produit</th>
+                <th className="text-left p-3 font-medium">Catégorie</th>
+                <th className="text-right p-3 font-medium">Prix</th>
+                <th className="text-right p-3 font-medium">Stock</th>
+                <th className="text-center p-3 font-medium">Actif</th>
+                <th className="text-right p-3 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((p) => {
+                const col = collections.find((c) => c.id === p.collection);
+                return (
+                  <tr key={p.id} className="border-t border-border hover:bg-muted/20">
+                    <td className="p-3 flex items-center gap-3">
+                      <img src={p.images[0]} alt={p.name} className="w-10 h-10 rounded object-cover" />
+                      <div>
+                        <p className="font-medium">{p.name}</p>
+                        {p.stock < 5 && p.active && (
+                          <Badge variant="destructive" className="text-[10px] mt-0.5">Stock faible</Badge>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-3 text-muted-foreground">{col?.name}</td>
+                    <td className="p-3 text-right">{p.price} €</td>
+                    <td className="p-3 text-right">
+                      <span className={p.stock < 5 ? "text-destructive font-medium" : ""}>{p.stock}</span>
+                    </td>
+                    <td className="p-3 text-center">
+                      <Switch checked={p.active} onCheckedChange={() => toggleProductActive(p.id)} />
+                    </td>
+                    <td className="p-3 text-right space-x-1">
+                      <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil className="w-4 h-4" /></Button>
+                      <Button size="icon" variant="ghost" className="text-destructive" onClick={() => {
+                        deleteProduct(p.id);
+                        toast({ title: "Produit supprimé" });
+                      }}><Trash2 className="w-4 h-4" /></Button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {filtered.length === 0 && (
+            <div className="p-12 text-center text-muted-foreground">
+              <Package className="w-10 h-10 mx-auto mb-3 opacity-30" />
+              <p>Aucun produit trouvé</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Product Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-serif">{editingProduct?.id ? "Modifier" : "Ajouter"} un Produit</DialogTitle>
+          </DialogHeader>
+          {editingProduct && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Nom *</label>
+                <Input value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Catégorie *</label>
+                <Select value={editingProduct.collection} onValueChange={(v) => setEditingProduct({ ...editingProduct, collection: v })}>
+                  <SelectTrigger><SelectValue placeholder="Choisir..." /></SelectTrigger>
+                  <SelectContent>
+                    {collections.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium">Prix (€) *</label>
+                  <Input type="number" value={editingProduct.price} onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })} />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Coût (€)</label>
+                  <Input type="number" value={editingProduct.costPrice} onChange={(e) => setEditingProduct({ ...editingProduct, costPrice: Number(e.target.value) })} />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Stock</label>
+                <Input type="number" value={editingProduct.stock} onChange={(e) => setEditingProduct({ ...editingProduct, stock: Number(e.target.value) })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Description courte</label>
+                <Textarea value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} rows={2} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Description longue</label>
+                <Textarea value={editingProduct.longDescription} onChange={(e) => setEditingProduct({ ...editingProduct, longDescription: e.target.value })} rows={3} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">URL image principale</label>
+                <Input value={editingProduct.images?.[0] || ""} onChange={(e) => setEditingProduct({ ...editingProduct, images: [e.target.value, ...(editingProduct.images?.slice(1) || [])] })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Matériaux</label>
+                <Input value={editingProduct.materials} onChange={(e) => setEditingProduct({ ...editingProduct, materials: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Dimensions / Poids</label>
+                <Input value={editingProduct.dimensions} onChange={(e) => setEditingProduct({ ...editingProduct, dimensions: e.target.value })} />
+              </div>
+              <Button onClick={handleSave} className="w-full rounded-none">
+                {editingProduct.id ? "Enregistrer" : "Ajouter"}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </AdminLayout>
+  );
+};
+
+export default AdminProducts;
