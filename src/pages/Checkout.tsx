@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAddOrder } from "@/hooks/useOrders";
 
-const WHATSAPP_NUMBER = "212652535301";
+
 
 const Checkout = () => {
   const navigate = useNavigate();
