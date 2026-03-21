@@ -14,7 +14,235 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      banner_settings: {
+        Row: {
+          enabled: boolean
+          id: string
+          message: string
+        }
+        Insert: {
+          enabled?: boolean
+          id?: string
+          message?: string
+        }
+        Update: {
+          enabled?: boolean
+          id?: string
+          message?: string
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          image: string | null
+          name: string
+          slug: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          name: string
+          slug: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          cost_price: number
+          id: string
+          order_id: string
+          product_id: string | null
+          product_name: string
+          quantity: number
+          unit_price: number
+        }
+        Insert: {
+          cost_price?: number
+          id?: string
+          order_id: string
+          product_id?: string | null
+          product_name: string
+          quantity?: number
+          unit_price?: number
+        }
+        Update: {
+          cost_price?: number
+          id?: string
+          order_id?: string
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          id: string
+          order_number: string
+          total: number
+          total_cost: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_number: string
+          total?: number
+          total_cost?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_number?: string
+          total?: number
+          total_cost?: number
+        }
+        Relationships: []
+      }
+      product_categories: {
+        Row: {
+          category_id: string
+          id: string
+          product_id: string
+        }
+        Insert: {
+          category_id: string
+          id?: string
+          product_id: string
+        }
+        Update: {
+          category_id?: string
+          id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_categories_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_images: {
+        Row: {
+          id: string
+          image_url: string
+          position: number
+          product_id: string
+        }
+        Insert: {
+          id?: string
+          image_url: string
+          position?: number
+          product_id: string
+        }
+        Update: {
+          id?: string
+          image_url?: string
+          position?: number
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_images_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          active: boolean
+          cost_price: number | null
+          created_at: string
+          description: string | null
+          featured: boolean | null
+          id: string
+          is_new: boolean | null
+          long_description: string | null
+          materials: string | null
+          name: string
+          price: number
+          slug: string
+          stock: number
+          updated_at: string
+          visible: boolean
+          weight: number | null
+        }
+        Insert: {
+          active?: boolean
+          cost_price?: number | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          is_new?: boolean | null
+          long_description?: string | null
+          materials?: string | null
+          name: string
+          price?: number
+          slug: string
+          stock?: number
+          updated_at?: string
+          visible?: boolean
+          weight?: number | null
+        }
+        Update: {
+          active?: boolean
+          cost_price?: number | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          is_new?: boolean | null
+          long_description?: string | null
+          materials?: string | null
+          name?: string
+          price?: number
+          slug?: string
+          stock?: number
+          updated_at?: string
+          visible?: boolean
+          weight?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
