@@ -17,7 +17,7 @@ const emptyProduct: Partial<AdminProduct> = {
 };
 
 const AdminProducts = () => {
-  const { products, collections, addProduct, updateProduct, deleteProduct, toggleProductActive, getLowStockProducts, addCollection, deleteCollection } = useAdminStore();
+  const { products, collections, addProduct, updateProduct, deleteProduct, toggleProductActive, getLowStockProducts } = useAdminStore();
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [catDialogOpen, setCatDialogOpen] = useState(false);
