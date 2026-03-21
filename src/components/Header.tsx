@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Heart, Menu, X } from "lucide-react";
+import { Heart, Menu, X, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "@/hooks/useWishlist";
@@ -148,6 +148,17 @@ export const Header = () => {
             </Tooltip>
 
             <CartIcon />
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link to="/admin/products" className="p-2 hover:bg-accent transition-colors duration-300 group">
+                  <Settings className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <p className="text-sm">Administration</p>
+              </TooltipContent>
+            </Tooltip>
 
             <button
               className="md:hidden p-2 hover:bg-accent transition-colors duration-300"
