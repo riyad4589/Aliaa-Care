@@ -64,6 +64,27 @@ const AdminProducts = () => {
   const openNew = () => { setEditingProduct({ ...emptyProduct }); setDialogOpen(true); };
   const openEdit = (p: AdminProduct) => { setEditingProduct({ ...p }); setDialogOpen(true); };
 
+  const handleAddCategory = () => {
+    if (!newCatName.trim()) {
+      toast({ title: "Erreur", description: "Le nom est obligatoire", variant: "destructive" });
+      return;
+    }
+    const slug = newCatName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    addCollection({
+      id: slug,
+      name: newCatName,
+      slug,
+      description: newCatDesc,
+      image: newCatImage || "/placeholder.svg",
+      active: true,
+    });
+    toast({ title: "Catégorie ajoutée" });
+    setNewCatName("");
+    setNewCatDesc("");
+    setNewCatImage("");
+    setCatDialogOpen(false);
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
