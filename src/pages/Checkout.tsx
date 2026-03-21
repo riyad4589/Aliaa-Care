@@ -48,22 +48,6 @@ const Checkout = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const buildWhatsAppMessage = (orderNumber: string) => {
-    let msg = `✅ *Nouvelle commande #${orderNumber}*\n\n`;
-    msg += `👤 *Client :* ${formData.firstName} ${formData.lastName}\n`;
-    msg += `📧 ${formData.email}\n`;
-    if (formData.phone) msg += `📞 ${formData.phone}\n`;
-    msg += `\n📍 *Adresse :*\n${formData.address}\n${formData.city}, ${formData.postalCode}\n${formData.country}\n`;
-    msg += `\n🛒 *Articles :*\n`;
-    items.forEach((item) => {
-      msg += `• ${item.product.name} × ${item.quantity} — ${(item.product.price * item.quantity).toLocaleString()} DH\n`;
-    });
-    msg += `\n💰 Sous-total : ${subtotal.toLocaleString()} DH`;
-    msg += `\n🚚 Livraison : ${shipping === 0 ? "Offerte" : `${shipping} DH`}`;
-    msg += `\n*🧾 Total : ${total.toLocaleString()} DH*`;
-    if (formData.notes) msg += `\n\n📝 Notes : ${formData.notes}`;
-    return msg;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
