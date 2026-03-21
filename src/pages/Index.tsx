@@ -221,18 +221,26 @@ const Index = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+            {displayedCollections[0] && (
             <div className="md:col-span-7">
               <CollectionCard collection={displayedCollections[0]} index={0} variant="wide" />
             </div>
+            )}
+            {displayedCollections[1] && (
             <div className="md:col-span-5">
               <CollectionCard collection={displayedCollections[1]} index={1} />
             </div>
+            )}
+            {displayedCollections[2] && (
             <div className="md:col-span-6">
               <CollectionCard collection={displayedCollections[2]} index={2} />
             </div>
+            )}
+            {displayedCollections[3] && (
             <div className="md:col-span-6">
               <CollectionCard collection={displayedCollections[3]} index={3} />
             </div>
+            )}
           </div>
         </div>
       </section>
