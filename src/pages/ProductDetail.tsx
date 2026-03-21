@@ -5,7 +5,7 @@ import { Heart, ChevronLeft, ChevronRight, ArrowRight, ShoppingBag } from "lucid
 import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
 import { QuantitySelector } from "@/components/QuantitySelector";
-import { getProductBySlug, getRelatedProducts, collections } from "@/data/products";
+import { useClientProducts } from "@/hooks/useClientProducts";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { getProductBySlug, getRelatedProducts, collections } = useClientProducts();
   const product = getProductBySlug(slug || "");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);

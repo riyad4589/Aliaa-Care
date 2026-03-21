@@ -5,11 +5,12 @@ import { useRef } from "react";
 import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
 import { CollectionCard } from "@/components/CollectionCard";
-import { collections, products, getFeaturedProducts } from "@/data/products";
+import { useClientProducts } from "@/hooks/useClientProducts";
 import { Button } from "@/components/ui/button";
 import coffretImg from "@/assets/coffret-aliaa.jpeg";
 
 const Index = () => {
+  const { products, collections, getFeaturedProducts, banner } = useClientProducts();
   const featuredProducts = getFeaturedProducts();
   const latestProducts = products.slice(0, 4);
   const displayedCollections = collections.slice(0, 4);
