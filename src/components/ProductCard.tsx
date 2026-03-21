@@ -38,7 +38,6 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
       className="group"
     >
       <Link to={`/product/${product.slug}`} className="block">
-        {/* Image Container */}
         <div
           className={cn(
             "relative overflow-hidden bg-muted/50 mb-5 rounded-lg",
@@ -66,7 +65,6 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
 
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
-          {/* Wishlist button */}
           <button
             onClick={handleWishlistToggle}
             className={cn(
@@ -84,7 +82,6 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
             />
           </button>
 
-          {/* Badges */}
           <div className="absolute top-5 left-5 flex flex-col gap-2">
             {product.new && (
               <motion.span
@@ -108,7 +105,6 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
             )}
           </div>
 
-          {/* Quick View */}
           <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center pb-6 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100">
             <span className="px-6 py-2.5 text-xs font-medium tracking-[0.15em] uppercase bg-background/95 backdrop-blur-md text-foreground shadow-lg rounded-sm">
               Voir le Produit
@@ -116,7 +112,6 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
           </div>
         </div>
 
-        {/* Product Info */}
         <div className="space-y-2">
           {collection && (
             <p className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground/70 transition-colors duration-300 group-hover:text-primary">
@@ -134,13 +129,13 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
 
           <div className="flex items-center gap-3 pt-1">
             <p className="text-base font-medium text-foreground tracking-wide">
-              {product.price.toLocaleString()} €
+              {product.price.toLocaleString()} DH
             </p>
-            {product.dimensions && (
+            {product.weight && (
               <>
                 <span className="w-px h-3 bg-border" />
                 <p className="text-xs text-muted-foreground/60 tracking-wide">
-                  {product.dimensions}
+                  Poids net : {product.weight} g
                 </p>
               </>
             )}

@@ -15,7 +15,7 @@ const AdminCategories = () => {
   const [editing, setEditing] = useState<Partial<AdminCollection> | null>(null);
 
   const openNew = () => {
-    setEditing({ name: "", description: "", image: "", slug: "", active: true });
+    setEditing({ name: "", description: "", slug: "", active: true, image: "" });
     setDialogOpen(true);
   };
 
@@ -40,7 +40,7 @@ const AdminCategories = () => {
         name: editing.name,
         slug,
         description: editing.description || "",
-        image: editing.image || "/placeholder.svg",
+        image: "/placeholder.svg",
         active: true,
       });
       toast({ title: "Catégorie ajoutée" });
@@ -49,7 +49,7 @@ const AdminCategories = () => {
     setEditing(null);
   };
 
-  const productCount = (colId: string) => products.filter((p) => p.collection === colId).length;
+  const productCount = (colId: string) => products.filter((p) => p.collection === colId || (p.collections && p.collections.includes(colId))).length;
 
   return (
     <AdminLayout>
@@ -68,7 +68,6 @@ const AdminCategories = () => {
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr>
-                <th className="text-left p-3 font-medium">Image</th>
                 <th className="text-left p-3 font-medium">Nom</th>
                 <th className="text-left p-3 font-medium">Description</th>
                 <th className="text-right p-3 font-medium">Produits</th>
@@ -78,9 +77,6 @@ const AdminCategories = () => {
             <tbody>
               {collections.map((c) => (
                 <tr key={c.id} className="border-t border-border hover:bg-muted/20">
-                  <td className="p-3">
-                    <img src={c.image} alt={c.name} className="w-10 h-10 rounded object-cover" />
-                  </td>
                   <td className="p-3 font-medium">{c.name}</td>
                   <td className="p-3 text-muted-foreground max-w-xs truncate">{c.description}</td>
                   <td className="p-3 text-right">{productCount(c.id)}</td>
@@ -88,15 +84,7 @@ const AdminCategories = () => {
                     <Button size="icon" variant="ghost" onClick={() => openEdit(c)}>
                       <Pencil className="w-4 h-4" />
                     </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="text-destructive"
-                      onClick={() => {
-                        deleteCollection(c.id);
-                        toast({ title: "Catégorie supprimée" });
-                      }}
-                    >
+                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => { deleteCollection(c.id); toast({ title: "Catégorie supprimée" }); }}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </td>
@@ -127,10 +115,6 @@ const AdminCategories = () => {
               <div>
                 <label className="text-sm font-medium">Description</label>
                 <Textarea value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} rows={2} />
-              </div>
-              <div>
-                <label className="text-sm font-medium">URL image</label>
-                <Input value={editing.image} onChange={(e) => setEditing({ ...editing, image: e.target.value })} placeholder="https://..." />
               </div>
               <Button onClick={handleSave} className="w-full rounded-none">
                 {editing.id ? "Enregistrer" : "Ajouter"}

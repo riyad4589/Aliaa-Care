@@ -125,10 +125,10 @@ const ProductDetail = () => {
               </div>
 
               {product.images.length > 1 && (
-                <div className="flex gap-3">
+                <div className="flex gap-3 overflow-x-auto pb-2">
                   {product.images.map((image, index) => (
                     <button key={index} onClick={() => setCurrentImageIndex(index)}
-                      className={cn("w-24 h-24 overflow-hidden rounded-lg transition-all duration-300",
+                      className={cn("w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300",
                         index === currentImageIndex ? "ring-2 ring-foreground ring-offset-2 ring-offset-background" : "opacity-60 hover:opacity-100")}>
                       <img src={image} alt={`${product.name} vue ${index + 1}`} className="w-full h-full object-cover" />
                     </button>
@@ -152,7 +152,7 @@ const ProductDetail = () => {
               )}
 
               <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground mb-5 leading-[1.05]">{product.name}</h1>
-              <p className="text-2xl font-serif text-foreground mb-8">{product.price.toLocaleString()} €</p>
+              <p className="text-2xl font-serif text-foreground mb-8">{product.price.toLocaleString()} DH</p>
               <div className="w-12 h-px bg-border mb-8" />
               <p className="text-muted-foreground leading-[1.8] mb-10">{product.longDescription}</p>
 
@@ -161,10 +161,10 @@ const ProductDetail = () => {
                   <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-1.5">Ingrédients</span>
                   <span className="text-sm text-foreground">{product.materials}</span>
                 </div>
-                {product.dimensions && (
+                {product.weight && (
                   <div>
-                    <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-1.5">Contenance</span>
-                    <span className="text-sm text-foreground">{product.dimensions}</span>
+                    <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-1.5">Poids net</span>
+                    <span className="text-sm text-foreground">Poids net : {product.weight} g</span>
                   </div>
                 )}
               </div>
@@ -188,7 +188,7 @@ const ProductDetail = () => {
               <div className="mt-10 pt-8 border-t border-border grid grid-cols-2 gap-6">
                 <div>
                   <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">Livraison</p>
-                  <p className="text-xs text-muted-foreground">Livraison offerte dès 50€</p>
+                  <p className="text-xs text-muted-foreground">Livraison offerte dès 500 DH</p>
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">Retours</p>
