@@ -14,6 +14,7 @@ import Wishlist from "./pages/Wishlist";
 import AdminProducts from "./pages/AdminProducts";
 import AdminDisplay from "./pages/AdminDisplay";
 import AdminFinances from "./pages/AdminFinances";
+import AdminCategories from "./pages/AdminCategories";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
