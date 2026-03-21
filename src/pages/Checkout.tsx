@@ -73,13 +73,13 @@ const Checkout = () => {
       await addOrder.mutateAsync({
         order_number: orderNumber,
         total,
-        total_cost: items.reduce((sum, i) => sum + (i.product.costPrice || 0) * i.quantity, 0),
+        total_cost: 0,
         items: items.map((i) => ({
           product_id: i.product.id,
           product_name: i.product.name,
           quantity: i.quantity,
           unit_price: i.product.price,
-          cost_price: i.product.costPrice || 0,
+          cost_price: 0,
         })),
       });
 
