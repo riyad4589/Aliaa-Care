@@ -20,7 +20,7 @@ const AdminProducts = () => {
   const { products, collections, addProduct, updateProduct, deleteProduct, toggleProductActive, getLowStockProducts } = useAdminStore();
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [catDialogOpen, setCatDialogOpen] = useState(false);
+  
   const [editingProduct, setEditingProduct] = useState<Partial<AdminProduct> | null>(null);
   const [newCatName, setNewCatName] = useState("");
   const [newCatDesc, setNewCatDesc] = useState("");
