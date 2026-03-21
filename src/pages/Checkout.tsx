@@ -67,12 +67,8 @@ const Checkout = () => {
         })),
       });
 
-      const waMsg = encodeURIComponent(buildWhatsAppMessage(orderNumber));
-      const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMsg}`;
-
-      toast({ title: "Commande enregistrée !", description: "Vous allez être redirigé vers WhatsApp pour confirmer." });
+      toast({ title: "Commande enregistrée !", description: "Votre commande a bien été enregistrée." });
       clearCart();
-      window.open(waUrl, "_blank");
       navigate("/");
     } catch {
       toast({ title: "Erreur", description: "Impossible d'enregistrer la commande.", variant: "destructive" });
