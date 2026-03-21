@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
-import { useAdminStore, AdminProduct } from "@/hooks/useAdminStore";
+import { useProducts, useAddProduct, useUpdateProduct, useDeleteProduct, useToggleProductActive, uploadProductImage, DbProduct } from "@/hooks/useProducts";
+import { useCategories } from "@/hooks/useCategories";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -9,90 +10,186 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, AlertTriangle, Package, Upload, X } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertTriangle, Package, Upload, X, Loader2 } from "lucide-react";
 
-const emptyProduct: Partial<AdminProduct> = {
-  name: "", slug: "", collection: "", collections: [], price: 0, description: "", longDescription: "",
+interface EditingProduct {
+  id?: string;
+  name: string;
+  slug: string;
+  price: number;
+  description: string;
+  long_description: string;
+  materials: string;
+  weight?: number;
+  stock: number;
+  active: boolean;
+  visible: boolean;
+  featured: boolean;
+  is_new: boolean;
+  images: string[];
+  category_ids: string[];
+}
+
+const emptyProduct: EditingProduct = {
+  name: "", slug: "", price: 0, description: "", long_description: "",
   materials: "", weight: undefined, images: [], stock: 10, active: true, visible: true,
+  featured: false, is_new: false, category_ids: [],
 };
 
 const AdminProducts = () => {
-  const { products, collections, addProduct, updateProduct, deleteProduct, toggleProductActive, getLowStockProducts } = useAdminStore();
+  const { data: products = [], isLoading } = useProducts();
+  const { data: categories = [] } = useCategories();
+  const addProduct = useAddProduct();
+  const updateProduct = useUpdateProduct();
+  const deleteProduct = useDeleteProduct();
+  const toggleActive = useToggleProductActive();
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Partial<AdminProduct> | null>(null);
+  const [editingProduct, setEditingProduct] = useState<EditingProduct | null>(null);
   const [search, setSearch] = useState("");
-  const [filterCollection, setFilterCollection] = useState("all");
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const lowStock = getLowStockProducts();
+  const lowStock = products.filter((p) => p.stock < 5 && p.active);
 
-  const filtered = products.filter((p) => {
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
-    const matchCol = filterCollection === "all" || p.collection === filterCollection || (p.collections && p.collections.includes(filterCollection));
-    return matchSearch && matchCol;
-  });
+  const filtered = products.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  );
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || !editingProduct) return;
-    const newImages = [...(editingProduct.images || [])];
-    Array.from(files).forEach((file) => {
-      const url = URL.createObjectURL(file);
-      newImages.push(url);
-    });
-    setEditingProduct({ ...editingProduct, images: newImages });
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    setUploading(true);
+    try {
+      const newImages = [...editingProduct.images];
+      for (const file of Array.from(files)) {
+        const url = await uploadProductImage(file);
+        newImages.push(url);
+      }
+      setEditingProduct({ ...editingProduct, images: newImages });
+    } catch (err) {
+      toast({ title: "Erreur upload", description: "Impossible d'uploader l'image", variant: "destructive" });
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const removeImage = (index: number) => {
     if (!editingProduct) return;
-    const newImages = [...(editingProduct.images || [])];
+    const newImages = [...editingProduct.images];
     newImages.splice(index, 1);
     setEditingProduct({ ...editingProduct, images: newImages });
   };
 
-  const toggleCollection = (colId: string) => {
+  const toggleCategory = (catId: string) => {
     if (!editingProduct) return;
-    const current = editingProduct.collections || [];
-    const updated = current.includes(colId)
-      ? current.filter((c) => c !== colId)
-      : [...current, colId];
-    setEditingProduct({
-      ...editingProduct,
-      collections: updated,
-      collection: updated[0] || "",
-    });
+    const current = editingProduct.category_ids;
+    const updated = current.includes(catId)
+      ? current.filter((c) => c !== catId)
+      : [...current, catId];
+    setEditingProduct({ ...editingProduct, category_ids: updated });
   };
 
-  const handleSave = () => {
-    if (!editingProduct?.name || !(editingProduct.collections && editingProduct.collections.length > 0) || !editingProduct?.price) {
+  const handleSave = async () => {
+    if (!editingProduct?.name || editingProduct.category_ids.length === 0 || !editingProduct.price) {
       toast({ title: "Erreur", description: "Remplissez les champs obligatoires (nom, catégorie, prix)", variant: "destructive" });
       return;
     }
+    setSaving(true);
     const slug = editingProduct.slug || editingProduct.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-    
-    if (editingProduct.id) {
-      updateProduct(editingProduct.id, { ...editingProduct, slug, collection: editingProduct.collections[0] } as Partial<AdminProduct>);
-      toast({ title: "Produit mis à jour" });
-    } else {
-      const newProduct: AdminProduct = {
-        ...emptyProduct,
-        ...editingProduct,
-        id: `prod-${Date.now()}`,
-        slug,
-        collection: editingProduct.collections[0],
-        images: editingProduct.images?.length ? editingProduct.images : ["/placeholder.svg"],
-      } as AdminProduct;
-      addProduct(newProduct);
-      toast({ title: "Produit ajouté" });
+
+    try {
+      if (editingProduct.id) {
+        await updateProduct.mutateAsync({
+          id: editingProduct.id,
+          updates: {
+            name: editingProduct.name,
+            slug,
+            price: editingProduct.price,
+            description: editingProduct.description,
+            long_description: editingProduct.long_description,
+            materials: editingProduct.materials,
+            weight: editingProduct.weight || null,
+            stock: editingProduct.stock,
+            active: editingProduct.active,
+            visible: editingProduct.visible,
+            featured: editingProduct.featured,
+            is_new: editingProduct.is_new,
+          },
+          images: editingProduct.images,
+          category_ids: editingProduct.category_ids,
+        });
+        toast({ title: "Produit mis à jour" });
+      } else {
+        await addProduct.mutateAsync({
+          name: editingProduct.name,
+          slug,
+          price: editingProduct.price,
+          description: editingProduct.description,
+          long_description: editingProduct.long_description,
+          materials: editingProduct.materials,
+          weight: editingProduct.weight,
+          stock: editingProduct.stock,
+          active: editingProduct.active,
+          visible: editingProduct.visible,
+          featured: editingProduct.featured,
+          is_new: editingProduct.is_new,
+          images: editingProduct.images.length > 0 ? editingProduct.images : ["/placeholder.svg"],
+          category_ids: editingProduct.category_ids,
+        });
+        toast({ title: "Produit ajouté" });
+      }
+      setDialogOpen(false);
+      setEditingProduct(null);
+    } catch (err) {
+      toast({ title: "Erreur", description: "Impossible de sauvegarder", variant: "destructive" });
+    } finally {
+      setSaving(false);
     }
-    setDialogOpen(false);
-    setEditingProduct(null);
   };
 
   const openNew = () => { setEditingProduct({ ...emptyProduct }); setDialogOpen(true); };
-  const openEdit = (p: AdminProduct) => { setEditingProduct({ ...p, collections: p.collections || [p.collection] }); setDialogOpen(true); };
+  const openEdit = (p: DbProduct) => {
+    setEditingProduct({
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      price: p.price,
+      description: p.description || "",
+      long_description: p.long_description || "",
+      materials: p.materials || "",
+      weight: p.weight ?? undefined,
+      stock: p.stock,
+      active: p.active,
+      visible: p.visible,
+      featured: p.featured ?? false,
+      is_new: p.is_new ?? false,
+      images: p.images,
+      category_ids: p.category_ids,
+    });
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    await deleteProduct.mutateAsync(id);
+    toast({ title: "Produit supprimé" });
+  };
+
+  const handleToggleActive = (id: string, current: boolean) => {
+    toggleActive.mutate({ id, active: !current });
+  };
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -100,7 +197,7 @@ const AdminProducts = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h1 className="font-serif text-xl sm:text-2xl text-foreground">Gestion du Catalogue</h1>
-            <p className="text-sm text-muted-foreground">{products.length} produits · {collections.length} catégories</p>
+            <p className="text-sm text-muted-foreground">{products.length} produits · {categories.length} catégories</p>
           </div>
           <Button onClick={openNew} className="rounded-none gap-2 w-full sm:w-auto">
             <Plus className="w-4 h-4" /> Ajouter Produit
@@ -138,11 +235,11 @@ const AdminProducts = () => {
             </thead>
             <tbody>
               {filtered.map((p) => {
-                const productCols = (p.collections || [p.collection]).map(cId => collections.find(c => c.id === cId)).filter(Boolean);
+                const productCats = p.category_ids.map((cid) => categories.find((c) => c.id === cid)).filter(Boolean);
                 return (
                   <tr key={p.id} className="border-t border-border hover:bg-muted/20">
                     <td className="p-3 flex items-center gap-3">
-                      <img src={p.images[0]} alt={p.name} className="w-10 h-10 rounded object-cover" />
+                      <img src={p.images[0] || "/placeholder.svg"} alt={p.name} className="w-10 h-10 rounded object-cover" />
                       <div>
                         <p className="font-medium">{p.name}</p>
                         {p.stock < 5 && p.active && (
@@ -151,21 +248,20 @@ const AdminProducts = () => {
                       </div>
                     </td>
                     <td className="p-3 text-muted-foreground">
-                      {productCols.map(c => c?.name).join(", ")}
+                      {productCats.map((c) => c?.name).join(", ")}
                     </td>
                     <td className="p-3 text-right">{p.price} DH</td>
                     <td className="p-3 text-right">
                       <span className={p.stock < 5 ? "text-destructive font-medium" : ""}>{p.stock}</span>
                     </td>
                     <td className="p-3 text-center">
-                      <Switch checked={p.active} onCheckedChange={() => toggleProductActive(p.id)} />
+                      <Switch checked={p.active} onCheckedChange={() => handleToggleActive(p.id, p.active)} />
                     </td>
                     <td className="p-3 text-right space-x-1">
                       <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil className="w-4 h-4" /></Button>
-                      <Button size="icon" variant="ghost" className="text-destructive" onClick={() => {
-                        deleteProduct(p.id);
-                        toast({ title: "Produit supprimé" });
-                      }}><Trash2 className="w-4 h-4" /></Button>
+                      <Button size="icon" variant="ghost" className="text-destructive" onClick={() => handleDelete(p.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </td>
                   </tr>
                 );
@@ -183,14 +279,14 @@ const AdminProducts = () => {
         {/* Mobile cards */}
         <div className="md:hidden space-y-3">
           {filtered.map((p) => {
-            const productCols = (p.collections || [p.collection]).map(cId => collections.find(c => c.id === cId)).filter(Boolean);
+            const productCats = p.category_ids.map((cid) => categories.find((c) => c.id === cid)).filter(Boolean);
             return (
               <div key={p.id} className="border border-border rounded-lg p-3 space-y-3">
                 <div className="flex items-center gap-3">
-                  <img src={p.images[0]} alt={p.name} className="w-14 h-14 rounded object-cover" />
+                  <img src={p.images[0] || "/placeholder.svg"} alt={p.name} className="w-14 h-14 rounded object-cover" />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">{p.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{productCols.map(c => c?.name).join(", ")}</p>
+                    <p className="text-xs text-muted-foreground truncate">{productCats.map((c) => c?.name).join(", ")}</p>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-sm font-medium">{p.price} DH</span>
                       <span className={`text-xs ${p.stock < 5 ? "text-destructive font-medium" : "text-muted-foreground"}`}>Stock: {p.stock}</span>
@@ -199,15 +295,14 @@ const AdminProducts = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Switch checked={p.active} onCheckedChange={() => toggleProductActive(p.id)} />
+                    <Switch checked={p.active} onCheckedChange={() => handleToggleActive(p.id, p.active)} />
                     <span className="text-xs text-muted-foreground">{p.active ? "Actif" : "Inactif"}</span>
                   </div>
                   <div className="flex gap-1">
                     <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil className="w-4 h-4" /></Button>
-                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => {
-                      deleteProduct(p.id);
-                      toast({ title: "Produit supprimé" });
-                    }}><Trash2 className="w-4 h-4" /></Button>
+                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => handleDelete(p.id)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -236,11 +331,11 @@ const AdminProducts = () => {
               <div>
                 <label className="text-sm font-medium">Catégories *</label>
                 <div className="grid grid-cols-2 gap-2 mt-2">
-                  {collections.map((c) => (
+                  {categories.map((c) => (
                     <label key={c.id} className="flex items-center gap-2 text-sm cursor-pointer">
                       <Checkbox
-                        checked={(editingProduct.collections || []).includes(c.id)}
-                        onCheckedChange={() => toggleCollection(c.id)}
+                        checked={editingProduct.category_ids.includes(c.id)}
+                        onCheckedChange={() => toggleCategory(c.id)}
                       />
                       {c.name}
                     </label>
@@ -261,41 +356,26 @@ const AdminProducts = () => {
               </div>
               <div>
                 <label className="text-sm font-medium">Description longue</label>
-                <Textarea value={editingProduct.longDescription} onChange={(e) => setEditingProduct({ ...editingProduct, longDescription: e.target.value })} rows={3} />
+                <Textarea value={editingProduct.long_description} onChange={(e) => setEditingProduct({ ...editingProduct, long_description: e.target.value })} rows={3} />
               </div>
               <div>
                 <label className="text-sm font-medium">Images</label>
                 <div className="mt-2 space-y-3">
                   <div className="flex flex-wrap gap-2">
-                    {(editingProduct.images || []).map((img, i) => (
+                    {editingProduct.images.map((img, i) => (
                       <div key={i} className="relative w-20 h-20 rounded overflow-hidden border border-border group">
                         <img src={img} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(i)}
-                          className="absolute top-0.5 right-0.5 p-0.5 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
+                        <button type="button" onClick={() => removeImage(i)}
+                          className="absolute top-0.5 right-0.5 p-0.5 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                           <X className="w-3 h-3" />
                         </button>
                       </div>
                     ))}
                   </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="gap-2"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload className="w-4 h-4" /> Ajouter des images
+                  <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFileUpload} className="hidden" />
+                  <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                    {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                    {uploading ? "Upload en cours..." : "Ajouter des images"}
                   </Button>
                 </div>
               </div>
@@ -307,7 +387,8 @@ const AdminProducts = () => {
                 <label className="text-sm font-medium">Poids (g)</label>
                 <Input type="number" value={editingProduct.weight || ""} onChange={(e) => setEditingProduct({ ...editingProduct, weight: e.target.value ? Number(e.target.value) : undefined })} placeholder="Ex: 120" />
               </div>
-              <Button onClick={handleSave} className="w-full rounded-none">
+              <Button onClick={handleSave} className="w-full rounded-none" disabled={saving}>
+                {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 {editingProduct.id ? "Enregistrer" : "Ajouter"}
               </Button>
             </div>

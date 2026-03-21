@@ -1,55 +1,73 @@
 import { useState } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
-import { useAdminStore, AdminCollection } from "@/hooks/useAdminStore";
+import { useCategories, useAddCategory, useUpdateCategory, useDeleteCategory, DbCategory } from "@/hooks/useCategories";
+import { useProducts } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, FolderOpen } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen, Loader2 } from "lucide-react";
 
 const AdminCategories = () => {
-  const { collections, products, addCollection, updateCollection, deleteCollection } = useAdminStore();
+  const { data: categories = [], isLoading } = useCategories();
+  const { data: products = [] } = useProducts();
+  const addCategory = useAddCategory();
+  const updateCategory = useUpdateCategory();
+  const deleteCategory = useDeleteCategory();
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<Partial<AdminCollection> | null>(null);
+  const [editing, setEditing] = useState<{ id?: string; name: string; description: string; slug: string } | null>(null);
 
   const openNew = () => {
-    setEditing({ name: "", description: "", slug: "", active: true, image: "" });
+    setEditing({ name: "", description: "", slug: "" });
     setDialogOpen(true);
   };
 
-  const openEdit = (c: AdminCollection) => {
-    setEditing({ ...c });
+  const openEdit = (c: DbCategory) => {
+    setEditing({ id: c.id, name: c.name, description: c.description || "", slug: c.slug });
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!editing?.name?.trim()) {
       toast({ title: "Erreur", description: "Le nom est obligatoire", variant: "destructive" });
       return;
     }
     const slug = editing.slug || editing.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
-    if (editing.id) {
-      updateCollection(editing.id, { ...editing, slug } as Partial<AdminCollection>);
-      toast({ title: "Catégorie mise à jour" });
-    } else {
-      addCollection({
-        id: slug,
-        name: editing.name,
-        slug,
-        description: editing.description || "",
-        image: "/placeholder.svg",
-        active: true,
-      });
-      toast({ title: "Catégorie ajoutée" });
+    try {
+      if (editing.id) {
+        await updateCategory.mutateAsync({ id: editing.id, updates: { name: editing.name, slug, description: editing.description } });
+        toast({ title: "Catégorie mise à jour" });
+      } else {
+        await addCategory.mutateAsync({ name: editing.name, slug, description: editing.description });
+        toast({ title: "Catégorie ajoutée" });
+      }
+      setDialogOpen(false);
+      setEditing(null);
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de sauvegarder", variant: "destructive" });
     }
-    setDialogOpen(false);
-    setEditing(null);
   };
 
-  const productCount = (colId: string) => products.filter((p) => p.collection === colId || (p.collections && p.collections.includes(colId))).length;
+  const handleDelete = async (id: string) => {
+    await deleteCategory.mutateAsync(id);
+    toast({ title: "Catégorie supprimée" });
+  };
+
+  const productCount = (catId: string) =>
+    products.filter((p) => p.category_ids.includes(catId)).length;
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -57,7 +75,7 @@ const AdminCategories = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h1 className="font-serif text-xl sm:text-2xl text-foreground">Gestion des Catégories</h1>
-            <p className="text-sm text-muted-foreground">{collections.length} catégories</p>
+            <p className="text-sm text-muted-foreground">{categories.length} catégories</p>
           </div>
           <Button onClick={openNew} className="rounded-none gap-2 w-full sm:w-auto">
             <Plus className="w-4 h-4" /> Ajouter Catégorie
@@ -76,7 +94,7 @@ const AdminCategories = () => {
               </tr>
             </thead>
             <tbody>
-              {collections.map((c) => (
+              {categories.map((c) => (
                 <tr key={c.id} className="border-t border-border hover:bg-muted/20">
                   <td className="p-3 font-medium">{c.name}</td>
                   <td className="p-3 text-muted-foreground max-w-xs truncate">{c.description}</td>
@@ -85,7 +103,7 @@ const AdminCategories = () => {
                     <Button size="icon" variant="ghost" onClick={() => openEdit(c)}>
                       <Pencil className="w-4 h-4" />
                     </Button>
-                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => { deleteCollection(c.id); toast({ title: "Catégorie supprimée" }); }}>
+                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => handleDelete(c.id)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </td>
@@ -93,7 +111,7 @@ const AdminCategories = () => {
               ))}
             </tbody>
           </table>
-          {collections.length === 0 && (
+          {categories.length === 0 && (
             <div className="p-12 text-center text-muted-foreground">
               <FolderOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
               <p>Aucune catégorie</p>
@@ -103,7 +121,7 @@ const AdminCategories = () => {
 
         {/* Mobile cards */}
         <div className="md:hidden space-y-3">
-          {collections.map((c) => (
+          {categories.map((c) => (
             <div key={c.id} className="border border-border rounded-lg p-3">
               <div className="flex items-center justify-between">
                 <div className="min-w-0 flex-1">
@@ -115,14 +133,14 @@ const AdminCategories = () => {
                   <Button size="icon" variant="ghost" onClick={() => openEdit(c)}>
                     <Pencil className="w-4 h-4" />
                   </Button>
-                  <Button size="icon" variant="ghost" className="text-destructive" onClick={() => { deleteCollection(c.id); toast({ title: "Catégorie supprimée" }); }}>
+                  <Button size="icon" variant="ghost" className="text-destructive" onClick={() => handleDelete(c.id)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
             </div>
           ))}
-          {collections.length === 0 && (
+          {categories.length === 0 && (
             <div className="p-12 text-center text-muted-foreground">
               <FolderOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
               <p>Aucune catégorie</p>
