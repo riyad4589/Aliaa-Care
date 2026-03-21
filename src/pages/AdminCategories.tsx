@@ -54,17 +54,18 @@ const AdminCategories = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="font-serif text-2xl text-foreground">Gestion des Catégories</h1>
+            <h1 className="font-serif text-xl sm:text-2xl text-foreground">Gestion des Catégories</h1>
             <p className="text-sm text-muted-foreground">{collections.length} catégories</p>
           </div>
-          <Button onClick={openNew} className="rounded-none gap-2">
+          <Button onClick={openNew} className="rounded-none gap-2 w-full sm:w-auto">
             <Plus className="w-4 h-4" /> Ajouter Catégorie
           </Button>
         </div>
 
-        <div className="border border-border rounded-lg overflow-hidden">
+        {/* Desktop table */}
+        <div className="border border-border rounded-lg overflow-hidden hidden md:block">
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr>
@@ -92,6 +93,35 @@ const AdminCategories = () => {
               ))}
             </tbody>
           </table>
+          {collections.length === 0 && (
+            <div className="p-12 text-center text-muted-foreground">
+              <FolderOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
+              <p>Aucune catégorie</p>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-3">
+          {collections.map((c) => (
+            <div key={c.id} className="border border-border rounded-lg p-3">
+              <div className="flex items-center justify-between">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-sm">{c.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{c.description}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{productCount(c.id)} produits</p>
+                </div>
+                <div className="flex gap-1 shrink-0">
+                  <Button size="icon" variant="ghost" onClick={() => openEdit(c)}>
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="text-destructive" onClick={() => { deleteCollection(c.id); toast({ title: "Catégorie supprimée" }); }}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
           {collections.length === 0 && (
             <div className="p-12 text-center text-muted-foreground">
               <FolderOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
