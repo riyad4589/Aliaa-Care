@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { TrendingUp, DollarSign, BarChart3, Download } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const AdminFinances = () => {
   const { getRevenue, getRevenueByDay, getMarginByProduct, orders } = useAdminStore();
@@ -20,9 +22,28 @@ const AdminFinances = () => {
   const margins = getMarginByProduct();
 
   const exportCSV = () => {
-    const headers = "Date,Revenu,Coût,Profit\n";
-    const rows = chartData.map((d) => `${d.date},${d.revenue},${d.cost},${d.profit}`).join("\n");
-    const blob = new Blob([headers + rows], { type: "text/csv" });
+    const BOM = "\uFEFF";
+    const separator = ";";
+    const headers = ["Date", "Revenu (DH)", "Coût (DH)", "Profit (DH)", "Marge (%)"].join(separator);
+    const rows = chartData.map((d) => {
+      const margin = d.revenue > 0 ? ((d.revenue - d.cost) / d.revenue * 100).toFixed(1) : "0.0";
+      return [
+        new Date(d.date).toLocaleDateString("fr-FR"),
+        d.revenue.toLocaleString("fr-FR"),
+        d.cost.toLocaleString("fr-FR"),
+        d.profit.toLocaleString("fr-FR"),
+        margin,
+      ].join(separator);
+    });
+
+    const totalRevenue = chartData.reduce((s, d) => s + d.revenue, 0);
+    const totalCost = chartData.reduce((s, d) => s + d.cost, 0);
+    const totalProfit = chartData.reduce((s, d) => s + d.profit, 0);
+    const totalMargin = totalRevenue > 0 ? ((totalRevenue - totalCost) / totalRevenue * 100).toFixed(1) : "0.0";
+    const totalRow = ["TOTAL", totalRevenue.toLocaleString("fr-FR"), totalCost.toLocaleString("fr-FR"), totalProfit.toLocaleString("fr-FR"), totalMargin].join(separator);
+
+    const content = BOM + [headers, ...rows, "", totalRow].join("\n");
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -33,15 +54,121 @@ const AdminFinances = () => {
   };
 
   const exportPDF = () => {
-    const content = `ALIAA Natural Care - Rapport Financier\n${"=".repeat(40)}\n\nDate: ${new Date().toLocaleDateString("fr-FR")}\n\nRevenus:\n- Aujourd'hui: ${dayRevenue} DH\n- Ce mois: ${monthRevenue} DH\n- Cette année: ${yearRevenue} DH\n\nMarges par produit:\n${margins.map((m) => `- ${m.productName}: ${m.revenue} DH revenu, ${m.margin.toFixed(1)}% marge`).join("\n")}\n\nNombre total de commandes: ${orders.length}`;
-    const blob = new Blob([content], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `rapport-aliaa-${new Date().toISOString().split("T")[0]}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast({ title: "Rapport exporté" });
+    const doc = new jsPDF();
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+
+    // Header
+    doc.setFontSize(20);
+    doc.setFont("helvetica", "bold");
+    doc.text("ALIAA Natural Care", 14, 22);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100);
+    doc.text("Rapport Financier", 14, 30);
+    doc.setFontSize(9);
+    doc.text(`Généré le ${dateStr}`, 14, 36);
+
+    // Line
+    doc.setDrawColor(200);
+    doc.line(14, 40, 196, 40);
+
+    // Revenue summary
+    doc.setTextColor(0);
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.text("Résumé des Revenus", 14, 50);
+
+    const summaryData = [
+      ["Aujourd'hui", `${dayRevenue.toLocaleString("fr-FR")} DH`],
+      ["Ce mois", `${monthRevenue.toLocaleString("fr-FR")} DH`],
+      ["Cette année", `${yearRevenue.toLocaleString("fr-FR")} DH`],
+      ["Commandes totales", `${orders.length}`],
+    ];
+
+    autoTable(doc, {
+      startY: 54,
+      head: [["Période", "Montant"]],
+      body: summaryData,
+      theme: "grid",
+      headStyles: { fillColor: [74, 85, 67], fontSize: 10 },
+      styles: { fontSize: 10, cellPadding: 4 },
+      columnStyles: { 1: { halign: "right" } },
+      margin: { left: 14, right: 14 },
+    });
+
+    // Revenue by day table
+    const tableEndY = (doc as any).lastAutoTable.finalY + 12;
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Détail par jour (${chartPeriod} derniers jours)`, 14, tableEndY);
+
+    const dayRows = chartData
+      .filter((d) => d.revenue > 0 || d.cost > 0)
+      .map((d) => [
+        new Date(d.date).toLocaleDateString("fr-FR"),
+        `${d.revenue.toLocaleString("fr-FR")} DH`,
+        `${d.cost.toLocaleString("fr-FR")} DH`,
+        `${d.profit.toLocaleString("fr-FR")} DH`,
+        d.revenue > 0 ? `${((d.profit / d.revenue) * 100).toFixed(1)}%` : "-",
+      ]);
+
+    if (dayRows.length > 0) {
+      autoTable(doc, {
+        startY: tableEndY + 4,
+        head: [["Date", "Revenu", "Coût", "Profit", "Marge"]],
+        body: dayRows,
+        theme: "striped",
+        headStyles: { fillColor: [74, 85, 67], fontSize: 9 },
+        styles: { fontSize: 9, cellPadding: 3 },
+        columnStyles: { 1: { halign: "right" }, 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" } },
+        margin: { left: 14, right: 14 },
+      });
+    }
+
+    // Margins by product
+    const marginStartY = (doc as any).lastAutoTable.finalY + 12;
+
+    // Check if we need a new page
+    if (marginStartY > 250) doc.addPage();
+    const mY = marginStartY > 250 ? 20 : marginStartY;
+
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.text("Marges par Produit", 14, mY);
+
+    if (margins.length > 0) {
+      const marginRows = margins.map((m) => [
+        m.productName,
+        `${m.revenue.toLocaleString("fr-FR")} DH`,
+        `${m.cost.toLocaleString("fr-FR")} DH`,
+        `${(m.revenue - m.cost).toLocaleString("fr-FR")} DH`,
+        `${m.margin.toFixed(1)}%`,
+      ]);
+
+      autoTable(doc, {
+        startY: mY + 4,
+        head: [["Produit", "Revenu", "Coût", "Profit", "Marge"]],
+        body: marginRows,
+        theme: "striped",
+        headStyles: { fillColor: [74, 85, 67], fontSize: 9 },
+        styles: { fontSize: 9, cellPadding: 3 },
+        columnStyles: { 1: { halign: "right" }, 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" } },
+        margin: { left: 14, right: 14 },
+      });
+    }
+
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.text(`ALIAA Natural Care - Confidentiel - Page ${i}/${pageCount}`, 14, 290);
+    }
+
+    doc.save(`rapport-aliaa-${now.toISOString().split("T")[0]}.pdf`);
+    toast({ title: "Rapport PDF exporté" });
   };
 
   return (
@@ -57,7 +184,7 @@ const AdminFinances = () => {
               <Download className="w-4 h-4" /> CSV
             </Button>
             <Button variant="outline" size="sm" onClick={exportPDF} className="gap-2 rounded-none">
-              <Download className="w-4 h-4" /> Rapport
+              <Download className="w-4 h-4" /> PDF
             </Button>
           </div>
         </div>
