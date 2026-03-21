@@ -18,7 +18,6 @@ const AdminFinances = () => {
   const yearRevenue = getRevenue("year");
   const chartData = getRevenueByDay(Number(chartPeriod));
   const margins = getMarginByProduct();
-  const totalProfit = chartData.reduce((s, d) => s + d.profit, 0);
 
   const exportCSV = () => {
     const headers = "Date,Revenu,Coût,Profit\n";
@@ -34,7 +33,7 @@ const AdminFinances = () => {
   };
 
   const exportPDF = () => {
-    const content = `ALIAA Natural Care - Rapport Financier\n${"=".repeat(40)}\n\nDate: ${new Date().toLocaleDateString("fr-FR")}\n\nRevenus:\n- Aujourd'hui: ${dayRevenue} €\n- Ce mois: ${monthRevenue} €\n- Cette année: ${yearRevenue} €\n\nMarges par produit:\n${margins.map((m) => `- ${m.productName}: ${m.revenue}€ revenu, ${m.margin.toFixed(1)}% marge`).join("\n")}\n\nNombre total de commandes: ${orders.length}`;
+    const content = `ALIAA Natural Care - Rapport Financier\n${"=".repeat(40)}\n\nDate: ${new Date().toLocaleDateString("fr-FR")}\n\nRevenus:\n- Aujourd'hui: ${dayRevenue} DH\n- Ce mois: ${monthRevenue} DH\n- Cette année: ${yearRevenue} DH\n\nMarges par produit:\n${margins.map((m) => `- ${m.productName}: ${m.revenue} DH revenu, ${m.margin.toFixed(1)}% marge`).join("\n")}\n\nNombre total de commandes: ${orders.length}`;
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -63,7 +62,6 @@ const AdminFinances = () => {
           </div>
         </div>
 
-        {/* Revenue cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardHeader className="pb-2">
@@ -72,7 +70,7 @@ const AdminFinances = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="font-serif text-3xl text-foreground">{dayRevenue} €</p>
+              <p className="font-serif text-3xl text-foreground">{dayRevenue} DH</p>
             </CardContent>
           </Card>
           <Card>
@@ -82,7 +80,7 @@ const AdminFinances = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="font-serif text-3xl text-foreground">{monthRevenue} €</p>
+              <p className="font-serif text-3xl text-foreground">{monthRevenue} DH</p>
             </CardContent>
           </Card>
           <Card>
@@ -92,12 +90,11 @@ const AdminFinances = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="font-serif text-3xl text-foreground">{yearRevenue} €</p>
+              <p className="font-serif text-3xl text-foreground">{yearRevenue} DH</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Chart */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="font-serif text-lg">Revenus & Profits</CardTitle>
@@ -119,7 +116,7 @@ const AdminFinances = () => {
                   <YAxis tick={{ fontSize: 11 }} />
                   <Tooltip
                     contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", fontSize: 12 }}
-                    formatter={(value: number, name: string) => [`${value} €`, name === "revenue" ? "Revenu" : name === "profit" ? "Profit" : "Coût"]}
+                    formatter={(value: number, name: string) => [`${value} DH`, name === "revenue" ? "Revenu" : name === "profit" ? "Profit" : "Coût"]}
                     labelFormatter={(label) => `Date: ${label}`}
                   />
                   <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="revenue" />
@@ -130,7 +127,6 @@ const AdminFinances = () => {
           </CardContent>
         </Card>
 
-        {/* Margins by product */}
         <Card>
           <CardHeader>
             <CardTitle className="font-serif text-lg">Marges par Produit</CardTitle>
@@ -141,7 +137,7 @@ const AdminFinances = () => {
                 <div key={m.productId} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                   <div>
                     <p className="font-medium text-sm">{m.productName}</p>
-                    <p className="text-xs text-muted-foreground">Revenu: {m.revenue} € · Coût: {m.cost} €</p>
+                    <p className="text-xs text-muted-foreground">Revenu: {m.revenue} DH · Coût: {m.cost} DH</p>
                   </div>
                   <div className="text-right">
                     <p className="font-serif text-lg">{m.margin.toFixed(1)}%</p>
