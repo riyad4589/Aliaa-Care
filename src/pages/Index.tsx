@@ -36,6 +36,7 @@ const Index = () => {
       {banner.enabled && (
         <div className="bg-primary text-primary-foreground text-center py-2.5 text-sm tracking-wide">{banner.message}</div>
       )}
+      <PromoBanner />
 
       {/* Hero */}
       <section ref={heroRef} className="relative h-[100svh] -mt-16 md:-mt-20 overflow-hidden">
