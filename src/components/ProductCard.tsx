@@ -77,6 +77,15 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
                 {t("common.featured")}
               </motion.span>
             )}
+            {promoDiscount > 0 && (
+              <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}
+                className="px-3 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase bg-destructive text-destructive-foreground rounded-sm">
+                -{promoDiscount}%
+              </motion.span>
+            )}
+            {flashPromo && (
+              <FlashCountdown endsAt={flashPromo.ends_at} />
+            )}
           </div>
           <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center pb-6 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100">
             <span className="px-6 py-2.5 text-xs font-medium tracking-[0.15em] uppercase bg-background/95 backdrop-blur-md text-foreground shadow-lg rounded-sm">
