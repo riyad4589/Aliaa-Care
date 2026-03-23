@@ -18,6 +18,7 @@ const items = [
   { title: "Catégories", url: "/admin/categories", icon: FolderOpen },
   { title: "Packs", url: "/admin/packs", icon: Gift },
   { title: "Codes Promo", url: "/admin/promo-codes", icon: Tag },
+  { title: "Emballages", url: "/admin/packaging", icon: BoxSelect },
   { title: "Finances", url: "/admin/finances", icon: TrendingUp },
 ];
 

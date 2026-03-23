@@ -47,6 +47,7 @@ const App = () => (
           <Route path="/pack/:slug" element={<PackDetail />} />
           <Route path="/admin/packs" element={<AdminPacks />} />
           <Route path="/admin/promo-codes" element={<AdminPromoCodes />} />
+          <Route path="/admin/packaging" element={<AdminPackaging />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
