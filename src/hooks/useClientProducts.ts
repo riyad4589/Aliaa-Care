@@ -9,6 +9,7 @@ export interface ClientProduct {
   collection: string; // primary category id
   collections?: string[];
   price: number;
+  originalPrice?: number;
   description: string;
   longDescription: string;
   materials: string;
