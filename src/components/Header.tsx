@@ -101,6 +101,10 @@ export const Header = () => {
               {t("common.shop")}
             </Link>
 
+            <Link to="/packs" className="text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 link-underline">
+              {t("common.ourPacks")}
+            </Link>
+
             <Link to="/about" className="text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 link-underline">
               {t("common.ourStory")}
             </Link>
