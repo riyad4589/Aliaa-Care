@@ -95,6 +95,17 @@ const Cart = () => {
                     <span className="text-muted-foreground">{t("cart.shipping")}</span>
                     <span>{shipping === 0 ? t("cart.free") : `${shipping} DH`}</span>
                   </div>
+                  {tieredDiscount > 0 && (
+                    <div className="flex justify-between text-sm text-destructive">
+                      <span>Réduction palier (-{tieredDiscount}%)</span>
+                      <span>-{discountAmount.toLocaleString()} DH</span>
+                    </div>
+                  )}
+                  {tieredPromos.length > 0 && tieredDiscount === 0 && (
+                    <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">
+                      💡 {tieredPromos[0].tier_rules?.[0] && `Ajoutez ${tieredPromos[0].tier_rules[0].min_qty - totalItems} article(s) pour obtenir -${tieredPromos[0].tier_rules[0].discount_percent}%`}
+                    </div>
+                  )}
                   {subtotal < 500 && <p className="text-xs text-muted-foreground">{t("cart.freeShippingFrom")}</p>}
                 </div>
                 <div className="border-t border-border pt-4 mb-8">
