@@ -38,12 +38,13 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
   };
 
   return (
+    <Link to={`/pack/${pack.slug}`}>
     <motion.article
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.7, delay: index * 0.1 }}
-      className="group border border-border rounded-lg overflow-hidden bg-background hover:shadow-lg transition-shadow duration-500"
+      className="group border border-border rounded-lg overflow-hidden bg-background hover:shadow-lg transition-shadow duration-500 cursor-pointer"
     >
       {/* Product images grid */}
       <div className="relative aspect-[4/3] bg-muted/30 overflow-hidden">
@@ -111,5 +112,6 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
         </div>
       </div>
     </motion.article>
+    </Link>
   );
 };
