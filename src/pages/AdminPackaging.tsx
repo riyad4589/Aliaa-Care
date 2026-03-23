@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { usePackaging, useCreatePackaging, useUpdatePackaging, useDeletePackaging, Packaging } from "@/hooks/usePackaging";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Package, AlertTriangle, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Package, AlertTriangle, Loader2, Upload } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const LOW_STOCK_THRESHOLD = 5;
 
