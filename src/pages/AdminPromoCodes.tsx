@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
-import { usePromoCodes, useAddPromoCode, useDeletePromoCode, PromoCode } from "@/hooks/usePromoCodes";
+import { usePromoCodes, useAddPromoCode, useUpdatePromoCode, useDeletePromoCode, PromoCode } from "@/hooks/usePromoCodes";
 import { useProducts, DbProduct } from "@/hooks/useProducts";
 import { usePacks } from "@/hooks/usePacks";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Copy, Shuffle, Tag, Calendar, Hash, Search } from "lucide-react";
+import { Plus, Trash2, Copy, Shuffle, Tag, Calendar, Hash, Search, Pencil } from "lucide-react";
 
 const generateCode = () => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -21,6 +21,7 @@ const generateCode = () => {
 };
 
 interface EditingPromo {
+  id?: string;
   code: string;
   discount_percent: number;
   applies_to: string;
@@ -47,11 +48,14 @@ const AdminPromoCodes = () => {
   const { data: products = [] } = useProducts();
   const { data: packs = [] } = usePacks();
   const addPromo = useAddPromoCode();
+  const updatePromo = useUpdatePromoCode();
   const deletePromo = useDeletePromoCode();
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<EditingPromo>(defaultPromo);
   const [search, setSearch] = useState("");
+
+  const isEditMode = !!editing.id;
 
   const filtered = promoCodes.filter((p) =>
     p.code.toLowerCase().includes(search.toLowerCase())
@@ -62,23 +66,53 @@ const AdminPromoCodes = () => {
     setDialogOpen(true);
   };
 
+  const handleEdit = (promo: PromoCode) => {
+    setEditing({
+      id: promo.id,
+      code: promo.code,
+      discount_percent: promo.discount_percent,
+      applies_to: promo.applies_to,
+      product_ids: promo.product_ids || [],
+      pack_ids: promo.pack_ids || [],
+      max_uses: promo.max_uses,
+      expires_at: promo.expires_at ? promo.expires_at.slice(0, 16) : "",
+      active: promo.active,
+    });
+    setDialogOpen(true);
+  };
+
   const handleSave = async () => {
     if (!editing.code.trim()) {
       toast({ title: "Erreur", description: "Le code est requis", variant: "destructive" });
       return;
     }
     try {
-      await addPromo.mutateAsync({
-        code: editing.code.toUpperCase().trim(),
-        discount_percent: editing.discount_percent,
-        applies_to: editing.applies_to,
-        product_ids: editing.product_ids,
-        pack_ids: editing.pack_ids,
-        max_uses: editing.max_uses,
-        expires_at: editing.expires_at || null,
-        active: editing.active,
-      });
-      toast({ title: "Code promo créé" });
+      if (isEditMode) {
+        await updatePromo.mutateAsync({
+          id: editing.id!,
+          code: editing.code.toUpperCase().trim(),
+          discount_percent: editing.discount_percent,
+          applies_to: editing.applies_to,
+          product_ids: editing.product_ids,
+          pack_ids: editing.pack_ids,
+          max_uses: editing.max_uses,
+          expires_at: editing.expires_at || null,
+          active: editing.active,
+        });
+        toast({ title: "Code promo modifié" });
+      } else {
+        await addPromo.mutateAsync({
+          code: editing.code.toUpperCase().trim(),
+          discount_percent: editing.discount_percent,
+          applies_to: editing.applies_to,
+          product_ids: editing.product_ids,
+          pack_ids: editing.pack_ids,
+          max_uses: editing.max_uses,
+          expires_at: editing.expires_at || null,
+          active: editing.active,
+        });
+        toast({ title: "Code promo créé" });
+      }
       setDialogOpen(false);
     } catch {
       toast({ title: "Erreur", description: "Code déjà existant ou erreur serveur", variant: "destructive" });
@@ -97,7 +131,7 @@ const AdminPromoCodes = () => {
     if (!p.active) return <Badge variant="secondary">Inactif</Badge>;
     if (isExpired(p)) return <Badge variant="destructive">Expiré</Badge>;
     if (isMaxed(p)) return <Badge variant="destructive">Épuisé</Badge>;
-    return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Actif</Badge>;
+    return <Badge className="bg-primary/10 text-primary hover:bg-primary/10">Actif</Badge>;
   };
 
   const toggleProductId = (id: string) => {
@@ -117,6 +151,8 @@ const AdminPromoCodes = () => {
         : [...prev.pack_ids, id],
     }));
   };
+
+  const isSaving = addPromo.isPending || updatePromo.isPending;
 
   return (
     <AdminLayout>
@@ -166,6 +202,9 @@ const AdminPromoCodes = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
+                  <Button variant="ghost" size="sm" onClick={() => handleEdit(promo)}>
+                    <Pencil className="w-4 h-4" />
+                  </Button>
                   <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(promo.code); toast({ title: "Code copié" }); }}>
                     <Copy className="w-4 h-4" />
                   </Button>
@@ -182,7 +221,7 @@ const AdminPromoCodes = () => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Nouveau Code Promo</DialogTitle>
+            <DialogTitle>{isEditMode ? "Modifier le Code Promo" : "Nouveau Code Promo"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-5 pt-2">
             <div>
@@ -190,9 +229,11 @@ const AdminPromoCodes = () => {
               <div className="flex gap-2">
                 <Input value={editing.code} onChange={(e) => setEditing({ ...editing, code: e.target.value.toUpperCase() })}
                   placeholder="Ex: WELCOME20" className="font-mono tracking-wider" />
-                <Button variant="outline" size="icon" onClick={() => setEditing({ ...editing, code: generateCode() })} title="Générer un code">
-                  <Shuffle className="w-4 h-4" />
-                </Button>
+                {!isEditMode && (
+                  <Button variant="outline" size="icon" onClick={() => setEditing({ ...editing, code: generateCode() })} title="Générer un code">
+                    <Shuffle className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -261,8 +302,8 @@ const AdminPromoCodes = () => {
 
             <div className="flex gap-3 pt-2">
               <Button variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Annuler</Button>
-              <Button className="flex-1" onClick={handleSave} disabled={addPromo.isPending}>
-                {addPromo.isPending ? "Création..." : "Créer le code"}
+              <Button className="flex-1" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? "Enregistrement..." : isEditMode ? "Enregistrer" : "Créer le code"}
               </Button>
             </div>
           </div>
