@@ -4,6 +4,7 @@ import { ArrowRight, ShoppingBag, Trash2 } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { QuantitySelector } from "@/components/QuantitySelector";
 import { useCart } from "@/hooks/useCart";
+import { useActivePromotions } from "@/hooks/usePromotions";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/hooks/useT";
 
