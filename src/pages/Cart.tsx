@@ -10,10 +10,15 @@ import { useT } from "@/hooks/useT";
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, getSubtotal } = useCart();
+  const { getTieredDiscount, getTieredPromos } = useActivePromotions();
   const { t } = useT();
   const subtotal = getSubtotal();
-  const shipping = subtotal > 500 ? 0 : 25;
-  const total = subtotal + shipping;
+  const totalItems = items.reduce((s, i) => s + i.quantity, 0);
+  const tieredDiscount = getTieredDiscount(totalItems);
+  const tieredPromos = getTieredPromos();
+  const discountAmount = Math.round(subtotal * tieredDiscount / 100);
+  const shipping = (subtotal - discountAmount) > 500 ? 0 : 25;
+  const total = subtotal - discountAmount + shipping;
 
   if (items.length === 0) {
     return (
