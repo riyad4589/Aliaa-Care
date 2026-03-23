@@ -112,5 +112,6 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
         </div>
       </div>
     </motion.article>
+    </Link>
   );
 };
