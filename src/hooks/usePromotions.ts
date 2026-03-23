@@ -40,7 +40,7 @@ export function usePromotions() {
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data || []) as Promotion[];
+      return (data || []).map((d: any) => ({ ...d, tier_rules: d.tier_rules as TierRule[] | null })) as Promotion[];
     },
   });
 }
