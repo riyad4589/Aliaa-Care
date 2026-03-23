@@ -5,9 +5,11 @@ import { Layout } from "@/components/Layout";
 import { QuantitySelector } from "@/components/QuantitySelector";
 import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/hooks/useT";
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, getSubtotal } = useCart();
+  const { t } = useT();
   const subtotal = getSubtotal();
   const shipping = subtotal > 500 ? 0 : 25;
   const total = subtotal + shipping;
@@ -16,25 +18,12 @@ const Cart = () => {
     return (
       <Layout>
         <div className="container-narrow py-28 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <ShoppingBag className="w-16 h-16 mx-auto mb-6 text-muted-foreground/30" />
-            <h1 className="font-serif text-4xl mb-4">Votre Panier est Vide</h1>
-            <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-              Découvrez notre collection de produits naturels et trouvez ce qui vous convient.
-            </p>
-            <Button
-              asChild
-              size="lg"
-              className="rounded-none px-10 py-6 text-sm tracking-[0.15em] uppercase btn-premium"
-            >
-              <Link to="/products">
-                Commencer vos achats
-                <ArrowRight className="ml-3 w-4 h-4" />
-              </Link>
+            <h1 className="font-serif text-4xl mb-4">{t("cart.empty")}</h1>
+            <p className="text-muted-foreground mb-8 max-w-md mx-auto">{t("cart.emptyDesc")}</p>
+            <Button asChild size="lg" className="rounded-none px-10 py-6 text-sm tracking-[0.15em] uppercase btn-premium">
+              <Link to="/products">{t("cart.startShopping")}<ArrowRight className="ltr:ml-3 rtl:mr-3 w-4 h-4" /></Link>
             </Button>
           </motion.div>
         </div>
@@ -46,74 +35,36 @@ const Cart = () => {
     <Layout>
       <div className="container-full py-6 border-b border-border">
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
-          <Link to="/products" className="hover:text-foreground transition-colors">
-            Boutique
-          </Link>
+          <Link to="/products" className="hover:text-foreground transition-colors">{t("common.shop")}</Link>
           <span className="text-border">/</span>
-          <span className="text-foreground">Votre Panier</span>
+          <span className="text-foreground">{t("cart.yourCart")}</span>
         </div>
       </div>
 
       <section className="py-10 md:py-16">
         <div className="container-full">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="font-serif text-4xl md:text-5xl mb-12"
-          >
-            Votre Panier
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="font-serif text-4xl md:text-5xl mb-12">
+            {t("cart.yourCart")}
           </motion.h1>
 
           <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
             <div className="lg:col-span-7">
               <div className="space-y-0">
                 {items.map((item, index) => (
-                  <motion.div
-                    key={item.product.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    className="flex gap-6 py-8 border-b border-border"
-                  >
-                    <Link
-                      to={`/product/${item.product.slug}`}
-                      className="w-28 h-32 md:w-36 md:h-44 flex-shrink-0 overflow-hidden bg-muted/30 group"
-                    >
-                      <img
-                        src={item.product.images[0]}
-                        alt={item.product.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
+                  <motion.div key={item.product.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }} className="flex gap-6 py-8 border-b border-border">
+                    <Link to={`/product/${item.product.slug}`} className="w-28 h-32 md:w-36 md:h-44 flex-shrink-0 overflow-hidden bg-muted/30 group">
+                      <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     </Link>
-
                     <div className="flex-1 flex flex-col">
                       <div className="flex-1">
-                        <Link
-                          to={`/product/${item.product.slug}`}
-                          className="font-serif text-lg md:text-xl hover:text-primary transition-colors"
-                        >
-                          {item.product.name}
-                        </Link>
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                          {item.product.description}
-                        </p>
-                        <p className="font-serif text-lg mt-3">
-                          {item.product.price.toLocaleString()} DH
-                        </p>
+                        <Link to={`/product/${item.product.slug}`} className="font-serif text-lg md:text-xl hover:text-primary transition-colors">{item.product.name}</Link>
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.product.description}</p>
+                        <p className="font-serif text-lg mt-3">{item.product.price.toLocaleString()} DH</p>
                       </div>
-
                       <div className="flex items-center justify-between mt-4">
-                        <QuantitySelector
-                          quantity={item.quantity}
-                          onQuantityChange={(qty) =>
-                            updateQuantity(item.product.id, qty)
-                          }
-                        />
-                        <button
-                          onClick={() => removeItem(item.product.id)}
-                          className="p-2 text-muted-foreground hover:text-destructive transition-colors"
-                        >
+                        <QuantitySelector quantity={item.quantity} onQuantityChange={(qty) => updateQuantity(item.product.id, qty)} />
+                        <button onClick={() => removeItem(item.product.id)} className="p-2 text-muted-foreground hover:text-destructive transition-colors">
                           <Trash2 className="w-5 h-5" />
                         </button>
                       </div>
@@ -121,77 +72,42 @@ const Cart = () => {
                   </motion.div>
                 ))}
               </div>
-
-              <Link
-                to="/products"
-                className="inline-flex items-center gap-2 mt-8 text-sm tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <ArrowRight className="w-4 h-4 rotate-180" />
-                Continuer vos achats
+              <Link to="/products" className="inline-flex items-center gap-2 mt-8 text-sm tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground transition-colors">
+                <ArrowRight className="w-4 h-4 rotate-180" />{t("cart.continueShopping")}
               </Link>
             </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="lg:col-span-5"
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="lg:col-span-5">
               <div className="bg-linen p-8 lg:sticky lg:top-28">
-                <h2 className="font-serif text-2xl mb-8">Récapitulatif</h2>
-
+                <h2 className="font-serif text-2xl mb-8">{t("cart.summary")}</h2>
                 <div className="space-y-4 mb-8">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Sous-total</span>
+                    <span className="text-muted-foreground">{t("cart.subtotal")}</span>
                     <span>{subtotal.toLocaleString()} DH</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Livraison</span>
-                    <span>
-                      {shipping === 0 ? "Offerte" : `${shipping} DH`}
-                    </span>
+                    <span className="text-muted-foreground">{t("cart.shipping")}</span>
+                    <span>{shipping === 0 ? t("cart.free") : `${shipping} DH`}</span>
                   </div>
-                  {subtotal < 500 && (
-                    <p className="text-xs text-muted-foreground">
-                      Livraison offerte dès 500 DH d'achat
-                    </p>
-                  )}
+                  {subtotal < 500 && <p className="text-xs text-muted-foreground">{t("cart.freeShippingFrom")}</p>}
                 </div>
-
                 <div className="border-t border-border pt-4 mb-8">
                   <div className="flex justify-between font-serif text-xl">
-                    <span>Total</span>
+                    <span>{t("cart.total")}</span>
                     <span>{total.toLocaleString()} DH</span>
                   </div>
                 </div>
-
-                <Button
-                  asChild
-                  size="lg"
-                  className="w-full rounded-none py-6 text-sm tracking-[0.15em] uppercase btn-premium"
-                >
-                  <Link to="/checkout">
-                    Passer la Commande
-                    <ArrowRight className="ml-3 w-4 h-4" />
-                  </Link>
+                <Button asChild size="lg" className="w-full rounded-none py-6 text-sm tracking-[0.15em] uppercase btn-premium">
+                  <Link to="/checkout">{t("cart.checkout")}<ArrowRight className="ltr:ml-3 rtl:mr-3 w-4 h-4" /></Link>
                 </Button>
-
                 <div className="mt-8 pt-6 border-t border-border grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">
-                      Livraison
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Livraison partout au Maroc
-                    </p>
+                    <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">{t("cart.shipping")}</p>
+                    <p className="text-xs text-muted-foreground">{t("cart.deliveryMorocco")}</p>
                   </div>
                   <div>
-                    <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">
-                      Retours
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Retour sous 14 jours
-                    </p>
+                    <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">{t("cart.returns")}</p>
+                    <p className="text-xs text-muted-foreground">{t("cart.returnsPolicy")}</p>
                   </div>
                 </div>
               </div>
