@@ -100,7 +100,21 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
           <h3 className="font-serif text-xl text-foreground transition-colors duration-300 group-hover:text-primary leading-snug">{product.name}</h3>
           <p className="text-sm text-muted-foreground line-clamp-1 leading-relaxed">{product.description}</p>
           <div className="flex items-center gap-3 pt-1">
-            <p className="text-base font-medium text-foreground tracking-wide">{product.price.toLocaleString()} DH</p>
+            {promoDiscount > 0 ? (
+              <>
+                <p className="text-base font-medium text-destructive tracking-wide">
+                  {Math.round(product.price * (1 - promoDiscount / 100)).toLocaleString()} DH
+                </p>
+                <p className="text-sm text-muted-foreground line-through">{product.price.toLocaleString()} DH</p>
+              </>
+            ) : hasOriginalPrice ? (
+              <>
+                <p className="text-base font-medium text-foreground tracking-wide">{product.price.toLocaleString()} DH</p>
+                <p className="text-sm text-muted-foreground line-through">{originalPrice.toLocaleString()} DH</p>
+              </>
+            ) : (
+              <p className="text-base font-medium text-foreground tracking-wide">{product.price.toLocaleString()} DH</p>
+            )}
             {product.weight && (
               <>
                 <span className="w-px h-3 bg-border" />
