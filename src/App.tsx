@@ -17,6 +17,7 @@ import AdminFinances from "./pages/AdminFinances";
 import AdminCategories from "./pages/AdminCategories";
 import AdminPacks from "./pages/AdminPacks";
 import AdminPromoCodes from "./pages/AdminPromoCodes";
+import AdminPackaging from "./pages/AdminPackaging";
 import PackDetail from "./pages/PackDetail";
 import Packs from "./pages/Packs";
 import NotFound from "./pages/NotFound";
