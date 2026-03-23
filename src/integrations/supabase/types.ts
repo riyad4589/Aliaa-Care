@@ -318,6 +318,48 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_codes: {
+        Row: {
+          active: boolean
+          applies_to: string
+          code: string
+          created_at: string
+          current_uses: number
+          discount_percent: number
+          expires_at: string | null
+          id: string
+          max_uses: number | null
+          pack_ids: string[] | null
+          product_ids: string[] | null
+        }
+        Insert: {
+          active?: boolean
+          applies_to?: string
+          code: string
+          created_at?: string
+          current_uses?: number
+          discount_percent?: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          pack_ids?: string[] | null
+          product_ids?: string[] | null
+        }
+        Update: {
+          active?: boolean
+          applies_to?: string
+          code?: string
+          created_at?: string
+          current_uses?: number
+          discount_percent?: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          pack_ids?: string[] | null
+          product_ids?: string[] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
