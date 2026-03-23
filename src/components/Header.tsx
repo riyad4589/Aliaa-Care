@@ -213,6 +213,7 @@ export const Header = () => {
                 <div className="pt-6 border-t border-border space-y-1">
                   {[
                     { to: "/products", label: t("common.shop") },
+                    { to: "/packs", label: t("common.ourPacks") },
                     { to: "/about", label: t("common.ourStory") },
                     { to: "/cart", label: t("common.cart") },
                   ].map((link, i) => (

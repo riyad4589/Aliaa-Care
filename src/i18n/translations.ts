@@ -28,6 +28,7 @@ const translations = {
   "common.netWeight": { fr: "Poids net", en: "Net weight", ar: "الوزن الصافي" },
   "common.collection": { fr: "Collection", en: "Collection", ar: "مجموعة" },
   "common.pack": { fr: "Pack", en: "Pack", ar: "حزمة" },
+  "common.ourPacks": { fr: "Nos Packs", en: "Our Packs", ar: "حزمنا" },
   "common.save": { fr: "Économisez", en: "Save", ar: "وفّري" },
 
   // Header
