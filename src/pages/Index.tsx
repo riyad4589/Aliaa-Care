@@ -8,6 +8,7 @@ import { CollectionCard } from "@/components/CollectionCard";
 import { useClientProducts } from "@/hooks/useClientProducts";
 import { usePacks } from "@/hooks/usePacks";
 import { PackCard } from "@/components/PackCard";
+import { PromoBanner } from "@/components/PromoBanner";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/hooks/useT";
 import coffretImg from "@/assets/coffret-aliaa.jpeg";
