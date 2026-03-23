@@ -5,7 +5,9 @@ import { Heart, ChevronLeft, ChevronRight, ArrowRight, ShoppingBag } from "lucid
 import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
 import { QuantitySelector } from "@/components/QuantitySelector";
+import { FlashCountdown } from "@/components/FlashCountdown";
 import { useClientProducts } from "@/hooks/useClientProducts";
+import { useActivePromotions } from "@/hooks/usePromotions";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
