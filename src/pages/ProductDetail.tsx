@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { getProductBySlug, getRelatedProducts, collections } = useClientProducts();
+  const { getProductDiscount, getFlashPromos } = useActivePromotions();
   const product = getProductBySlug(slug || "");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
