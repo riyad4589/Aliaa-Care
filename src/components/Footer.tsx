@@ -46,6 +46,7 @@ export const Footer = () => {
             <h4 className="text-[11px] font-semibold tracking-[0.25em] uppercase text-background/40 mb-5">{t("footer.explore")}</h4>
             <ul className="space-y-3">
               <li><Link to="/products" className="text-sm text-background/60 hover:text-background transition-colors duration-300">{t("common.shop")}</Link></li>
+              <li><Link to="/packs" className="text-sm text-background/60 hover:text-background transition-colors duration-300">{t("common.ourPacks")}</Link></li>
               <li><Link to="/about" className="text-sm text-background/60 hover:text-background transition-colors duration-300">{t("common.ourStory")}</Link></li>
               <li><Link to="/cart" className="text-sm text-background/60 hover:text-background transition-colors duration-300">{t("common.cart")}</Link></li>
             </ul>
