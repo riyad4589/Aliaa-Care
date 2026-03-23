@@ -6,6 +6,8 @@ import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
 import { CollectionCard } from "@/components/CollectionCard";
 import { useClientProducts } from "@/hooks/useClientProducts";
+import { usePacks } from "@/hooks/usePacks";
+import { PackCard } from "@/components/PackCard";
 import { Button } from "@/components/ui/button";
 import coffretImg from "@/assets/coffret-aliaa.jpeg";
 import gommageCorpsImg from "@/assets/gommage-corps.jpeg";
