@@ -124,6 +124,81 @@ export type Database = {
         }
         Relationships: []
       }
+      pack_items: {
+        Row: {
+          id: string
+          pack_id: string
+          product_id: string
+          quantity: number
+        }
+        Insert: {
+          id?: string
+          pack_id: string
+          product_id: string
+          quantity?: number
+        }
+        Update: {
+          id?: string
+          pack_id?: string
+          product_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pack_items_pack_id_fkey"
+            columns: ["pack_id"]
+            isOneToOne: false
+            referencedRelation: "packs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pack_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      packs: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          featured: boolean | null
+          id: string
+          image: string | null
+          long_description: string | null
+          name: string
+          price: number
+          slug: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          image?: string | null
+          long_description?: string | null
+          name: string
+          price?: number
+          slug: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          image?: string | null
+          long_description?: string | null
+          name?: string
+          price?: number
+          slug?: string
+        }
+        Relationships: []
+      }
       product_categories: {
         Row: {
           category_id: string
