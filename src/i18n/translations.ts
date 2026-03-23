@@ -1,0 +1,292 @@
+import { Language } from "@/hooks/useLanguage";
+
+const translations = {
+  // Common
+  "common.shop": { fr: "Boutique", en: "Shop", ar: "المتجر" },
+  "common.products": { fr: "Nos Produits", en: "Our Products", ar: "منتجاتنا" },
+  "common.collections": { fr: "Collections", en: "Collections", ar: "المجموعات" },
+  "common.ourStory": { fr: "Notre Histoire", en: "Our Story", ar: "قصتنا" },
+  "common.cart": { fr: "Panier", en: "Cart", ar: "السلة" },
+  "common.viewAll": { fr: "Tout Voir", en: "View All", ar: "عرض الكل" },
+  "common.discover": { fr: "Découvrir", en: "Discover", ar: "اكتشفي" },
+  "common.addToCart": { fr: "Ajouter au Panier", en: "Add to Cart", ar: "أضيفي إلى السلة" },
+  "common.add": { fr: "Ajouter", en: "Add", ar: "أضف" },
+  "common.viewProduct": { fr: "Voir le Produit", en: "View Product", ar: "عرض المنتج" },
+  "common.explore": { fr: "Explorer", en: "Explore", ar: "استكشفي" },
+  "common.new": { fr: "Nouveau", en: "New", ar: "جديد" },
+  "common.featured": { fr: "Vedette", en: "Featured", ar: "مميز" },
+  "common.all": { fr: "Tous", en: "All", ar: "الكل" },
+  "common.contactUs": { fr: "Contactez-Nous", en: "Contact Us", ar: "اتصلي بنا" },
+  "common.back": { fr: "Retour", en: "Back", ar: "رجوع" },
+  "common.stayConnected": { fr: "Restez Connectée", en: "Stay Connected", ar: "ابقي على تواصل" },
+  "common.yourEmail": { fr: "Votre email", en: "Your email", ar: "بريدك الإلكتروني" },
+  "common.privacyPolicy": { fr: "Politique de Confidentialité", en: "Privacy Policy", ar: "سياسة الخصوصية" },
+  "common.terms": { fr: "CGV", en: "Terms", ar: "الشروط" },
+  "common.allRightsReserved": { fr: "Tous droits réservés.", en: "All rights reserved.", ar: "جميع الحقوق محفوظة." },
+  "common.administration": { fr: "Administration", en: "Administration", ar: "الإدارة" },
+  "common.quantity": { fr: "Quantité", en: "Quantity", ar: "الكمية" },
+  "common.netWeight": { fr: "Poids net", en: "Net weight", ar: "الوزن الصافي" },
+  "common.collection": { fr: "Collection", en: "Collection", ar: "مجموعة" },
+  "common.pack": { fr: "Pack", en: "Pack", ar: "حزمة" },
+  "common.save": { fr: "Économisez", en: "Save", ar: "وفّري" },
+
+  // Header
+  "header.wishlistEmpty": { fr: "Votre liste de souhaits est vide", en: "Your wishlist is empty", ar: "قائمة أمنياتك فارغة" },
+  "header.savedItems": { fr: "article(s) sauvegardé(s)", en: "saved item(s)", ar: "عنصر(عناصر) محفوظة" },
+  "header.more": { fr: "de plus", en: "more", ar: "المزيد" },
+
+  // Hero
+  "hero.tagline": { fr: "Pure Plants, True Relief", en: "Pure Plants, True Relief", ar: "نباتات نقية، راحة حقيقية" },
+  "hero.title1": { fr: "Rituels", en: "Natural", ar: "طقوس" },
+  "hero.title2": { fr: "Naturels", en: "Rituals", ar: "طبيعية" },
+  "hero.desc": {
+    fr: "Mélanges de plantes traditionnels, préparés avec soin pour le bien-être de chaque femme. Sans conservateurs, 100% naturel.",
+    en: "Traditional plant blends, carefully prepared for every woman's well-being. No preservatives, 100% natural.",
+    ar: "خلطات نباتية تقليدية، محضرة بعناية لرفاهية كل امرأة. بدون مواد حافظة، 100% طبيعي.",
+  },
+  "hero.scroll": { fr: "Scroll", en: "Scroll", ar: "مرّري" },
+
+  // Index
+  "index.featuredCollection": { fr: "Collection Vedette", en: "Featured Collection", ar: "المجموعة المميزة" },
+  "index.featuredDesc": {
+    fr: "Offrez un moment de bien-être avec notre sélection de produits naturels, présentés dans un élégant coffret.",
+    en: "Treat yourself to a moment of well-being with our selection of natural products, presented in an elegant gift set.",
+    ar: "امنحي نفسك لحظة من الرفاهية مع مجموعتنا من المنتجات الطبيعية، مقدمة في علبة هدايا أنيقة.",
+  },
+  "index.discoverCollection": { fr: "Découvrir les", en: "Discover the", ar: "اكتشفي" },
+  "index.latestArrivals": { fr: "Derniers Arrivages", en: "Latest Arrivals", ar: "أحدث المنتجات" },
+  "index.viewAllProducts": { fr: "Voir Tous les Produits", en: "View All Products", ar: "عرض جميع المنتجات" },
+  "index.specialOffers": { fr: "Offres Spéciales", en: "Special Offers", ar: "عروض خاصة" },
+  "index.ourPacks": { fr: "Nos Packs", en: "Our Packs", ar: "حزمنا" },
+  "index.browseBy": { fr: "Parcourir Par", en: "Browse By", ar: "تصفحي حسب" },
+  "index.ourCommitments": { fr: "Nos Engagements", en: "Our Commitments", ar: "التزاماتنا" },
+  "index.commitmentTitle": {
+    fr: "Des plantes pures pour un soulagement",
+    en: "Pure plants for true",
+    ar: "نباتات نقية لراحة",
+  },
+  "index.commitmentTitleItalic": { fr: "véritable", en: "relief", ar: "حقيقية" },
+  "index.natural": { fr: "100% Naturel", en: "100% Natural", ar: "100% طبيعي" },
+  "index.naturalDesc": {
+    fr: "Plantes soigneusement sélectionnées, sans conservateurs ni additifs artificiels.",
+    en: "Carefully selected plants, no preservatives or artificial additives.",
+    ar: "نباتات مختارة بعناية، بدون مواد حافظة أو إضافات اصطناعية.",
+  },
+  "index.feminineWellbeing": { fr: "Bien-être Féminin", en: "Women's Wellness", ar: "رفاهية المرأة" },
+  "index.feminineDesc": {
+    fr: "Formules traditionnelles dédiées au soin et au confort de chaque femme.",
+    en: "Traditional formulas dedicated to every woman's care and comfort.",
+    ar: "تركيبات تقليدية مخصصة لرعاية وراحة كل امرأة.",
+  },
+  "index.ancestralKnowledge": { fr: "Savoir Ancestral", en: "Ancestral Knowledge", ar: "معرفة الأجداد" },
+  "index.ancestralDesc": {
+    fr: "Recettes transmises de génération en génération, préparées avec amour.",
+    en: "Recipes passed down through generations, prepared with love.",
+    ar: "وصفات متوارثة عبر الأجيال، محضرة بحب.",
+  },
+  "index.followUs": { fr: "Suivez-Nous", en: "Follow Us", ar: "تابعينا" },
+  "index.followDesc": {
+    fr: "Rejoignez notre communauté et découvrez nos rituels naturels au quotidien.",
+    en: "Join our community and discover our daily natural rituals.",
+    ar: "انضمي إلى مجتمعنا واكتشفي طقوسنا الطبيعية اليومية.",
+  },
+
+  // Products page
+  "products.sortBy": { fr: "Trier par", en: "Sort by", ar: "ترتيب حسب" },
+  "products.sortFeatured": { fr: "En vedette", en: "Featured", ar: "المميزة" },
+  "products.sortNewest": { fr: "Nouveautés", en: "Newest", ar: "الأحدث" },
+  "products.sortPriceAsc": { fr: "Prix croissant", en: "Price: Low to High", ar: "السعر: من الأقل" },
+  "products.sortPriceDesc": { fr: "Prix décroissant", en: "Price: High to Low", ar: "السعر: من الأعلى" },
+  "products.sortAlpha": { fr: "Alphabétique A-Z", en: "A-Z", ar: "أبجدي أ-ي" },
+  "products.product": { fr: "produit", en: "product", ar: "منتج" },
+  "products.productPlural": { fr: "produits", en: "products", ar: "منتجات" },
+  "products.noProducts": { fr: "Aucun produit trouvé", en: "No products found", ar: "لم يتم العثور على منتجات" },
+  "products.collectionPrep": { fr: "Cette collection est en cours de préparation.", en: "This collection is being prepared.", ar: "هذه المجموعة قيد التحضير." },
+  "products.needAdvice": { fr: "Besoin de Conseils ?", en: "Need Advice?", ar: "تحتاجين نصيحة؟" },
+  "products.hereForYou": { fr: "Nous Sommes Là Pour Vous", en: "We're Here For You", ar: "نحن هنا من أجلك" },
+
+  // Product detail
+  "productDetail.notFound": { fr: "Produit Introuvable", en: "Product Not Found", ar: "المنتج غير موجود" },
+  "productDetail.notFoundDesc": { fr: "Le produit que vous recherchez n'existe pas.", en: "The product you're looking for doesn't exist.", ar: "المنتج الذي تبحثين عنه غير موجود." },
+  "productDetail.ingredients": { fr: "Ingrédients", en: "Ingredients", ar: "المكونات" },
+  "productDetail.addedToCart": { fr: "Ajouté au panier", en: "Added to cart", ar: "تمت الإضافة إلى السلة" },
+  "productDetail.addedToFavorites": { fr: "Ajouté aux favoris", en: "Added to favorites", ar: "تمت الإضافة إلى المفضلة" },
+  "productDetail.removedFromFavorites": { fr: "Retiré des favoris", en: "Removed from favorites", ar: "تمت الإزالة من المفضلة" },
+  "productDetail.saved": { fr: "Sauvegardé", en: "Saved", ar: "محفوظ" },
+  "productDetail.addToFavorites": { fr: "Ajouter aux Favoris", en: "Add to Favorites", ar: "أضيفي إلى المفضلة" },
+  "productDetail.freeShipping": { fr: "Livraison offerte dès 500 DH", en: "Free shipping from 500 DH", ar: "شحن مجاني ابتداءً من 500 درهم" },
+  "productDetail.shipping": { fr: "Livraison", en: "Shipping", ar: "التوصيل" },
+  "productDetail.returns": { fr: "Retours", en: "Returns", ar: "الإرجاع" },
+  "productDetail.returnsPolicy": { fr: "Retour sous 14 jours", en: "14-day returns", ar: "إرجاع خلال 14 يومًا" },
+  "productDetail.youMayAlsoLike": { fr: "Vous Aimerez Aussi", en: "You May Also Like", ar: "قد يعجبك أيضًا" },
+  "productDetail.moreFrom": { fr: "Plus de", en: "More from", ar: "المزيد من" },
+
+  // Cart
+  "cart.yourCart": { fr: "Votre Panier", en: "Your Cart", ar: "سلتك" },
+  "cart.empty": { fr: "Votre Panier est Vide", en: "Your Cart is Empty", ar: "سلتك فارغة" },
+  "cart.emptyDesc": {
+    fr: "Découvrez notre collection de produits naturels et trouvez ce qui vous convient.",
+    en: "Discover our natural products collection and find what suits you.",
+    ar: "اكتشفي مجموعتنا من المنتجات الطبيعية وجدي ما يناسبك.",
+  },
+  "cart.startShopping": { fr: "Commencer vos achats", en: "Start Shopping", ar: "ابدئي التسوق" },
+  "cart.continueShopping": { fr: "Continuer vos achats", en: "Continue Shopping", ar: "متابعة التسوق" },
+  "cart.summary": { fr: "Récapitulatif", en: "Summary", ar: "الملخص" },
+  "cart.subtotal": { fr: "Sous-total", en: "Subtotal", ar: "المجموع الفرعي" },
+  "cart.shipping": { fr: "Livraison", en: "Shipping", ar: "التوصيل" },
+  "cart.free": { fr: "Offerte", en: "Free", ar: "مجاني" },
+  "cart.freeShippingFrom": { fr: "Livraison offerte dès 500 DH d'achat", en: "Free shipping from 500 DH", ar: "شحن مجاني ابتداءً من 500 درهم" },
+  "cart.total": { fr: "Total", en: "Total", ar: "المجموع" },
+  "cart.checkout": { fr: "Passer la Commande", en: "Checkout", ar: "إتمام الطلب" },
+  "cart.deliveryMorocco": { fr: "Livraison partout au Maroc", en: "Delivery across Morocco", ar: "توصيل في جميع أنحاء المغرب" },
+  "cart.returns": { fr: "Retours", en: "Returns", ar: "الإرجاع" },
+  "cart.returnsPolicy": { fr: "Retour sous 14 jours", en: "14-day returns", ar: "إرجاع خلال 14 يومًا" },
+
+  // Checkout
+  "checkout.order": { fr: "Commande", en: "Order", ar: "الطلب" },
+  "checkout.noItems": { fr: "Aucun article", en: "No items", ar: "لا توجد عناصر" },
+  "checkout.emptyCart": { fr: "Votre panier est vide.", en: "Your cart is empty.", ar: "سلتك فارغة." },
+  "checkout.paymentSoon": { fr: "Paiement en ligne bientôt disponible.", en: "Online payment coming soon.", ar: "الدفع الإلكتروني قريبًا." },
+  "checkout.paymentDesc": {
+    fr: "Soumettez votre commande et nous vous contacterons pour finaliser l'achat.",
+    en: "Submit your order and we'll contact you to finalize the purchase.",
+    ar: "أرسلي طلبك وسنتواصل معك لإتمام الشراء.",
+  },
+  "checkout.contactInfo": { fr: "Informations de contact", en: "Contact Information", ar: "معلومات الاتصال" },
+  "checkout.firstName": { fr: "Prénom", en: "First Name", ar: "الاسم الأول" },
+  "checkout.lastName": { fr: "Nom", en: "Last Name", ar: "اسم العائلة" },
+  "checkout.email": { fr: "Email", en: "Email", ar: "البريد الإلكتروني" },
+  "checkout.phone": { fr: "Téléphone", en: "Phone", ar: "الهاتف" },
+  "checkout.shippingAddress": { fr: "Adresse de livraison", en: "Shipping Address", ar: "عنوان التوصيل" },
+  "checkout.address": { fr: "Adresse", en: "Address", ar: "العنوان" },
+  "checkout.city": { fr: "Ville", en: "City", ar: "المدينة" },
+  "checkout.postalCode": { fr: "Code postal", en: "Postal Code", ar: "الرمز البريدي" },
+  "checkout.country": { fr: "Pays", en: "Country", ar: "البلد" },
+  "checkout.notes": { fr: "Notes", en: "Notes", ar: "ملاحظات" },
+  "checkout.notesPlaceholder": { fr: "Demandes spéciales ou notes...", en: "Special requests or notes...", ar: "طلبات خاصة أو ملاحظات..." },
+  "checkout.submit": { fr: "Envoyer la Commande", en: "Submit Order", ar: "إرسال الطلب" },
+  "checkout.submitting": { fr: "Envoi en cours...", en: "Submitting...", ar: "جاري الإرسال..." },
+  "checkout.qty": { fr: "Qté", en: "Qty", ar: "الكمية" },
+  "checkout.questions": { fr: "Questions ?", en: "Questions?", ar: "أسئلة؟" },
+  "checkout.contactEmail": { fr: "Contactez-nous à", en: "Contact us at", ar: "تواصلي معنا على" },
+  "checkout.orderSuccess": { fr: "Commande enregistrée !", en: "Order submitted!", ar: "تم تسجيل الطلب!" },
+  "checkout.orderSuccessDesc": { fr: "Votre commande a bien été enregistrée.", en: "Your order has been recorded.", ar: "تم تسجيل طلبك بنجاح." },
+  "checkout.orderError": { fr: "Erreur", en: "Error", ar: "خطأ" },
+  "checkout.orderErrorDesc": { fr: "Impossible d'enregistrer la commande.", en: "Failed to submit order.", ar: "فشل في تسجيل الطلب." },
+
+  // Wishlist
+  "wishlist.title": { fr: "Mes Favoris", en: "My Favorites", ar: "مفضلاتي" },
+  "wishlist.empty": { fr: "Vous n'avez pas encore de produits sauvegardés.", en: "You haven't saved any products yet.", ar: "لم تحفظي أي منتجات بعد." },
+  "wishlist.emptyDesc": { fr: "Explorez notre boutique et sauvegardez vos coups de cœur.", en: "Explore our shop and save your favorites.", ar: "استكشفي متجرنا واحفظي ما يعجبك." },
+  "wishlist.discoverShop": { fr: "Découvrir la Boutique", en: "Discover the Shop", ar: "اكتشفي المتجر" },
+  "wishlist.removeAll": { fr: "Tout supprimer", en: "Remove all", ar: "حذف الكل" },
+  "wishlist.cleared": { fr: "Favoris vidés", en: "Favorites cleared", ar: "تم مسح المفضلة" },
+  "wishlist.removed": { fr: "Retiré des favoris", en: "Removed from favorites", ar: "تمت الإزالة من المفضلة" },
+
+  // About
+  "about.heroTag": { fr: "Notre Histoire", en: "Our Story", ar: "قصتنا" },
+  "about.heroTitle1": { fr: "Rituels Naturels", en: "Natural Rituals", ar: "طقوس طبيعية" },
+  "about.heroTitle2": { fr: "pour Chaque Femme", en: "for Every Woman", ar: "لكل امرأة" },
+  "about.heroDesc": {
+    fr: "Des plantes pures, préparées avec soin, pour un soulagement véritable.",
+    en: "Pure plants, carefully prepared, for true relief.",
+    ar: "نباتات نقية، محضرة بعناية، لراحة حقيقية.",
+  },
+  "about.philosophy": { fr: "Notre Philosophie", en: "Our Philosophy", ar: "فلسفتنا" },
+  "about.philosophyText": {
+    fr: "Nous croyons que la nature offre les meilleurs remèdes. Nos mélanges sont préparés avec amour et",
+    en: "We believe nature offers the best remedies. Our blends are prepared with love and",
+    ar: "نؤمن بأن الطبيعة تقدم أفضل العلاجات. خلطاتنا محضرة بحب و",
+  },
+  "about.philosophyItalic": { fr: "respect", en: "respect", ar: "احترام" },
+  "about.philosophyText2": {
+    fr: "des traditions ancestrales.",
+    en: "for ancestral traditions.",
+    ar: "للتقاليد العريقة.",
+  },
+  "about.origins": { fr: "Les Origines", en: "The Origins", ar: "الأصول" },
+  "about.originsTitle1": { fr: "Un Savoir", en: "Knowledge", ar: "معرفة" },
+  "about.originsTitle2": { fr: "Transmis", en: "Passed Down", ar: "متوارثة" },
+  "about.originsText1": {
+    fr: "ALIAA Natural Care est née d'une passion pour les plantes médicinales et les recettes traditionnelles transmises de mère en fille. Chaque produit est le fruit d'un savoir ancestral, adapté aux besoins des femmes d'aujourd'hui.",
+    en: "ALIAA Natural Care was born from a passion for medicinal plants and traditional recipes passed down from mother to daughter. Each product is the result of ancestral knowledge, adapted to today's women's needs.",
+    ar: "ولدت ALIAA Natural Care من شغف بالنباتات الطبية والوصفات التقليدية المتوارثة من الأم إلى الابنة. كل منتج هو ثمرة معرفة الأجداد، مُكيّف لاحتياجات المرأة المعاصرة.",
+  },
+  "about.originsText2": {
+    fr: "Nos mélanges — Chay Nifas, Msakhen, Tashinas et Talbina — sont préparés artisanalement, sans conservateurs, pour préserver toute la puissance des plantes naturelles.",
+    en: "Our blends — Chay Nifas, Msakhen, Tashinas and Talbina — are handcrafted, without preservatives, to preserve the full power of natural plants.",
+    ar: "خلطاتنا — شاي النفاس، المسخن، التشيناس والتلبينة — محضرة يدويًا، بدون مواد حافظة، للحفاظ على كامل قوة النباتات الطبيعية.",
+  },
+  "about.quote": {
+    fr: '"La nature guérit, nous préservons son savoir"',
+    en: '"Nature heals, we preserve its wisdom"',
+    ar: '"الطبيعة تشفي، ونحن نحفظ حكمتها"',
+  },
+  "about.approach": { fr: "Notre Approche", en: "Our Approach", ar: "نهجنا" },
+  "about.approachTitle1": { fr: "De la Plante", en: "From Plant", ar: "من النبتة" },
+  "about.approachTitle2": { fr: "à Votre Tasse", en: "to Your Cup", ar: "إلى كوبك" },
+  "about.approachText1": {
+    fr: "Chaque ingrédient est sélectionné pour sa pureté et ses bienfaits. Nous travaillons directement avec des producteurs locaux qui partagent notre engagement pour la qualité et le respect de l'environnement.",
+    en: "Every ingredient is selected for its purity and benefits. We work directly with local producers who share our commitment to quality and environmental respect.",
+    ar: "كل مكون يتم اختياره لنقائه وفوائده. نعمل مباشرة مع منتجين محليين يشاركوننا التزامنا بالجودة واحترام البيئة.",
+  },
+  "about.approachText2": {
+    fr: "Nos préparations sont réalisées en petits lots pour garantir fraîcheur et qualité optimales. Chaque pot est le reflet de notre amour pour les plantes et notre dévouement au bien-être féminin.",
+    en: "Our preparations are made in small batches to ensure optimal freshness and quality. Each jar reflects our love for plants and our dedication to women's wellness.",
+    ar: "مستحضراتنا محضرة بكميات صغيرة لضمان أقصى درجات الطزاجة والجودة. كل وعاء يعكس حبنا للنباتات وتفانينا في رفاهية المرأة.",
+  },
+  "about.whatGuidesUs": { fr: "Ce Qui Nous Guide", en: "What Guides Us", ar: "ما يرشدنا" },
+  "about.ourValues": { fr: "Nos Valeurs", en: "Our Values", ar: "قيمنا" },
+  "about.purity": { fr: "Pureté", en: "Purity", ar: "النقاء" },
+  "about.purityDesc": {
+    fr: "100% naturel, sans conservateurs ni additifs. Chaque ingrédient est choisi pour sa qualité et ses propriétés bienfaisantes.",
+    en: "100% natural, no preservatives or additives. Every ingredient is chosen for its quality and beneficial properties.",
+    ar: "100% طبيعي، بدون مواد حافظة أو إضافات. كل مكون مختار لجودته وخصائصه المفيدة.",
+  },
+  "about.tradition": { fr: "Tradition", en: "Tradition", ar: "التقاليد" },
+  "about.traditionDesc": {
+    fr: "Des recettes ancestrales transmises de génération en génération, adaptées aux besoins des femmes modernes.",
+    en: "Ancestral recipes passed down through generations, adapted to modern women's needs.",
+    ar: "وصفات عريقة متوارثة عبر الأجيال، مُكيّفة لاحتياجات المرأة المعاصرة.",
+  },
+  "about.kindness": { fr: "Bienveillance", en: "Kindness", ar: "اللطف" },
+  "about.kindnessDesc": {
+    fr: "Chaque produit est préparé avec amour et intention, dans le respect de la femme et de la nature.",
+    en: "Each product is prepared with love and intention, with respect for women and nature.",
+    ar: "كل منتج محضر بحب وعناية، باحترام للمرأة والطبيعة.",
+  },
+  "about.ctaTag": { fr: "Contactez-Nous", en: "Contact Us", ar: "اتصلي بنا" },
+  "about.ctaTitle": { fr: "Une Question ?", en: "Have a Question?", ar: "لديك سؤال؟" },
+  "about.ctaDesc": {
+    fr: "Nous sommes toujours heureuses de vous conseiller sur nos produits et de vous aider à trouver le rituel qui vous convient.",
+    en: "We're always happy to advise you on our products and help you find the ritual that suits you.",
+    ar: "يسعدنا دائمًا تقديم النصح لك حول منتجاتنا ومساعدتك في إيجاد الطقس المناسب لك.",
+  },
+  "about.writeUs": { fr: "Nous Écrire", en: "Write to Us", ar: "راسلينا" },
+
+  // Pack detail
+  "pack.notFound": { fr: "Pack Introuvable", en: "Pack Not Found", ar: "الحزمة غير موجودة" },
+  "pack.notFoundDesc": { fr: "Le pack que vous recherchez n'existe pas.", en: "The pack you're looking for doesn't exist.", ar: "الحزمة التي تبحثين عنها غير موجودة." },
+  "pack.backHome": { fr: "Retour à l'accueil", en: "Back to home", ar: "العودة للرئيسية" },
+  "pack.contents": { fr: "Contenu du pack", en: "Pack contents", ar: "محتويات الحزمة" },
+  "pack.productsCount": { fr: "produits", en: "products", ar: "منتجات" },
+  "pack.addedToCart": { fr: "Pack ajouté au panier", en: "Pack added to cart", ar: "تمت إضافة الحزمة إلى السلة" },
+
+  // Footer
+  "footer.tagline": { fr: "Pure Plants, True Relief. Rituels naturels pour chaque femme.", en: "Pure Plants, True Relief. Natural rituals for every woman.", ar: "نباتات نقية، راحة حقيقية. طقوس طبيعية لكل امرأة." },
+  "footer.explore": { fr: "Explorer", en: "Explore", ar: "استكشفي" },
+  "footer.contact": { fr: "Contact", en: "Contact", ar: "اتصلي بنا" },
+  "footer.schedule": { fr: "Lun–Ven, 9h–18h", en: "Mon–Fri, 9am–6pm", ar: "الإثنين–الجمعة، 9ص–6م" },
+
+  // Language selector
+  "lang.chooseLanguage": { fr: "Choisissez votre langue", en: "Choose your language", ar: "اختاري لغتك" },
+  "lang.welcome": { fr: "Bienvenue chez ALIAA", en: "Welcome to ALIAA", ar: "مرحبًا بك في ALIAA" },
+} as const;
+
+export type TranslationKey = keyof typeof translations;
+
+export function t(key: TranslationKey, lang: Language): string {
+  return translations[key]?.[lang] || translations[key]?.["fr"] || key;
+}
+
+export default translations;
