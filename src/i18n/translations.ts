@@ -278,6 +278,14 @@ const translations = {
   "footer.contact": { fr: "Contact", en: "Contact", ar: "اتصلي بنا" },
   "footer.schedule": { fr: "Lun–Ven, 9h–18h", en: "Mon–Fri, 9am–6pm", ar: "الإثنين–الجمعة، 9ص–6م" },
 
+  // Promo codes
+  "checkout.promoCode": { fr: "Code promo", en: "Promo code", ar: "رمز ترويجي" },
+  "checkout.promoPlaceholder": { fr: "Entrez votre code", en: "Enter your code", ar: "أدخلي الرمز" },
+  "checkout.promoApply": { fr: "Appliquer", en: "Apply", ar: "تطبيق" },
+  "checkout.promoApplied": { fr: "Code promo appliqué", en: "Promo code applied", ar: "تم تطبيق الرمز" },
+  "checkout.promoInvalid": { fr: "Code promo invalide", en: "Invalid promo code", ar: "رمز ترويجي غير صالح" },
+  "checkout.promoDiscount": { fr: "Réduction", en: "Discount", ar: "خصم" },
+
   // Language selector
   "lang.chooseLanguage": { fr: "Choisissez votre langue", en: "Choose your language", ar: "اختاري لغتك" },
   "lang.welcome": { fr: "Bienvenue chez ALIAA", en: "Welcome to ALIAA", ar: "مرحبًا بك في ALIAA" },
