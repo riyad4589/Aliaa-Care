@@ -15,6 +15,7 @@ import AdminProducts from "./pages/AdminProducts";
 import AdminFinances from "./pages/AdminFinances";
 import AdminCategories from "./pages/AdminCategories";
 import AdminPacks from "./pages/AdminPacks";
+import PackDetail from "./pages/PackDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
