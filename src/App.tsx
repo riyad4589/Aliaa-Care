@@ -16,6 +16,7 @@ import AdminProducts from "./pages/AdminProducts";
 import AdminFinances from "./pages/AdminFinances";
 import AdminCategories from "./pages/AdminCategories";
 import AdminPacks from "./pages/AdminPacks";
+import AdminPromoCodes from "./pages/AdminPromoCodes";
 import PackDetail from "./pages/PackDetail";
 import NotFound from "./pages/NotFound";
 
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/admin/categories" element={<AdminCategories />} />
           <Route path="/pack/:slug" element={<PackDetail />} />
           <Route path="/admin/packs" element={<AdminPacks />} />
+          <Route path="/admin/promo-codes" element={<AdminPromoCodes />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
