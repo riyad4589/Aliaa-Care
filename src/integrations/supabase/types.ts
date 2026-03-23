@@ -160,6 +160,39 @@ export type Database = {
           },
         ]
       }
+      packaging: {
+        Row: {
+          active: boolean
+          cost_price: number
+          created_at: string
+          description: string | null
+          id: string
+          image: string | null
+          name: string
+          stock: number
+        }
+        Insert: {
+          active?: boolean
+          cost_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          name: string
+          stock?: number
+        }
+        Update: {
+          active?: boolean
+          cost_price?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          name?: string
+          stock?: number
+        }
+        Relationships: []
+      }
       packs: {
         Row: {
           active: boolean
