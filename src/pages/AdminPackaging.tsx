@@ -26,6 +26,25 @@ const AdminPackaging = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Packaging | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from("packaging-images").upload(path, file);
+      if (error) throw error;
+      const { data } = supabase.storage.from("packaging-images").getPublicUrl(path);
+      setForm(f => ({ ...f, image: data.publicUrl }));
+      toast({ title: "Image importée" });
+    } catch {
+      toast({ title: "Erreur d'upload", variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const lowStock = packaging.filter((p) => p.active && p.stock < LOW_STOCK_THRESHOLD);
 
