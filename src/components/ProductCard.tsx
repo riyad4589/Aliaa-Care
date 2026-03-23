@@ -18,10 +18,20 @@ interface ProductCardProps {
 export const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardProps) => {
   const { addItem, removeItem, isInWishlist } = useWishlist();
   const { collections } = useClientProducts();
+  const { getProductDiscount, getFlashPromos } = useActivePromotions();
   const { t } = useT();
   const inWishlist = isInWishlist(product.id);
   const collection = collections.find((c) => c.id === product.collection);
   const hasSecondImage = product.images.length > 1;
+
+  const discount = getProductDiscount(product.id, product.collections || []);
+  const originalPrice = (product as any).originalPrice;
+  const hasOriginalPrice = originalPrice && originalPrice > product.price;
+  const promoDiscount = discount > 0 ? discount : (hasOriginalPrice ? Math.round((1 - product.price / originalPrice) * 100) : 0);
+  const flashPromo = getFlashPromos().find(fp =>
+    fp.target_type === "all" ||
+    (fp.target_type === "specific_products" && fp.product_ids?.includes(product.id))
+  );
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
