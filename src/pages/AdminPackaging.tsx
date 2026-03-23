@@ -192,8 +192,33 @@ const AdminPackaging = () => {
               <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} />
             </div>
             <div>
-              <label className="text-sm font-medium">URL Image</label>
-              <Input value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} />
+              <label className="text-sm font-medium">Image</label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleImageUpload(file);
+                }}
+              />
+              <div className="flex items-center gap-3 mt-1">
+                {form.image && form.image !== "/placeholder.svg" && (
+                  <img src={form.image} alt="Aperçu" className="w-14 h-14 object-cover rounded border border-border" />
+                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploading}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="gap-2"
+                >
+                  {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  {uploading ? "Upload..." : "Importer une image"}
+                </Button>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
