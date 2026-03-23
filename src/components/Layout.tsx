@@ -1,32 +1,30 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const pageVariants = {
-  initial: {
-    opacity: 0,
-  },
+  initial: { opacity: 0 },
   animate: {
     opacity: 1,
-    transition: {
-      duration: 0.5,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
-    },
+    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const },
   },
-  exit: {
-    opacity: 0,
-    transition: {
-      duration: 0.3,
-    },
-  },
+  exit: { opacity: 0, transition: { duration: 0.3 } },
 };
 
 export const Layout = ({ children }: LayoutProps) => {
+  const language = useLanguage((s) => s.language);
+
+  useEffect(() => {
+    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = language;
+  }, [language]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
