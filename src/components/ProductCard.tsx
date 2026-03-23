@@ -4,7 +4,9 @@ import { motion } from "framer-motion";
 import { Product } from "@/data/products";
 import { useClientProducts } from "@/hooks/useClientProducts";
 import { useWishlist } from "@/hooks/useWishlist";
+import { useActivePromotions } from "@/hooks/usePromotions";
 import { useT } from "@/hooks/useT";
+import { FlashCountdown } from "@/components/FlashCountdown";
 import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
