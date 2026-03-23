@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { usePackaging, useCreatePackaging, useUpdatePackaging, useDeletePackaging, Packaging } from "@/hooks/usePackaging";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Package, AlertTriangle, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Package, AlertTriangle, Loader2, Upload } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const LOW_STOCK_THRESHOLD = 5;
 
@@ -25,6 +26,25 @@ const AdminPackaging = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Packaging | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from("packaging-images").upload(path, file);
+      if (error) throw error;
+      const { data } = supabase.storage.from("packaging-images").getPublicUrl(path);
+      setForm(f => ({ ...f, image: data.publicUrl }));
+      toast({ title: "Image importée" });
+    } catch {
+      toast({ title: "Erreur d'upload", variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const lowStock = packaging.filter((p) => p.active && p.stock < LOW_STOCK_THRESHOLD);
 
@@ -172,8 +192,33 @@ const AdminPackaging = () => {
               <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} />
             </div>
             <div>
-              <label className="text-sm font-medium">URL Image</label>
-              <Input value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} />
+              <label className="text-sm font-medium">Image</label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleImageUpload(file);
+                }}
+              />
+              <div className="flex items-center gap-3 mt-1">
+                {form.image && form.image !== "/placeholder.svg" && (
+                  <img src={form.image} alt="Aperçu" className="w-14 h-14 object-cover rounded border border-border" />
+                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploading}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="gap-2"
+                >
+                  {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  {uploading ? "Upload..." : "Importer une image"}
+                </Button>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
