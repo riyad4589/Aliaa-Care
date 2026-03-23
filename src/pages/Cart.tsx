@@ -4,15 +4,21 @@ import { ArrowRight, ShoppingBag, Trash2 } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { QuantitySelector } from "@/components/QuantitySelector";
 import { useCart } from "@/hooks/useCart";
+import { useActivePromotions } from "@/hooks/usePromotions";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/hooks/useT";
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, getSubtotal } = useCart();
+  const { getTieredDiscount, getTieredPromos } = useActivePromotions();
   const { t } = useT();
   const subtotal = getSubtotal();
-  const shipping = subtotal > 500 ? 0 : 25;
-  const total = subtotal + shipping;
+  const totalItems = items.reduce((s, i) => s + i.quantity, 0);
+  const tieredDiscount = getTieredDiscount(totalItems);
+  const tieredPromos = getTieredPromos();
+  const discountAmount = Math.round(subtotal * tieredDiscount / 100);
+  const shipping = (subtotal - discountAmount) > 500 ? 0 : 25;
+  const total = subtotal - discountAmount + shipping;
 
   if (items.length === 0) {
     return (
@@ -89,6 +95,17 @@ const Cart = () => {
                     <span className="text-muted-foreground">{t("cart.shipping")}</span>
                     <span>{shipping === 0 ? t("cart.free") : `${shipping} DH`}</span>
                   </div>
+                  {tieredDiscount > 0 && (
+                    <div className="flex justify-between text-sm text-destructive">
+                      <span>Réduction palier (-{tieredDiscount}%)</span>
+                      <span>-{discountAmount.toLocaleString()} DH</span>
+                    </div>
+                  )}
+                  {tieredPromos.length > 0 && tieredDiscount === 0 && (
+                    <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">
+                      💡 {tieredPromos[0].tier_rules?.[0] && `Ajoutez ${tieredPromos[0].tier_rules[0].min_qty - totalItems} article(s) pour obtenir -${tieredPromos[0].tier_rules[0].discount_percent}%`}
+                    </div>
+                  )}
                   {subtotal < 500 && <p className="text-xs text-muted-foreground">{t("cart.freeShippingFrom")}</p>}
                 </div>
                 <div className="border-t border-border pt-4 mb-8">

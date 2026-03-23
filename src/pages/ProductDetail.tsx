@@ -5,7 +5,9 @@ import { Heart, ChevronLeft, ChevronRight, ArrowRight, ShoppingBag } from "lucid
 import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
 import { QuantitySelector } from "@/components/QuantitySelector";
+import { FlashCountdown } from "@/components/FlashCountdown";
 import { useClientProducts } from "@/hooks/useClientProducts";
+import { useActivePromotions } from "@/hooks/usePromotions";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
@@ -16,6 +18,7 @@ import { cn } from "@/lib/utils";
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { getProductBySlug, getRelatedProducts, collections } = useClientProducts();
+  const { getProductDiscount, getFlashPromos } = useActivePromotions();
   const product = getProductBySlug(slug || "");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -131,7 +134,41 @@ const ProductDetail = () => {
                   className="inline-block text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-5 hover:text-primary/80 transition-colors">{collection.name}</Link>
               )}
               <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground mb-5 leading-[1.05]">{product.name}</h1>
-              <p className="text-2xl font-serif text-foreground mb-8">{product.price.toLocaleString()} DH</p>
+              {(() => {
+                const discount = getProductDiscount(product.id, product.collections || []);
+                const originalPrice = (product as any).originalPrice;
+                const hasOriginal = originalPrice && originalPrice > product.price;
+                const promoDiscount = discount > 0 ? discount : (hasOriginal ? Math.round((1 - product.price / originalPrice) * 100) : 0);
+                const flashPromo = getFlashPromos().find(fp =>
+                  fp.target_type === "all" ||
+                  (fp.target_type === "specific_products" && fp.product_ids?.includes(product.id))
+                );
+                return (
+                  <div className="mb-8">
+                    {promoDiscount > 0 ? (
+                      <div className="flex items-center gap-4">
+                        <p className="text-2xl font-serif text-destructive">
+                          {Math.round(product.price * (1 - promoDiscount / 100)).toLocaleString()} DH
+                        </p>
+                        <p className="text-lg text-muted-foreground line-through">{product.price.toLocaleString()} DH</p>
+                        <span className="px-2 py-1 text-xs font-semibold bg-destructive text-destructive-foreground rounded-sm">-{promoDiscount}%</span>
+                      </div>
+                    ) : hasOriginal ? (
+                      <div className="flex items-center gap-4">
+                        <p className="text-2xl font-serif text-foreground">{product.price.toLocaleString()} DH</p>
+                        <p className="text-lg text-muted-foreground line-through">{originalPrice.toLocaleString()} DH</p>
+                      </div>
+                    ) : (
+                      <p className="text-2xl font-serif text-foreground">{product.price.toLocaleString()} DH</p>
+                    )}
+                    {flashPromo && (
+                      <div className="mt-3">
+                        <FlashCountdown endsAt={flashPromo.ends_at} label="Offre flash" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
               <div className="w-12 h-px bg-border mb-8" />
               <p className="text-muted-foreground leading-[1.8] mb-10">{product.longDescription}</p>
               <div className="space-y-5 mb-10 pb-10 border-b border-border">

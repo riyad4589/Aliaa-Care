@@ -8,6 +8,7 @@ import { CollectionCard } from "@/components/CollectionCard";
 import { useClientProducts } from "@/hooks/useClientProducts";
 import { usePacks } from "@/hooks/usePacks";
 import { PackCard } from "@/components/PackCard";
+import { PromoBanner } from "@/components/PromoBanner";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/hooks/useT";
 import coffretImg from "@/assets/coffret-aliaa.jpeg";
@@ -35,6 +36,7 @@ const Index = () => {
       {banner.enabled && (
         <div className="bg-primary text-primary-foreground text-center py-2.5 text-sm tracking-wide">{banner.message}</div>
       )}
+      <PromoBanner />
 
       {/* Hero */}
       <section ref={heroRef} className="relative h-[100svh] -mt-16 md:-mt-20 overflow-hidden">

@@ -4,7 +4,9 @@ import { motion } from "framer-motion";
 import { Product } from "@/data/products";
 import { useClientProducts } from "@/hooks/useClientProducts";
 import { useWishlist } from "@/hooks/useWishlist";
+import { useActivePromotions } from "@/hooks/usePromotions";
 import { useT } from "@/hooks/useT";
+import { FlashCountdown } from "@/components/FlashCountdown";
 import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
@@ -16,10 +18,20 @@ interface ProductCardProps {
 export const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardProps) => {
   const { addItem, removeItem, isInWishlist } = useWishlist();
   const { collections } = useClientProducts();
+  const { getProductDiscount, getFlashPromos } = useActivePromotions();
   const { t } = useT();
   const inWishlist = isInWishlist(product.id);
   const collection = collections.find((c) => c.id === product.collection);
   const hasSecondImage = product.images.length > 1;
+
+  const discount = getProductDiscount(product.id, product.collections || []);
+  const originalPrice = (product as any).originalPrice;
+  const hasOriginalPrice = originalPrice && originalPrice > product.price;
+  const promoDiscount = discount > 0 ? discount : (hasOriginalPrice ? Math.round((1 - product.price / originalPrice) * 100) : 0);
+  const flashPromo = getFlashPromos().find(fp =>
+    fp.target_type === "all" ||
+    (fp.target_type === "specific_products" && fp.product_ids?.includes(product.id))
+  );
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -65,6 +77,15 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
                 {t("common.featured")}
               </motion.span>
             )}
+            {promoDiscount > 0 && (
+              <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}
+                className="px-3 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase bg-destructive text-destructive-foreground rounded-sm">
+                -{promoDiscount}%
+              </motion.span>
+            )}
+            {flashPromo && (
+              <FlashCountdown endsAt={flashPromo.ends_at} />
+            )}
           </div>
           <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center pb-6 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100">
             <span className="px-6 py-2.5 text-xs font-medium tracking-[0.15em] uppercase bg-background/95 backdrop-blur-md text-foreground shadow-lg rounded-sm">
@@ -79,7 +100,21 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
           <h3 className="font-serif text-xl text-foreground transition-colors duration-300 group-hover:text-primary leading-snug">{product.name}</h3>
           <p className="text-sm text-muted-foreground line-clamp-1 leading-relaxed">{product.description}</p>
           <div className="flex items-center gap-3 pt-1">
-            <p className="text-base font-medium text-foreground tracking-wide">{product.price.toLocaleString()} DH</p>
+            {promoDiscount > 0 ? (
+              <>
+                <p className="text-base font-medium text-destructive tracking-wide">
+                  {Math.round(product.price * (1 - promoDiscount / 100)).toLocaleString()} DH
+                </p>
+                <p className="text-sm text-muted-foreground line-through">{product.price.toLocaleString()} DH</p>
+              </>
+            ) : hasOriginalPrice ? (
+              <>
+                <p className="text-base font-medium text-foreground tracking-wide">{product.price.toLocaleString()} DH</p>
+                <p className="text-sm text-muted-foreground line-through">{originalPrice.toLocaleString()} DH</p>
+              </>
+            ) : (
+              <p className="text-base font-medium text-foreground tracking-wide">{product.price.toLocaleString()} DH</p>
+            )}
             {product.weight && (
               <>
                 <span className="w-px h-3 bg-border" />

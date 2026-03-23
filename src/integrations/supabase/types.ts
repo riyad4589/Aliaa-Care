@@ -306,6 +306,7 @@ export type Database = {
           long_description: string | null
           materials: string | null
           name: string
+          original_price: number | null
           price: number
           slug: string
           stock: number
@@ -324,6 +325,7 @@ export type Database = {
           long_description?: string | null
           materials?: string | null
           name: string
+          original_price?: number | null
           price?: number
           slug: string
           stock?: number
@@ -342,6 +344,7 @@ export type Database = {
           long_description?: string | null
           materials?: string | null
           name?: string
+          original_price?: number | null
           price?: number
           slug?: string
           stock?: number
@@ -390,6 +393,63 @@ export type Database = {
           max_uses?: number | null
           pack_ids?: string[] | null
           product_ids?: string[] | null
+        }
+        Relationships: []
+      }
+      promotions: {
+        Row: {
+          active: boolean
+          buy_quantity: number | null
+          category_ids: string[] | null
+          created_at: string
+          discount_percent: number | null
+          ends_at: string
+          get_product_id: string | null
+          get_quantity: number | null
+          id: string
+          is_flash: boolean
+          name: string
+          product_ids: string[] | null
+          starts_at: string
+          target_type: string
+          tier_rules: Json | null
+          type: string
+        }
+        Insert: {
+          active?: boolean
+          buy_quantity?: number | null
+          category_ids?: string[] | null
+          created_at?: string
+          discount_percent?: number | null
+          ends_at: string
+          get_product_id?: string | null
+          get_quantity?: number | null
+          id?: string
+          is_flash?: boolean
+          name: string
+          product_ids?: string[] | null
+          starts_at?: string
+          target_type?: string
+          tier_rules?: Json | null
+          type?: string
+        }
+        Update: {
+          active?: boolean
+          buy_quantity?: number | null
+          category_ids?: string[] | null
+          created_at?: string
+          discount_percent?: number | null
+          ends_at?: string
+          get_product_id?: string | null
+          get_quantity?: number | null
+          id?: string
+          is_flash?: boolean
+          name?: string
+          product_ids?: string[] | null
+          starts_at?: string
+          target_type?: string
+          tier_rules?: Json | null
+          type?: string
         }
         Relationships: []
       }
