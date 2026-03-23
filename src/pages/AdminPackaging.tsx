@@ -96,9 +96,9 @@ const AdminPackaging = () => {
         </div>
 
         {lowStock.length > 0 && (
-          <Card className="border-orange-300 bg-orange-50">
+          <Card className="border-destructive/50 bg-destructive/5">
             <CardContent className="py-3">
-              <div className="flex items-center gap-2 text-orange-700">
+              <div className="flex items-center gap-2 text-destructive">
                 <AlertTriangle className="w-4 h-4" />
                 <span className="text-sm font-medium">
                   Stock faible : {lowStock.map((p) => `${p.name} (${p.stock})`).join(", ")}
