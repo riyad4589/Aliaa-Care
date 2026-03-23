@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, AlertCircle } from "lucide-react";
+import { ArrowRight, AlertCircle, Tag, Check, X, Loader2 } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAddOrder } from "@/hooks/useOrders";
+import { useValidatePromoCode, useIncrementPromoUsage, PromoCode } from "@/hooks/usePromoCodes";
 import { useT } from "@/hooks/useT";
 
 const Checkout = () => {
@@ -16,16 +17,45 @@ const Checkout = () => {
   const { toast } = useToast();
   const { items, getSubtotal, clearCart } = useCart();
   const addOrder = useAddOrder();
+  const validatePromo = useValidatePromoCode();
+  const incrementUsage = useIncrementPromoUsage();
   const { t } = useT();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
+  const [promoError, setPromoError] = useState("");
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", email: "", phone: "",
     address: "", city: "", postalCode: "", country: "Maroc", notes: "",
   });
 
   const subtotal = getSubtotal();
-  const shipping = subtotal > 500 ? 0 : 25;
-  const total = subtotal + shipping;
+
+  // Calculate discount
+  const getDiscount = () => {
+    if (!appliedPromo) return 0;
+    if (appliedPromo.applies_to === "all") {
+      return subtotal * (appliedPromo.discount_percent / 100);
+    }
+    // Calculate discount only on eligible items
+    let eligibleTotal = 0;
+    for (const item of items) {
+      const isProduct = appliedPromo.applies_to === "products" || appliedPromo.applies_to === "custom";
+      const isPack = appliedPromo.applies_to === "packs" || appliedPromo.applies_to === "custom";
+      if (
+        (isProduct && appliedPromo.product_ids.includes(item.product.id)) ||
+        (isPack && appliedPromo.pack_ids.includes(item.product.id))
+      ) {
+        eligibleTotal += item.product.price * item.quantity;
+      }
+    }
+    return eligibleTotal * (appliedPromo.discount_percent / 100);
+  };
+
+  const discount = getDiscount();
+  const afterDiscount = subtotal - discount;
+  const shipping = afterDiscount > 500 ? 0 : 25;
+  const total = afterDiscount + shipping;
 
   if (items.length === 0) {
     return (
@@ -48,6 +78,24 @@ const Checkout = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleApplyPromo = async () => {
+    if (!promoInput.trim()) return;
+    setPromoError("");
+    try {
+      const promo = await validatePromo.mutateAsync(promoInput);
+      setAppliedPromo(promo);
+      setPromoInput("");
+      toast({ title: t("checkout.promoApplied"), description: `-${promo.discount_percent}%` });
+    } catch (err: any) {
+      setPromoError(err.message || t("checkout.promoInvalid"));
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoError("");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -65,6 +113,9 @@ const Checkout = () => {
           cost_price: 0,
         })),
       });
+      if (appliedPromo) {
+        await incrementUsage.mutateAsync(appliedPromo.id);
+      }
       toast({ title: t("checkout.orderSuccess"), description: t("checkout.orderSuccessDesc") });
       clearCart();
       navigate("/");
@@ -182,11 +233,59 @@ const Checkout = () => {
                     </div>
                   ))}
                 </div>
+
+                {/* Promo Code Section */}
+                <div className="border-t border-border pt-4 mb-4">
+                  <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-3 flex items-center gap-1.5">
+                    <Tag className="w-3 h-3" />{t("checkout.promoCode")}
+                  </p>
+                  {appliedPromo ? (
+                    <div className="flex items-center justify-between bg-primary/10 border border-primary/20 rounded px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <Check className="w-4 h-4 text-primary" />
+                        <code className="font-mono font-bold text-sm">{appliedPromo.code}</code>
+                        <span className="text-xs text-primary font-medium">-{appliedPromo.discount_percent}%</span>
+                      </div>
+                      <button onClick={handleRemovePromo} className="p-1 hover:bg-primary/10 rounded transition-colors">
+                        <X className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="flex gap-2">
+                        <Input
+                          value={promoInput}
+                          onChange={(e) => { setPromoInput(e.target.value.toUpperCase()); setPromoError(""); }}
+                          placeholder={t("checkout.promoPlaceholder")}
+                          className="rounded-none h-10 font-mono tracking-wider text-sm"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="rounded-none h-10 px-4 text-xs tracking-[0.1em] uppercase shrink-0"
+                          onClick={handleApplyPromo}
+                          disabled={validatePromo.isPending || !promoInput.trim()}
+                        >
+                          {validatePromo.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : t("checkout.promoApply")}
+                        </Button>
+                      </div>
+                      {promoError && <p className="text-xs text-destructive mt-1.5">{promoError}</p>}
+                    </div>
+                  )}
+                </div>
+
                 <div className="border-t border-border pt-4 space-y-3 mb-6">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t("cart.subtotal")}</span>
                     <span>{subtotal.toLocaleString()} DH</span>
                   </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-sm text-primary">
+                      <span>{t("checkout.promoDiscount")}</span>
+                      <span>-{discount.toLocaleString()} DH</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t("cart.shipping")}</span>
                     <span>{shipping === 0 ? t("cart.free") : `${shipping} DH`}</span>
