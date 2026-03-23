@@ -18,6 +18,8 @@ import laitCorporelImg from "@/assets/lait-corporel.jpeg";
 
 const Index = () => {
   const { products, collections, getFeaturedProducts, banner } = useClientProducts();
+  const { data: allPacks = [] } = usePacks();
+  const activePacks = allPacks.filter((p) => p.active);
   const featuredProducts = getFeaturedProducts();
   const latestProducts = products.slice(0, 4);
   const displayedCollections = collections.slice(0, 4);
