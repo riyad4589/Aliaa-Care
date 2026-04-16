@@ -41,12 +41,12 @@ const Packs = () => {
                 </div>
               ))}
             </div>
-          ) : activePacks.length === 0 ? (
-            <div className="text-center py-20">
-              <Gift className="w-16 h-16 mx-auto text-muted-foreground/30 mb-6" />
-              <p className="font-serif text-2xl text-muted-foreground">
-                {t("products.noProducts")}
-              </p>
+          ) : (!activePacks || activePacks.length === 0) ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center w-full">
+              <Gift className="w-16 h-16 text-muted-foreground/20 mb-6" />
+              <h2 className="font-serif text-3xl text-muted-foreground">
+                {t("packs.noPacks") || "Aucun pack"}
+              </h2>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">

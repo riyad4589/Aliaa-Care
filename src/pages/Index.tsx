@@ -120,21 +120,28 @@ const Index = () => {
       </section>
 
       {/* Packs */}
-      {activePacks.length > 0 && (
-        <section className="py-20 md:py-28">
-          <div className="container-full">
-            <div className="flex items-end justify-between mb-14">
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-                <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("index.specialOffers")}</p>
-                <h2 className="font-serif text-4xl md:text-5xl text-foreground">{t("index.ourPacks")}</h2>
-              </motion.div>
-            </div>
+      <section className="py-20 md:py-28">
+        <div className="container-full">
+          <div className="flex items-end justify-between mb-14">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+              <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("index.specialOffers")}</p>
+              <h2 className="font-serif text-4xl md:text-5xl text-foreground">{t("index.ourPacks")}</h2>
+            </motion.div>
+          </div>
+          
+          {activePacks.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {activePacks.map((pack, index) => <PackCard key={pack.id} pack={pack} index={index} />)}
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <div className="text-center py-10">
+              <p className="font-serif text-xl text-muted-foreground italic">
+                {t("packs.noPacks")}
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Collections Grid */}
       <section className="py-24 md:py-32">
@@ -198,7 +205,7 @@ const Index = () => {
           </motion.div>
           <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
             {[coffretImg, gommageCorpsImg, eauDeRoseImg, infusionHerbaleImg, selsDeBainImg, laitCorporelImg].map((image, index) => (
-              <motion.a key={index} href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+              <motion.a key={index} href="https://www.instagram.com/aliaacare/" target="_blank" rel="noopener noreferrer"
                 initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }} className="relative aspect-square overflow-hidden group cursor-pointer">
                 <img src={image} alt="Instagram" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />

@@ -101,7 +101,7 @@ const translations = {
   "products.sortAlpha": { fr: "Alphabétique A-Z", en: "A-Z", ar: "أبجدي أ-ي" },
   "products.product": { fr: "produit", en: "product", ar: "منتج" },
   "products.productPlural": { fr: "produits", en: "products", ar: "منتجات" },
-  "products.noProducts": { fr: "Aucun produit trouvé", en: "No products found", ar: "لم يتم العثور على منتجات" },
+  "products.noProducts": { fr: "Aucun produit", en: "No products", ar: "لا توجد منتجات" },
   "products.collectionPrep": { fr: "Cette collection est en cours de préparation.", en: "This collection is being prepared.", ar: "هذه المجموعة قيد التحضير." },
   "products.needAdvice": { fr: "Besoin de Conseils ?", en: "Need Advice?", ar: "تحتاجين نصيحة؟" },
   "products.hereForYou": { fr: "Nous Sommes Là Pour Vous", en: "We're Here For You", ar: "نحن هنا من أجلك" },
@@ -272,6 +272,7 @@ const translations = {
   "pack.contents": { fr: "Contenu du pack", en: "Pack contents", ar: "محتويات الحزمة" },
   "pack.productsCount": { fr: "produits", en: "products", ar: "منتجات" },
   "pack.addedToCart": { fr: "Pack ajouté au panier", en: "Pack added to cart", ar: "تمت إضافة الحزمة إلى السلة" },
+  "packs.noPacks": { fr: "Aucun pack", en: "No packs", ar: "لا توجد عروض" },
 
   // Footer
   "footer.tagline": { fr: "Pure Plants, True Relief. Rituels naturels pour chaque femme.", en: "Pure Plants, True Relief. Natural rituals for every woman.", ar: "نباتات نقية، راحة حقيقية. طقوس طبيعية لكل امرأة." },

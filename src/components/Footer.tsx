@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Instagram } from "lucide-react";
 import { useClientProducts } from "@/hooks/useClientProducts";
 import { useT } from "@/hooks/useT";
 
@@ -56,6 +56,12 @@ export const Footer = () => {
             <ul className="space-y-3">
               <li><a href="mailto:contact@aliaacare.com" className="text-sm text-background/60 hover:text-background transition-colors duration-300">contact@aliaacare.com</a></li>
               <li><p className="text-sm text-background/40 leading-relaxed">{t("footer.schedule")}</p></li>
+              <li className="pt-2">
+                <a href="https://www.instagram.com/aliaacare/" target="_blank" rel="noopener noreferrer" className="text-sm text-background/60 hover:text-background transition-colors duration-300 flex items-center gap-2">
+                  <Instagram className="w-4 h-4 text-primary" />
+                  <span>@aliaacare</span>
+                </a>
+              </li>
             </ul>
           </div>
         </div>
