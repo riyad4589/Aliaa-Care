@@ -48,20 +48,9 @@ serve(async (req) => {
       `*Détails :*\n${itemsList}\n\n` +
       `💰 *Total : ${order.total.toLocaleString()} DH*\n` +
       `📍 *Adresse :* ${order.customer_address}, ${order.customer_city}\n\n` +
-      `Veuillez confirmer la validité de cette commande :`;
-
-    const buttons = [
-      {
-        "buttonId": "confirm_order",
-        "buttonText": { "displayText": "✅ Valider la commande" },
-        "type": 1
-      },
-      {
-        "buttonId": "cancel_order",
-        "buttonText": { "displayText": "❌ Rejeter la commande" },
-        "type": 1
-      }
-    ];
+      `*Veuillez confirmer votre commande via l'un des liens ci-dessous :*\n\n` +
+      `✅ *Valider la commande :* https://wa.me/212623315600?text=Je%20valide%20ma%20commande%20${order.order_number}\n\n` +
+      `❌ *Rejeter la commande :* https://wa.me/212623315600?text=Je%20souhaite%20annuler%20ma%20commande%20${order.order_number}`;
 
     // Formatage du numéro de téléphone
     let phone = order.customer_phone || ""; 
@@ -69,14 +58,12 @@ serve(async (req) => {
     if (cleanedPhone.startsWith("0")) cleanedPhone = "212" + cleanedPhone.substring(1);
     if (cleanedPhone.length === 9) cleanedPhone = "212" + cleanedPhone;
 
-    // Appel à UltraMsg
-    const ultraMsgUrl = `https://api.ultramsg.com/${ULTRAMSG_INSTANCE_ID}/messages/buttons`;
+    // Appel à UltraMsg (Utilisation du format Chat pour compatibilité maximale)
+    const ultraMsgUrl = `https://api.ultramsg.com/${ULTRAMSG_INSTANCE_ID}/messages/chat`;
     const params = new URLSearchParams();
     params.append("token", ULTRAMSG_TOKEN || "");
     params.append("to", cleanedPhone);
     params.append("body", body);
-    params.append("footer", "ALIAA Natural Care");
-    params.append("buttons", JSON.stringify(buttons));
 
     const response = await fetch(ultraMsgUrl, {
       method: "POST",
