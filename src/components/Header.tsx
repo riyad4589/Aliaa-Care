@@ -61,9 +61,8 @@ export const Header = () => {
       <nav className="container-full">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-300">
-            <img src={logoImg} alt="ALIAA Natural Care" className="h-10 md:h-12 w-auto rounded-full" />
-            <span className="font-serif text-xl md:text-2xl tracking-tight text-foreground">ALIAA</span>
+          <Link to="/" className="flex items-center hover:opacity-80 transition-opacity duration-300">
+            <img src={logoImg} alt="ALIAA Natural Care" className="h-14 md:h-20 w-auto" />
           </Link>
 
           {/* Desktop Navigation */}
