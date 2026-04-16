@@ -11,7 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useAddOrder } from "@/hooks/useOrders";
 import { useValidatePromoCode, useIncrementPromoUsage, PromoCode } from "@/hooks/usePromoCodes";
 import { useT } from "@/hooks/useT";
-import { sendOrderWhatsAppNotification } from "@/lib/whatsapp";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -106,6 +105,11 @@ const Checkout = () => {
         order_number: orderNumber,
         total,
         total_cost: 0,
+        customer_name: `${formData.firstName} ${formData.lastName}`,
+        customer_phone: formData.phone,
+        customer_address: formData.address,
+        customer_city: formData.city,
+        notes: formData.notes,
         items: items.map((i) => ({
           product_id: i.product.id,
           product_name: i.product.name,
@@ -119,26 +123,6 @@ const Checkout = () => {
       }
       toast({ title: t("checkout.orderSuccess"), description: t("checkout.orderSuccessDesc") });
       
-      // Envoi de la notification WhatsApp
-      try {
-        await sendOrderWhatsAppNotification(
-          {
-            order_number: orderNumber,
-            total,
-            customerName: `${formData.firstName} ${formData.lastName}`,
-            phone: formData.phone,
-            address: `${formData.address}, ${formData.city}`,
-          },
-          items.map((i) => ({
-            product_name: i.product.name,
-            quantity: i.quantity,
-            unit_price: i.product.price,
-          }))
-        );
-      } catch (waError) {
-        console.error("WhatsApp notification failed:", waError);
-      }
-
       clearCart();
       navigate("/");
     } catch {

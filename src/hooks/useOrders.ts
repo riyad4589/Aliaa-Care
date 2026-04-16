@@ -7,6 +7,11 @@ export interface DbOrder {
   total: number;
   total_cost: number;
   created_at: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_address: string;
+  customer_city: string;
+  notes?: string;
   items: { product_id: string | null; product_name: string; quantity: number; unit_price: number; cost_price: number }[];
 }
 
@@ -37,6 +42,11 @@ export function useAddOrder() {
       order_number: string;
       total: number;
       total_cost: number;
+      customer_name: string;
+      customer_phone: string;
+      customer_address: string;
+      customer_city: string;
+      notes?: string;
       items: { product_id?: string; product_name: string; quantity: number; unit_price: number; cost_price: number }[];
     }) => {
       const { items, ...order } = input;
