@@ -102,7 +102,7 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: async (input: {
       id: string;
-      updates: Record<string, unknown>;
+      updates: Partial<{ active: boolean; cost_price: number | null; description: string | null; featured: boolean | null; is_new: boolean | null; long_description: string | null; materials: string | null; name: string; original_price: number | null; price: number; slug: string; stock: number; visible: boolean; weight: number | null }>;
       images?: string[];
       category_ids?: string[];
     }) => {
