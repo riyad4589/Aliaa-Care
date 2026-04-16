@@ -1,6 +1,5 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
-import logoImg from "@/assets/aaliacare-logo.jpeg";
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,7 +9,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <div className="flex-1 flex flex-col">
           <header className="h-14 flex items-center border-b border-border px-4 gap-4">
             <SidebarTrigger />
-            <img src={logoImg} alt="Logo" className="h-8 w-auto" />
             <span className="font-serif text-lg text-foreground">ALIAA Admin</span>
           </header>
           <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto max-w-full">

@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useClientProducts } from "@/hooks/useClientProducts";
 import { useT } from "@/hooks/useT";
-import logoImg from "@/assets/aaliacare-logo.jpeg";
 
 export const Footer = () => {
   const { collections } = useClientProducts();
@@ -14,10 +13,8 @@ export const Footer = () => {
         <div className="container-full py-12 md:py-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
             <div>
-              <Link to="/" className="inline-block hover:opacity-80 transition-opacity duration-300">
-                <img src={logoImg} alt="ALIAA Natural Care" className="h-20 md:h-28 w-auto invert brightness-0" />
-              </Link>
-              <p className="mt-4 text-sm text-background/50 leading-relaxed max-w-xs">{t("footer.tagline")}</p>
+              <Link to="/" className="font-serif text-3xl md:text-4xl tracking-tight text-background">ALIAA</Link>
+              <p className="mt-3 text-sm text-background/50 leading-relaxed max-w-xs">{t("footer.tagline")}</p>
             </div>
             <div className="max-w-sm w-full">
               <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-background/40 mb-3">{t("common.stayConnected")}</p>
