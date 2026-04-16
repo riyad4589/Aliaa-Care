@@ -40,7 +40,7 @@ export function useAddCategory() {
 export function useUpdateCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: Record<string, unknown> }) => {
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<{ active: boolean; name: string; slug: string; description: string | null; image: string | null }> }) => {
       const { error } = await supabase.from("categories").update(updates).eq("id", id);
       if (error) throw error;
     },
