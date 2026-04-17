@@ -97,13 +97,13 @@ const Cart = () => {
                   </div>
                   {tieredDiscount > 0 && (
                     <div className="flex justify-between text-sm text-destructive">
-                      <span>Réduction palier (-{tieredDiscount}%)</span>
+                      <span>{t("cart.tieredDiscount")} (-{tieredDiscount}%)</span>
                       <span>-{discountAmount.toLocaleString()} DH</span>
                     </div>
                   )}
                   {tieredPromos.length > 0 && tieredDiscount === 0 && (
                     <div className="text-xs text-muted-foreground bg-muted/50 rounded p-2">
-                      💡 {tieredPromos[0].tier_rules?.[0] && `Ajoutez ${tieredPromos[0].tier_rules[0].min_qty - totalItems} article(s) pour obtenir -${tieredPromos[0].tier_rules[0].discount_percent}%`}
+                      💡 {tieredPromos[0].tier_rules?.[0] && t("cart.addMoreToGetDiscount").replace("{qty}", (tieredPromos[0].tier_rules[0].min_qty - totalItems).toString()).replace("{percent}", tieredPromos[0].tier_rules[0].discount_percent.toString())}
                     </div>
                   )}
                   {subtotal < 500 && <p className="text-xs text-muted-foreground">{t("cart.freeShippingFrom")}</p>}

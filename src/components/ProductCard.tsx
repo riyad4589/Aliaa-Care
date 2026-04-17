@@ -156,7 +156,7 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
               onClick={handleAddToCart}
             >
               <ShoppingBag className="w-3.5 h-3.5 ltr:mr-2 rtl:ml-2" />
-              {product.stock === 0 ? "Rupture" : "Ajouter"}
+              {product.stock === 0 ? t("common.outOfStockShort") : t("common.add")}
             </Button>
           </div>
         </div>

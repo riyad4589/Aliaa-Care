@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import { useWishlist } from "@/hooks/useWishlist";
+import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
 
 interface PackCardProps {
@@ -17,6 +18,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
   const { addItem } = useCart();
   const { toast } = useToast();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+  const { t } = useT();
   
   const inWishlist = isInWishlist(pack.id);
 
@@ -39,7 +41,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
       materials: "",
       images: [firstImage],
     });
-    toast({ title: "Pack ajouté au panier", description: pack.name });
+    toast({ title: t("pack.addedToCart"), description: pack.name });
   };
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
@@ -47,7 +49,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
     e.stopPropagation();
     if (inWishlist) {
       removeFromWishlist(pack.id);
-      toast({ title: "Retiré des favoris", description: pack.name });
+      toast({ title: t("productDetail.removedFromFavorites"), description: pack.name });
     } else {
       addToWishlist({
         id: pack.id,
@@ -60,7 +62,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
         materials: "",
         images: [firstImage],
       } as any);
-      toast({ title: "Ajouté aux favoris", description: pack.name });
+      toast({ title: t("productDetail.addedToFavorites"), description: pack.name });
     }
   };
 
@@ -141,7 +143,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
             className="rounded-none text-xs tracking-[0.1em] uppercase"
             onClick={handleAddToCart}
           >
-            Ajouter
+            {t("common.add")}
           </Button>
         </div>
       </div>

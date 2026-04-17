@@ -233,7 +233,7 @@ const ProductDetail = () => {
                   className="rounded-none w-full py-6 text-sm tracking-[0.15em] uppercase btn-premium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ShoppingBag className="w-4 h-4 ltr:mr-3 rtl:ml-3" />
-                  {product.stock === 0 ? "Indisponible" : t("common.addToCart")}
+                  {product.stock === 0 ? t("common.unavailable") : t("common.addToCart")}
                 </Button>
                 <Button variant="outline" size="lg" className="rounded-none w-full py-6 text-sm tracking-[0.1em] uppercase" onClick={handleWishlistToggle}>
                   <Heart className={cn("w-4 h-4 ltr:mr-3 rtl:ml-3 transition-all duration-300", inWishlist && "fill-primary text-primary")} />
@@ -251,7 +251,7 @@ const ProductDetail = () => {
                   }}
                 >
                   <WhatsAppIcon className="w-4 h-4 ltr:mr-3 rtl:ml-3" />
-                  Question sur WhatsApp
+                  {t("productDetail.whatsappQuestion")}
                 </Button>
               </div>
               <div className="mt-10 pt-8 border-t border-border grid grid-cols-2 gap-6">

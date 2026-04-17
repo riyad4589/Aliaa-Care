@@ -58,12 +58,32 @@ export const Header = () => {
           : "bg-background/80 backdrop-blur-sm border-b border-transparent"
       )}
     >
+      {/* Announcement Bar */}
+      <div className="bg-primary text-primary-foreground py-2 overflow-hidden whitespace-nowrap border-b border-primary/20">
+        <motion.div
+          animate={{ x: [0, "-10%"] }}
+          transition={{
+            repeat: Infinity,
+            duration: 8,
+            ease: "linear",
+          }}
+          className="inline-block text-[10px] md:text-xs font-bold uppercase tracking-[0.3em]"
+        >
+          {[...Array(10)].map((_, i) => (
+            <span key={i}>
+              {t("header.deliveryMaroc") || "Livraison partout au Maroc"}
+              <span className="mx-12" />
+            </span>
+          ))}
+        </motion.div>
+      </div>
+
       <nav className="container-full">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-300">
             <img src={logoImg} alt="ALIAA Natural Care" className="h-10 md:h-12 w-auto rounded-full" />
-            <span className="font-serif text-xl md:text-2xl tracking-tight text-foreground">ALIAA</span>
+            <span className="font-serif text-xl md:text-2xl tracking-tight text-foreground">ALIAA CARE</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -110,7 +130,7 @@ export const Header = () => {
             </Link>
 
             <Link to="/track-order" className="text-xs font-medium tracking-[0.15em] uppercase text-primary hover:text-primary/80 transition-colors duration-300 flex items-center gap-1.5 border border-primary/20 px-3 py-1.5 rounded-full bg-primary/5">
-              Suivre ma commande
+              {t("common.trackOrder")}
             </Link>
           </div>
 
@@ -218,7 +238,7 @@ export const Header = () => {
                   {[
                     { to: "/products", label: t("common.shop") },
                     { to: "/packs", label: t("common.ourPacks") },
-                    { to: "/track-order", label: "Suivre ma commande" },
+                    { to: "/track-order", label: t("common.trackOrder") },
                     { to: "/about", label: t("common.ourStory") },
                     { to: "/cart", label: t("common.cart") },
                   ].map((link, i) => (

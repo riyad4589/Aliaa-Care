@@ -107,7 +107,7 @@ const Checkout = () => {
       }
 
       if (!isEligible) {
-        setPromoError("Ce code ne s'applique pas aux articles de votre panier");
+        setPromoError(t("checkout.promoNotApplicable"));
         return;
       }
 

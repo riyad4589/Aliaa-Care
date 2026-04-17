@@ -31,11 +31,15 @@ const translations = {
   "common.ourPacks": { fr: "Nos Packs", en: "Our Packs", ar: "حزمنا" },
   "common.save": { fr: "Économisez", en: "Save", ar: "وفّري" },
   "common.outOfStock": { fr: "Rupture de Stock", en: "Out of Stock", ar: "نفذت الكمية" },
+  "common.trackOrder": { fr: "Suivre ma commande", en: "Track my order", ar: "تتبع طلبي" },
+  "common.unavailable": { fr: "Indisponible", en: "Unavailable", ar: "غير متوفر" },
+  "common.outOfStockShort": { fr: "Rupture", en: "OOS", ar: "نفذ" },
 
   // Header
   "header.wishlistEmpty": { fr: "Votre liste de souhaits est vide", en: "Your wishlist is empty", ar: "قائمة أمنياتك فارغة" },
   "header.savedItems": { fr: "article(s) sauvegardé(s)", en: "saved item(s)", ar: "عنصر(عناصر) محفوظة" },
   "header.more": { fr: "de plus", en: "more", ar: "المزيد" },
+  "header.deliveryMaroc": { fr: "Livraison partout au Maroc 🚚", en: "Delivery everywhere in Morocco 🚚", ar: "التوصيل في جميع أنحاء المغرب 🚚" },
 
   // Hero
   "hero.tagline": { fr: "Pure Plants, True Relief", en: "Pure Plants, True Relief", ar: "نباتات نقية، راحة حقيقية" },
@@ -122,6 +126,7 @@ const translations = {
   "productDetail.returnsPolicy": { fr: "Retour sous 14 jours", en: "14-day returns", ar: "إرجاع خلال 14 يومًا" },
   "productDetail.youMayAlsoLike": { fr: "Vous Aimerez Aussi", en: "You May Also Like", ar: "قد يعجبك أيضًا" },
   "productDetail.moreFrom": { fr: "Plus de", en: "More from", ar: "المزيد من" },
+  "productDetail.whatsappQuestion": { fr: "Question sur WhatsApp", en: "Question on WhatsApp", ar: "سؤال عبر الواتساب" },
 
   // Cart
   "cart.yourCart": { fr: "Votre Panier", en: "Your Cart", ar: "سلتك" },
@@ -143,6 +148,8 @@ const translations = {
   "cart.deliveryMorocco": { fr: "Livraison partout au Maroc", en: "Delivery across Morocco", ar: "توصيل في جميع أنحاء المغرب" },
   "cart.returns": { fr: "Retours", en: "Returns", ar: "الإرجاع" },
   "cart.returnsPolicy": { fr: "Retour sous 14 jours", en: "14-day returns", ar: "إرجاع خلال 14 يومًا" },
+  "cart.tieredDiscount": { fr: "Réduction palier", en: "Tiered discount", ar: "خصم المستوى" },
+  "cart.addMoreToGetDiscount": { fr: "Ajoutez {qty} article(s) pour obtenir -{percent}%", en: "Add {qty} more item(s) to get -{percent}%", ar: "أضف {qty} عنصرًا للحصول على -{percent}%" },
 
   // Checkout
   "checkout.order": { fr: "Commande", en: "Order", ar: "الطلب" },
@@ -175,6 +182,7 @@ const translations = {
   "checkout.orderSuccessDesc": { fr: "Votre commande a bien été enregistrée.", en: "Your order has been recorded.", ar: "تم تسجيل طلبك بنجاح." },
   "checkout.orderError": { fr: "Erreur", en: "Error", ar: "خطأ" },
   "checkout.orderErrorDesc": { fr: "Impossible d'enregistrer la commande.", en: "Failed to submit order.", ar: "فشل في تسجيل الطلب." },
+  "checkout.promoNotApplicable": { fr: "Ce code ne s'applique pas aux articles de votre panier", en: "This code does not apply to items in your cart", ar: "هذا الرمز لا ينطبق على العناصر الموجودة في سلتك" },
 
   // Wishlist
   "wishlist.title": { fr: "Mes Favoris", en: "My Favorites", ar: "مفضلاتي" },
