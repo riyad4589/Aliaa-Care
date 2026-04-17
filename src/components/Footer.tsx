@@ -48,6 +48,7 @@ export const Footer = () => {
               <li><Link to="/products" className="text-sm text-background/60 hover:text-background transition-colors duration-300">{t("common.shop")}</Link></li>
               <li><Link to="/packs" className="text-sm text-background/60 hover:text-background transition-colors duration-300">{t("common.ourPacks")}</Link></li>
               <li><Link to="/about" className="text-sm text-background/60 hover:text-background transition-colors duration-300">{t("common.ourStory")}</Link></li>
+              <li><Link to="/track-order" className="text-sm text-background/60 hover:text-background transition-colors duration-300">Suivre ma commande</Link></li>
               <li><Link to="/cart" className="text-sm text-background/60 hover:text-background transition-colors duration-300">{t("common.cart")}</Link></li>
             </ul>
           </div>

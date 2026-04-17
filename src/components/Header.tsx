@@ -108,6 +108,10 @@ export const Header = () => {
             <Link to="/about" className="text-xs font-medium tracking-[0.15em] uppercase text-muted-foreground hover:text-foreground transition-colors duration-300 link-underline">
               {t("common.ourStory")}
             </Link>
+
+            <Link to="/track-order" className="text-xs font-medium tracking-[0.15em] uppercase text-primary hover:text-primary/80 transition-colors duration-300 flex items-center gap-1.5 border border-primary/20 px-3 py-1.5 rounded-full bg-primary/5">
+              Suivre ma commande
+            </Link>
           </div>
 
           {/* Right side actions */}
@@ -214,6 +218,7 @@ export const Header = () => {
                   {[
                     { to: "/products", label: t("common.shop") },
                     { to: "/packs", label: t("common.ourPacks") },
+                    { to: "/track-order", label: "Suivre ma commande" },
                     { to: "/about", label: t("common.ourStory") },
                     { to: "/cart", label: t("common.cart") },
                   ].map((link, i) => (

@@ -23,6 +23,7 @@ import AdminOrders from "./pages/AdminOrders";
 import AdminDashboard from "./pages/AdminDashboard";
 import PackDetail from "./pages/PackDetail";
 import Packs from "./pages/Packs";
+import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/admin/categories" element={<AdminCategories />} />
           <Route path="/packs" element={<Packs />} />
           <Route path="/pack/:slug" element={<PackDetail />} />
+          <Route path="/track-order" element={<TrackOrder />} />
           <Route path="/admin/packs" element={<AdminPacks />} />
           <Route path="/admin/promo-codes" element={<AdminPromoCodes />} />
           <Route path="/admin/packaging" element={<AdminPackaging />} />

@@ -158,3 +158,34 @@ export function useAddOrder() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["orders"] }),
   });
 }
+
+export function useTrackOrder(orderNumber: string | null) {
+  return useQuery({
+    queryKey: ["track-order", orderNumber],
+    enabled: !!orderNumber,
+    queryFn: async (): Promise<DbOrder | null> => {
+      if (!orderNumber) return null;
+      
+      const cleanNumber = orderNumber.trim().toUpperCase().replace(/^#/, "");
+      
+      const { data: order, error } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("order_number", cleanNumber)
+        .maybeSingle();
+        
+      if (error) throw error;
+      if (!order) return null;
+
+      const { data: items } = await supabase
+        .from("order_items")
+        .select("*")
+        .eq("order_id", order.id);
+
+      return {
+        ...order,
+        items: items || [],
+      } as DbOrder;
+    },
+  });
+}
