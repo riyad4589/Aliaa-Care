@@ -18,6 +18,16 @@ import infusionHerbaleImg from "@/assets/infusion-herbale.jpeg";
 import selsDeBainImg from "@/assets/sels-de-bain.jpeg";
 import laitCorporelImg from "@/assets/lait-corporel.jpeg";
 
+const instagramImages = [
+  coffretImg, 
+  gommageCorpsImg, 
+  eauDeRoseImg, 
+  infusionHerbaleImg, 
+  selsDeBainImg, 
+  laitCorporelImg
+];
+
+
 const Index = () => {
   const { products, collections, getFeaturedProducts, banner } = useClientProducts();
   const { data: allPacks = [] } = usePacks();
@@ -203,17 +213,35 @@ const Index = () => {
             <h2 className="font-serif text-3xl md:text-4xl text-foreground mb-4">@aliaacare</h2>
             <p className="text-muted-foreground max-w-md mx-auto">{t("index.followDesc")}</p>
           </motion.div>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
-            {[coffretImg, gommageCorpsImg, eauDeRoseImg, infusionHerbaleImg, selsDeBainImg, laitCorporelImg].map((image, index) => (
-              <motion.a key={index} href="https://www.instagram.com/aliaacare/" target="_blank" rel="noopener noreferrer"
-                initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }} className="relative aspect-square overflow-hidden group cursor-pointer">
-                <img src={image} alt="Instagram" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/40 transition-colors duration-300 flex items-center justify-center">
-                  <Instagram className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </motion.a>
-            ))}
+          <div className="relative overflow-hidden -mx-4 md:-mx-8 lg:-mx-12">
+            <motion.div 
+              className="flex gap-4 md:gap-6 w-max px-4 md:px-8 lg:px-12"
+              animate={{ x: [0, "-50%"] }}
+              transition={{ 
+                duration: 40, 
+                repeat: Infinity, 
+                ease: "linear" 
+              }}
+            >
+              {[...instagramImages, ...instagramImages].map((image, index) => (
+                <a 
+                  key={index} 
+                  href="https://www.instagram.com/aliaacare/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="relative aspect-square w-48 md:w-72 lg:w-80 overflow-hidden group cursor-pointer flex-shrink-0"
+                >
+                  <img 
+                    src={image} 
+                    alt="Instagram" 
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                  />
+                  <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/40 transition-colors duration-300 flex items-center justify-center">
+                    <Instagram className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
+                </a>
+              ))}
+            </motion.div>
           </div>
         </div>
       </section>
