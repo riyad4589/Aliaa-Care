@@ -14,15 +14,9 @@ import { useT } from "@/hooks/useT";
 import coffretImg from "@/assets/coffret-aliaa.jpeg";
 import gommageCorpsImg from "@/assets/gommage-corps.jpeg";
 import eauDeRoseImg from "@/assets/eau-de-rose.jpeg";
-import infusionHerbaleImg from "@/assets/infusion-herbale.jpeg";
-import selsDeBainImg from "@/assets/sels-de-bain.jpeg";
-import laitCorporelImg from "@/assets/lait-corporel.jpeg";
-
-// Dynamic images will be used from products
-  
 
 const Index = () => {
-  const { products, collections, getFeaturedProducts, banner } = useClientProducts();
+  const { products, collections, banner } = useClientProducts();
   const { data: allPacks = [] } = usePacks();
   const { t } = useT();
   const activePacks = allPacks.filter((p) => p.active);
@@ -34,12 +28,9 @@ const Index = () => {
   const heroImageY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   
-  // Get all product images and randomize them
   const allProductImages = products.flatMap(p => p.images);
   const randomizedImages = [...allProductImages].sort(() => Math.random() - 0.5);
-  // Ensure we have enough images for the marquee (min 10)
   const displayImages = randomizedImages.length > 0 ? randomizedImages : [];
-  // Use a fallback if no products
   const finalImages = displayImages.length > 0 ? displayImages : [coffretImg, gommageCorpsImg, eauDeRoseImg];
 
   return (
@@ -79,7 +70,31 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* Featured Collection */}
+      {/* Latest Products - MOVED UP */}
+      <section className="py-20 md:py-28 bg-linen">
+        <div className="container-full">
+          <div className="flex items-end justify-between mb-14">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+              <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("common.products")}</p>
+              <h2 className="font-serif text-4xl md:text-5xl text-foreground">{t("index.latestArrivals")}</h2>
+            </motion.div>
+            <Link to="/products"
+              className="hidden md:flex items-center gap-3 text-sm font-medium tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground transition-colors group">
+              {t("common.viewAll")}<ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
+            {latestProducts.map((product, index) => <ProductCard key={product.id} product={product} index={index} />)}
+          </div>
+          <div className="mt-14 text-center md:hidden">
+            <Button asChild variant="outline" className="rounded-none px-8 py-5 text-sm tracking-[0.15em] uppercase">
+              <Link to="/products">{t("index.viewAllProducts")}</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Collection - MOVED DOWN */}
       {featuredCollection && (
         <section className="py-20 md:py-28">
           <div className="container-full">
@@ -106,32 +121,8 @@ const Index = () => {
         </section>
       )}
 
-      {/* Latest Products */}
-      <section className="py-20 md:py-28 bg-linen">
-        <div className="container-full">
-          <div className="flex items-end justify-between mb-14">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-              <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("common.products")}</p>
-              <h2 className="font-serif text-4xl md:text-5xl text-foreground">{t("index.latestArrivals")}</h2>
-            </motion.div>
-            <Link to="/products"
-              className="hidden md:flex items-center gap-3 text-sm font-medium tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground transition-colors group">
-              {t("common.viewAll")}<ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
-            {latestProducts.map((product, index) => <ProductCard key={product.id} product={product} index={index} />)}
-          </div>
-          <div className="mt-14 text-center md:hidden">
-            <Button asChild variant="outline" className="rounded-none px-8 py-5 text-sm tracking-[0.15em] uppercase">
-              <Link to="/products">{t("index.viewAllProducts")}</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* Packs */}
-      <section className="py-20 md:py-28">
+      <section className="py-20 md:py-28 bg-muted/30">
         <div className="container-full">
           <div className="flex items-end justify-between mb-14">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
@@ -162,51 +153,19 @@ const Index = () => {
             <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("index.browseBy")}</p>
             <h2 className="font-serif text-4xl md:text-5xl text-foreground">{t("common.collections")}</h2>
           </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
-            {displayedCollections[0] && <div className="md:col-span-7"><CollectionCard collection={displayedCollections[0]} index={0} variant="wide" /></div>}
-            {displayedCollections[1] && <div className="md:col-span-5"><CollectionCard collection={displayedCollections[1]} index={1} /></div>}
-            {displayedCollections[2] && <div className="md:col-span-6"><CollectionCard collection={displayedCollections[2]} index={2} /></div>}
-            {displayedCollections[3] && <div className="md:col-span-6"><CollectionCard collection={displayedCollections[3]} index={3} /></div>}
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
+              {displayedCollections[0] && <div className="md:col-span-7"><CollectionCard collection={displayedCollections[0]} index={0} /></div>}
+              {displayedCollections[1] && <div className="md:col-span-5"><CollectionCard collection={displayedCollections[1]} index={1} /></div>}
+              {displayedCollections[2] && <div className="md:col-span-6"><CollectionCard collection={displayedCollections[2]} index={2} /></div>}
+              {displayedCollections[3] && <div className="md:col-span-6"><CollectionCard collection={displayedCollections[3]} index={3} /></div>}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Values */}
-      <section className="py-24 md:py-32 bg-linen">
-        <div className="container-full">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            transition={{ duration: 0.6 }} className="text-center mb-16">
-            <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("index.ourCommitments")}</p>
-            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground leading-[1.3] mb-8">
-              {t("index.commitmentTitle")}{" "}<span className="italic">{t("index.commitmentTitleItalic")}</span>
-            </h2>
-          </motion.div>
-          <div className="grid md:grid-cols-3 gap-12 md:gap-16 max-w-4xl mx-auto">
-            {[
-              { icon: Leaf, title: t("index.natural"), desc: t("index.naturalDesc") },
-              { icon: Heart, title: t("index.feminineWellbeing"), desc: t("index.feminineDesc") },
-              { icon: Sparkles, title: t("index.ancestralKnowledge"), desc: t("index.ancestralDesc") },
-            ].map((item, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                transition={{ duration: 0.7, delay: i * 0.15 }} className="text-center">
-                <div className="w-12 h-12 mx-auto mb-5 rounded-full bg-primary/10 flex items-center justify-center">
-                  <item.icon className="w-5 h-5 text-primary" />
-                </div>
-                <h3 className="font-serif text-xl text-foreground mb-3">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed text-sm">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-          <div className="text-center mt-14">
-            <Button asChild variant="outline" size="lg" className="rounded-none px-10 py-6 text-sm tracking-[0.15em] uppercase">
-              <Link to="/about">{t("common.ourStory")}<ArrowRight className="ltr:ml-3 rtl:mr-3 w-4 h-4" /></Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Follow Us */}
-      <section className="py-20 md:py-28">
+      {/* Follow Us - MOVED UP */}
+      <section className="py-20 md:py-28 bg-linen">
         <div className="container-full">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.6 }} className="text-center mb-12">
@@ -239,12 +198,46 @@ const Index = () => {
               {[...finalImages, ...finalImages].map((image, index) => (
                 <div 
                   key={index} 
-                  className="w-[200px] md:w-[280px] aspect-square rounded-lg overflow-hidden bg-muted"
+                  className="w-[200px] md:w-[280px] aspect-[4/5] rounded-lg overflow-hidden bg-muted"
                 >
                   <img src={image} alt="" className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
                 </div>
               ))}
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Values - MOVED DOWN */}
+      <section className="py-24 md:py-32">
+        <div className="container-full">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            transition={{ duration: 0.6 }} className="text-center mb-16">
+            <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("index.ourCommitments")}</p>
+            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground leading-[1.3] mb-8">
+              {t("index.commitmentTitle")}{" "}<span className="italic">{t("index.commitmentTitleItalic")}</span>
+            </h2>
+          </motion.div>
+          <div className="grid md:grid-cols-3 gap-12 md:gap-16 max-w-4xl mx-auto">
+            {[
+              { icon: Leaf, title: t("index.natural"), desc: t("index.naturalDesc") },
+              { icon: Heart, title: t("index.feminineWellbeing"), desc: t("index.feminineDesc") },
+              { icon: Sparkles, title: t("index.ancestralKnowledge"), desc: t("index.ancestralDesc") },
+            ].map((item, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                transition={{ duration: 0.7, delay: i * 0.15 }} className="text-center">
+                <div className="w-12 h-12 mx-auto mb-5 rounded-full bg-primary/10 flex items-center justify-center">
+                  <item.icon className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="font-serif text-xl text-foreground mb-3">{item.title}</h3>
+                <p className="text-muted-foreground leading-relaxed text-sm">{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+          <div className="text-center mt-14">
+            <Button asChild variant="outline" size="lg" className="rounded-none px-10 py-6 text-sm tracking-[0.15em] uppercase">
+              <Link to="/about">{t("common.ourStory")}<ArrowRight className="ltr:ml-3 rtl:mr-3 w-4 h-4" /></Link>
+            </Button>
           </div>
         </div>
       </section>

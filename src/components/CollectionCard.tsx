@@ -20,7 +20,7 @@ export const CollectionCard = ({ collection, index = 0, variant = "default" }: C
       transition={{ duration: 0.8, delay: index * 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
     >
       <Link to={`/products?collection=${collection.slug}`} className="group block relative">
-        <div className={`relative overflow-hidden bg-muted/50 ${variant === "wide" ? "aspect-video" : variant === "tall" ? "aspect-[4/5]" : "aspect-square"}`}>
+        <div className={`relative overflow-hidden bg-muted/50 aspect-square`}>
           <img src={collection.image} alt={collection.name} className="w-full h-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-110" />
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-charcoal/10 to-transparent" />
           <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/20 transition-colors duration-700" />

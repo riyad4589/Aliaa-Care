@@ -117,32 +117,37 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
             </span>
           </div>
         </div>
-        <div className="space-y-2">
-          {collection && (
-            <p className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground/70 transition-colors duration-300 group-hover:text-primary">{collection.name}</p>
-          )}
-          <h3 className="font-serif text-xl text-foreground transition-colors duration-300 group-hover:text-primary leading-snug">{product.name}</h3>
-          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed h-10">{product.description}</p>
+        <div className="space-y-3">
+          <div className="space-y-1">
+            {collection && (
+              <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-primary/70">{collection.name}</p>
+            )}
+            <h3 className="font-serif text-xl text-foreground group-hover:text-primary transition-colors leading-snug">{product.name}</h3>
+          </div>
           
-          <div className="flex items-center justify-between pt-2">
+          <p className="text-sm text-muted-foreground/80 line-clamp-2 leading-relaxed h-10 italic">
+            {product.description}
+          </p>
+          
+          <div className="flex items-center justify-between pt-3 border-t border-border/50">
             <div className="flex flex-col">
               {promoDiscount > 0 ? (
-                <div className="flex items-center gap-2">
-                  <p className="text-lg font-bold text-destructive tracking-tight">
+                <div className="flex items-baseline gap-2">
+                  <p className="text-xl font-bold text-destructive tracking-tight">
                     {Math.round(product.price * (1 - promoDiscount / 100)).toLocaleString()} DH
                   </p>
-                  <p className="text-xs text-muted-foreground line-through opacity-70">{product.price.toLocaleString()} DH</p>
+                  <p className="text-xs text-muted-foreground line-through opacity-60">{product.price.toLocaleString()} DH</p>
                 </div>
               ) : hasOriginalPrice ? (
-                <div className="flex items-center gap-2">
-                  <p className="text-lg font-bold text-foreground tracking-tight">{product.price.toLocaleString()} DH</p>
-                  <p className="text-xs text-muted-foreground line-through opacity-70">{originalPrice.toLocaleString()} DH</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-xl font-bold text-foreground tracking-tight">{product.price.toLocaleString()} DH</p>
+                  <p className="text-xs text-muted-foreground line-through opacity-60">{originalPrice.toLocaleString()} DH</p>
                 </div>
               ) : (
-                <p className="text-lg font-bold text-foreground tracking-tight">{product.price.toLocaleString()} DH</p>
+                <p className="text-xl font-bold text-foreground tracking-tight">{product.price.toLocaleString()} DH</p>
               )}
               {product.weight && (
-                <p className="text-[10px] text-muted-foreground/60 tracking-wider uppercase font-medium">{product.weight}g</p>
+                <p className="text-[10px] text-muted-foreground/50 tracking-wider uppercase font-medium">{product.weight}g</p>
               )}
             </div>
 
@@ -150,8 +155,8 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
               size="sm"
               disabled={product.stock === 0}
               className={cn(
-                "rounded-none text-[10px] tracking-[0.1em] uppercase px-4 h-9 transition-all duration-300",
-                product.stock === 0 ? "bg-muted text-muted-foreground" : "hover:bg-primary/90 shadow-sm"
+                "rounded-none text-[10px] tracking-[0.1em] uppercase px-5 h-10 transition-all duration-300",
+                product.stock === 0 ? "bg-muted text-muted-foreground" : "bg-primary hover:bg-primary/90 shadow-md hover:shadow-lg translate-y-0 hover:-translate-y-0.5"
               )}
               onClick={handleAddToCart}
             >

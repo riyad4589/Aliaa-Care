@@ -59,23 +59,10 @@ export const Header = () => {
       )}
     >
       {/* Announcement Bar */}
-      <div className="bg-primary text-primary-foreground py-2 overflow-hidden whitespace-nowrap border-b border-primary/20">
-        <motion.div
-          animate={{ x: [0, "-10%"] }}
-          transition={{
-            repeat: Infinity,
-            duration: 8,
-            ease: "linear",
-          }}
-          className="inline-block text-[10px] md:text-xs font-bold uppercase tracking-[0.3em]"
-        >
-          {[...Array(10)].map((_, i) => (
-            <span key={i}>
-              {t("header.deliveryMaroc") || "Livraison partout au Maroc"}
-              <span className="mx-12" />
-            </span>
-          ))}
-        </motion.div>
+      <div className="bg-primary text-primary-foreground py-2 overflow-hidden whitespace-nowrap border-b border-primary/20 text-center">
+        <div className="inline-block text-[10px] md:text-xs font-bold uppercase tracking-[0.3em]">
+          {t("header.deliveryMaroc") || "Livraison partout au Maroc"}
+        </div>
       </div>
 
       <nav className="container-full">
