@@ -42,15 +42,20 @@ serve(async (req) => {
       .map((item: any) => `• ${item.quantity}x ${item.product_name} (${item.unit_price} DH)`)
       .join("\n");
 
-    const body = `*Nouvelle commande chez ALIAA Natural Care* 🌿\n\n` +
-      `Bonjour ${order.customer_name},\n` +
-      `Merci pour votre commande *#${order.order_number}*.\n\n` +
-      `*Détails :*\n${itemsList}\n\n` +
+    const body = `*ALIAA Natural Care* 🌿\n` +
+      `---------------------------\n` +
+      `Bonjour *${order.customer_name}*,\n\n` +
+      `Nous avons bien reçu votre commande *#${order.order_number}*.\n\n` +
+      `📦 *Détails :*\n${itemsList}\n\n` +
       `💰 *Total : ${order.total.toLocaleString()} DH*\n` +
-      `📍 *Adresse :* ${order.customer_address}, ${order.customer_city}\n\n` +
-      `*Veuillez confirmer votre commande via l'un des liens ci-dessous :*\n\n` +
-      `✅ *Valider la commande :* https://wa.me/212623315600?text=Je%20valide%20ma%20commande%20${order.order_number}\n\n` +
-      `❌ *Rejeter la commande :* https://wa.me/212623315600?text=Je%20souhaite%20annuler%20ma%20commande%20${order.order_number}`;
+      `📍 *Livraison :* ${order.customer_city}\n\n` +
+      `---------------------------\n` +
+      `⚠️ *ACTION REQUISE :*\n` +
+      `Veuillez répondre directement à ce message :\n\n` +
+      `✅ Répondez *OUI* pour confirmer l'envoi.\n` +
+      `❌ Répondez *NON* pour annuler votre commande.\n\n` +
+      `---------------------------\n` +
+      `_L'équipe ALIAA vous remercie pour votre confiance !_`;
 
     // Formatage du numéro de téléphone
     let phone = order.customer_phone || ""; 
@@ -58,7 +63,7 @@ serve(async (req) => {
     if (cleanedPhone.startsWith("0")) cleanedPhone = "212" + cleanedPhone.substring(1);
     if (cleanedPhone.length === 9) cleanedPhone = "212" + cleanedPhone;
 
-    // Appel à UltraMsg (Utilisation du format Chat pour compatibilité maximale)
+    // 1. Envoi du message principal (chat)
     const ultraMsgUrl = `https://api.ultramsg.com/${ULTRAMSG_INSTANCE_ID}/messages/chat`;
     const params = new URLSearchParams();
     params.append("token", ULTRAMSG_TOKEN || "");
@@ -72,7 +77,26 @@ serve(async (req) => {
     });
 
     const result = await response.json();
-    console.log("UltraMsg API result:", result);
+    console.log("UltraMsg Chat result:", result);
+
+    // 2. Ajout d'une réaction (⏳) pour montrer que c'est en attente
+    if (result.sent === "true" && result.id) {
+      try {
+        const reactionUrl = `https://api.ultramsg.com/${ULTRAMSG_INSTANCE_ID}/messages/reaction`;
+        const reactionParams = new URLSearchParams();
+        reactionParams.append("token", ULTRAMSG_TOKEN || "");
+        reactionParams.append("msgId", result.id);
+        reactionParams.append("emoji", "⏳");
+
+        await fetch(reactionUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: reactionParams.toString(),
+        });
+      } catch (e) {
+        console.error("Failed to send reaction:", e);
+      }
+    }
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

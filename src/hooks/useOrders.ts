@@ -7,6 +7,7 @@ export interface DbOrder {
   total: number;
   total_cost: number;
   created_at: string;
+  status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
   customer_name: string;
   customer_phone: string;
   customer_address: string;
@@ -35,6 +36,34 @@ export function useOrders() {
   });
 }
 
+export function useUpdateOrderStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: DbOrder['status'] }) => {
+      const { data, error } = await supabase
+        .from("orders")
+        .update({ status })
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["orders"] }),
+  });
+}
+
+export function useDeleteOrder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("orders").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["orders"] }),
+  });
+}
+
 export function useAddOrder() {
   const qc = useQueryClient();
   return useMutation({
@@ -50,7 +79,7 @@ export function useAddOrder() {
       items: { product_id?: string; product_name: string; quantity: number; unit_price: number; cost_price: number }[];
     }) => {
       const { items, ...order } = input;
-      const { data, error } = await supabase.from("orders").insert(order).select().single();
+      const { data, error } = await supabase.from("orders").insert({ ...order, status: 'pending' }).select().single();
       if (error) throw error;
       if (items.length > 0) {
         await supabase.from("order_items").insert(
