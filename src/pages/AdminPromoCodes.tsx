@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -195,97 +197,120 @@ const AdminPromoCodes = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2"><Tag className="w-6 h-6" />Codes Promo</h1>
+            <h1 className="font-serif text-3xl font-bold tracking-tight">Codes Promo</h1>
             <p className="text-sm text-muted-foreground">{promoCodes.length} code(s) promo</p>
           </div>
-          <div className="flex gap-2 w-full md:w-auto">
+          <div className="flex gap-2 w-full sm:w-auto">
             {selectedIds.length > 0 && (
-              <Button 
-                variant="destructive" 
+              <Button
+                variant="destructive"
                 onClick={() => setIsBulkDeleting(true)}
+                className="rounded-none gap-2"
               >
-                <Trash2 className="w-4 h-4 mr-2" /> Supprimer ({selectedIds.length})
+                <Trash2 className="w-4 h-4" /> Supprimer ({selectedIds.length})
               </Button>
             )}
-            <Button onClick={handleOpen} className="flex-1 md:flex-initial">
-              <Plus className="w-4 h-4 mr-2" />Nouveau Code
+            <Button onClick={handleOpen} className="gap-2 rounded-none flex-1 sm:flex-initial">
+              <Plus className="w-4 h-4" /> Nouveau Code
             </Button>
           </div>
         </div>
 
-        <div className="flex justify-center">
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-          <div className="relative w-full max-w-sm">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:pl-1">
+          <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Rechercher un code..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+            <Input placeholder="Rechercher un code..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-10" />
           </div>
-          <div className="flex items-center gap-2">
-            <Checkbox 
-              checked={filtered.length > 0 && selectedIds.length === filtered.length}
-              onCheckedChange={toggleSelectAll}
-              id="select-all"
-            />
-            <label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
-              Tout sélectionner
-            </label>
-          </div>
-        </div>
+          {promoCodes.length > 0 && (
+            <div className="flex items-center gap-2 shrink-0">
+              <Checkbox
+                checked={filtered.length > 0 && selectedIds.length === filtered.length}
+                onCheckedChange={toggleSelectAll}
+                id="select-all"
+              />
+              <label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer whitespace-nowrap">
+                Tout sélectionner
+              </label>
+            </div>
+          )}
         </div>
 
         {isLoading ? (
-          <div className="text-center py-12 text-muted-foreground">Chargement...</div>
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+          </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">Aucun code promo</div>
+          <div className="text-center py-20 bg-muted/10 rounded-xl border border-dashed border-border">
+            <Tag className="w-10 h-10 mx-auto mb-3 opacity-40" />
+            <p className="text-muted-foreground">Aucun code promo trouvé</p>
+          </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {filtered.map((promo) => {
               const isSelected = selectedIds.includes(promo.id);
+              const expired = isExpired(promo);
+              const maxed = isMaxed(promo);
+              const active = promo.active && !expired && !maxed;
+
               return (
-                <div key={promo.id} className={`border rounded-lg p-5 bg-card flex flex-col md:flex-row md:items-center gap-4 transition-colors ${isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-border'}`}>
-                  <div className="shrink-0">
-                    <Checkbox 
-                      checked={isSelected}
-                      onCheckedChange={() => toggleSelect(promo.id)}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0 space-y-2">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <code className="text-lg font-mono font-bold tracking-wider bg-muted px-3 py-1 rounded">{promo.code}</code>
-                    {getStatusBadge(promo)}
-                    <Badge variant="outline">-{promo.discount_percent}%</Badge>
-                  </div>
-                  <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Hash className="w-3 h-3" />
-                      {promo.current_uses}{promo.max_uses !== null ? `/${promo.max_uses}` : "/∞"} utilisations
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {promo.expires_at ? new Date(promo.expires_at).toLocaleDateString("fr") : "Sans expiration"}
-                    </span>
-                    <span>
-                      {promo.applies_to === "all" ? "Tous les produits & packs" :
-                       promo.applies_to === "products" ? `${promo.product_ids.length} produit(s)` :
-                       promo.applies_to === "packs" ? `${promo.pack_ids.length} pack(s)` :
-                       `${promo.product_ids.length} produit(s) + ${promo.pack_ids.length} pack(s)`}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button variant="ghost" size="sm" onClick={() => handleEdit(promo)}>
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(promo.code); toast({ title: "Code copié" }); }}>
-                    <Copy className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setPromoToDelete(promo.id)}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            )})}
+                <Card key={promo.id} className={`transition-all duration-300 ${!active ? "opacity-60 grayscale-[0.5]" : ""} ${isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'hover:border-primary/30 hover:shadow-md'}`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => toggleSelect(promo.id)}
+                        className="mt-1"
+                      />
+                      <div className="flex items-start justify-between gap-3 flex-1 min-w-0">
+                        <div className="flex items-start gap-3 min-w-0 flex-1">
+                          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                            <Tag className="w-6 h-6 text-primary" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <code className="text-base font-mono font-bold tracking-wider text-foreground">{promo.code}</code>
+                              <Badge variant="secondary" className="text-xs">-{promo.discount_percent}%</Badge>
+                              {getStatusBadge(promo)}
+                            </div>
+
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[11px] text-muted-foreground">
+                              <span className="flex items-center gap-1.5">
+                                <Hash className="w-3.5 h-3.5" />
+                                {promo.current_uses}{promo.max_uses !== null ? `/${promo.max_uses}` : "/∞"} utilisations
+                              </span>
+                              <span className="flex items-center gap-1.5">
+                                <Calendar className="w-3.5 h-3.5" />
+                                {promo.expires_at ? new Date(promo.expires_at).toLocaleDateString("fr-FR") : "Sans expiration"}
+                              </span>
+                            </div>
+
+                            <p className="text-[11px] text-muted-foreground/80 mt-1 truncate italic">
+                              {promo.applies_to === "all" ? "Applicable sur tout le catalogue" :
+                                promo.applies_to === "products" ? `Sur ${promo.product_ids.length} produit(s)` :
+                                  promo.applies_to === "packs" ? `Sur ${promo.pack_ids.length} pack(s)` :
+                                    `Sur ${promo.product_ids.length} produit(s) + ${promo.pack_ids.length} pack(s)`}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-1 shrink-0">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(promo)} title="Modifier">
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { navigator.clipboard.writeText(promo.code); toast({ title: "Code copié" }); }} title="Copier le code">
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setPromoToDelete(promo.id)} title="Supprimer">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>
@@ -398,9 +423,9 @@ const AdminPromoCodes = () => {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog 
-        open={!!promoToDelete || isBulkDeleting} 
-        onOpenChange={(open) => { if (!open) { setPromoToDelete(null); setIsBulkDeleting(false); }}}
+      <AlertDialog
+        open={!!promoToDelete || isBulkDeleting}
+        onOpenChange={(open) => { if (!open) { setPromoToDelete(null); setIsBulkDeleting(false); } }}
       >
         <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
@@ -411,8 +436,8 @@ const AdminPromoCodes = () => {
               {isBulkDeleting ? `Supprimer ${selectedIds.length} codes promos` : "Confirmer la suppression"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {isBulkDeleting 
-                ? `Êtes-vous sûr de vouloir supprimer ces ${selectedIds.length} codes promos ?` 
+              {isBulkDeleting
+                ? `Êtes-vous sûr de vouloir supprimer ces ${selectedIds.length} codes promos ?`
                 : "Êtes-vous sûr de vouloir supprimer ce code promo ?"
               } <br />
               Cette action est irréversible.

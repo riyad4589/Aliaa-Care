@@ -6,14 +6,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Search, 
-  X, 
-  Loader2, 
-  ShoppingBag, 
-  Eye, 
-  Phone, 
-  MapPin, 
+import {
+  Search,
+  X,
+  Loader2,
+  ShoppingBag,
+  Eye,
+  Phone,
+  MapPin,
   Calendar,
   CheckCircle2,
   Clock,
@@ -76,7 +76,7 @@ const statusConfig = {
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
   </svg>
 );
 
@@ -121,7 +121,7 @@ const AdminOrders = () => {
   };
 
   const toggleSelectOrder = (id: string) => {
-    setSelectedOrderIds(prev => 
+    setSelectedOrderIds(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
   };
@@ -153,13 +153,13 @@ const AdminOrders = () => {
   };
 
   const filteredOrders = orders.filter((o) => {
-    const matchesSearch = 
+    const matchesSearch =
       o.order_number.toLowerCase().includes(search.toLowerCase()) ||
       o.customer_name.toLowerCase().includes(search.toLowerCase()) ||
       o.customer_phone.includes(search);
-    
+
     const matchesStatus = statusFilter === "all" || o.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -171,7 +171,7 @@ const AdminOrders = () => {
     } else if (!phone.startsWith("212") && phone.length === 9) {
       phone = "212" + phone;
     }
-    
+
     const message = encodeURIComponent(`Bonjour ${order.customer_name}, c'est Aliaa Care concernant votre commande #${order.order_number}. `);
     window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
   };
@@ -179,8 +179,8 @@ const AdminOrders = () => {
   const handleStatusChange = async (orderId: string, newStatus: DbOrder['status']) => {
     const order = orders.find(o => o.id === orderId);
     try {
-      await updateStatus.mutateAsync({ 
-        id: orderId, 
+      await updateStatus.mutateAsync({
+        id: orderId,
         status: newStatus,
         currentHistory: order?.status_history || []
       });
@@ -205,12 +205,12 @@ const AdminOrders = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="font-serif text-xl sm:text-2xl text-foreground">Gestion des Commandes</h1>
+            <h1 className="font-serif text-3xl font-bold tracking-tight">Gestion des Commandes</h1>
             <p className="text-sm text-muted-foreground">{orders.length} commandes au total</p>
           </div>
           {selectedOrderIds.length > 0 && (
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               className="gap-2 animate-in fade-in slide-in-from-right-2"
               onClick={() => setIsBulkDeleting(true)}
             >
@@ -220,14 +220,14 @@ const AdminOrders = () => {
           )}
         </div>
 
-        <div className="flex flex-col md:flex-row md:justify-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:pl-1">
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Rechercher par N°, nom ou téléphone..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 pr-9"
+              className="pl-9 pr-9 h-10"
             />
             {search && (
               <button
@@ -239,18 +239,33 @@ const AdminOrders = () => {
             )}
           </div>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full md:w-[200px]">
-              <SelectValue placeholder="Filtrer par statut" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tous les statuts</SelectItem>
-              {Object.entries(statusConfig).map(([key, { label }]) => (
-                <SelectItem key={key} value={key}>{label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-4 w-full sm:w-auto">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full sm:w-[180px] h-10">
+                <SelectValue placeholder="Filtrer par statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                {Object.entries(statusConfig).map(([key, { label }]) => (
+                  <SelectItem key={key} value={key}>{label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {orders.length > 0 && (
+              <div className="flex items-center gap-2 shrink-0">
+                <Checkbox 
+                  checked={filteredOrders.length > 0 && selectedOrderIds.length === filteredOrders.length}
+                  onCheckedChange={toggleSelectAll}
+                  id="select-all"
+                />
+                <label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer whitespace-nowrap">
+                  Tout sélectionner
+                </label>
+              </div>
+            )}
         </div>
+      </div>
 
         {/* Desktop Table */}
         <div className="border border-border rounded-lg overflow-hidden hidden md:block">
@@ -258,7 +273,7 @@ const AdminOrders = () => {
             <thead className="bg-muted/50">
               <tr>
                 <th className="p-4 w-10">
-                  <Checkbox 
+                  <Checkbox
                     checked={filteredOrders.length > 0 && selectedOrderIds.length === filteredOrders.length}
                     onCheckedChange={toggleSelectAll}
                   />
@@ -280,7 +295,7 @@ const AdminOrders = () => {
                 return (
                   <tr key={order.id} className={`border-t border-border hover:bg-muted/20 transition-colors ${isSelected ? 'bg-primary/5' : ''}`}>
                     <td className="p-4">
-                      <Checkbox 
+                      <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => toggleSelectOrder(order.id)}
                       />
@@ -308,7 +323,7 @@ const AdminOrders = () => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="center" className="w-40">
                             {(Object.keys(statusConfig) as Array<keyof typeof statusConfig>).map((status) => (
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 key={status}
                                 onClick={() => handleStatusChange(order.id, status)}
                                 className="flex items-center gap-2 cursor-pointer"
@@ -322,43 +337,43 @@ const AdminOrders = () => {
                       </div>
                     </td>
                     <td className="p-4 text-right space-x-1">
-                      <Button 
-                        size="icon" 
-                        variant="ghost" 
+                      <Button
+                        size="icon"
+                        variant="ghost"
                         onClick={() => setSelectedOrder(order)}
                         title="Détails de la commande"
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button 
-                        size="icon" 
-                        variant="ghost" 
+                      <Button
+                        size="icon"
+                        variant="ghost"
                         onClick={() => setEditingOrder(order)}
                         title="Modifier la commande"
                       >
                         <Pencil className="w-4 h-4 text-blue-600" />
                       </Button>
-                      <Button 
-                        size="icon" 
-                        variant="ghost" 
+                      <Button
+                        size="icon"
+                        variant="ghost"
                         className="text-green-600 hover:text-green-700 hover:bg-green-50"
                         onClick={() => openWhatsApp(order)}
                         title="Contacter sur WhatsApp"
                       >
                         <WhatsAppIcon className="w-4 h-4" />
                       </Button>
-                      <Button 
-                        size="icon" 
-                        variant="ghost" 
+                      <Button
+                        size="icon"
+                        variant="ghost"
                         className="text-primary"
                         onClick={() => generateInvoice(order)}
                         title="Générer facture PDF"
                       >
                         <FileText className="w-4 h-4" />
                       </Button>
-                      <Button 
-                        size="icon" 
-                        variant="ghost" 
+                      <Button
+                        size="icon"
+                        variant="ghost"
                         className="text-destructive"
                         onClick={() => setOrderToDelete(order.id)}
                         title="Supprimer la commande"
@@ -403,7 +418,7 @@ const AdminOrders = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-40">
                       {(Object.keys(statusConfig) as Array<keyof typeof statusConfig>).map((status) => (
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           key={status}
                           onClick={() => handleStatusChange(order.id, status)}
                           className="cursor-pointer"
@@ -451,270 +466,312 @@ const AdminOrders = () => {
 
       {/* Order Details Dialog */}
       <Dialog open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="font-serif text-2xl">Détails de la Commande</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-3xl max-h-[95vh] p-0 overflow-hidden rounded-xl border-none shadow-2xl">
           {selectedOrder && (
-            <div className="space-y-8 mt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 text-muted-foreground">
-                    <ShoppingBag className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-medium">#{selectedOrder.order_number}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-muted-foreground">
-                    <Calendar className="w-4 h-4 text-primary" />
-                    <span className="text-sm">
+            <div className="flex flex-col h-full max-h-[95vh]">
+              {/* Premium Header */}
+              <div className="bg-primary p-6 text-primary-foreground relative">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <ShoppingBag className="w-5 h-5 opacity-80" />
+                      <span className="text-xs font-bold uppercase tracking-[0.2em] opacity-80">Commande</span>
+                    </div>
+                    <h2 className="font-serif text-3xl font-bold">#{selectedOrder.order_number}</h2>
+                    <p className="text-sm opacity-70 mt-1 flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" />
                       Passée le {format(new Date(selectedOrder.created_at), "PPP à HH:mm", { locale: fr })}
-                    </span>
-                  </div>
-                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${
-                    statusConfig[selectedOrder.status && statusConfig[selectedOrder.status] ? selectedOrder.status : 'pending'].color
-                  }`}>
-                    {(() => {
-                      const currentStatus = (selectedOrder.status && statusConfig[selectedOrder.status]) ? selectedOrder.status : 'pending';
-                      const Icon = statusConfig[currentStatus].icon;
-                      return <Icon className="w-3.5 h-3.5" />;
-                    })()}
-                    {statusConfig[selectedOrder.status && statusConfig[selectedOrder.status] ? selectedOrder.status : 'pending'].label}
+                    </p>
                   </div>
                 </div>
+              </div>
 
-                <div className="space-y-4 bg-muted/30 p-4 rounded-lg">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Informations Client</p>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                        <span className="text-xs font-bold">{selectedOrder.customer_name.charAt(0)}</span>
+              <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-background">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Left: Customer & Shipping */}
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground flex items-center gap-2">
+                        <span className="w-1 h-1 rounded-full bg-primary" />
+                        Informations Client
+                      </h3>
+                      <div className="bg-muted/30 rounded-xl p-4 border border-border/50">
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary text-lg font-bold">
+                            {selectedOrder.customer_name.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="font-bold text-lg leading-none">{selectedOrder.customer_name}</p>
+                            <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5">
+                              <Phone className="w-3.5 h-3.5" />
+                              {selectedOrder.customer_phone}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="space-y-3 pt-3 border-t border-border/50">
+                          <div className="flex items-start gap-3 text-sm">
+                            <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                            <div>
+                              <p className="font-medium">{selectedOrder.customer_city}</p>
+                              <p className="text-muted-foreground leading-relaxed mt-0.5">{selectedOrder.customer_address}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-4 pt-4 border-t border-border/50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Statut actuel</span>
+                            <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border shadow-sm ${
+                              statusConfig[selectedOrder.status]?.color || 'bg-muted text-muted-foreground border-border'
+                            }`}>
+                              {(() => {
+                                const Icon = statusConfig[selectedOrder.status]?.icon || Circle;
+                                return <Icon className="w-3.5 h-3.5" />;
+                              })()}
+                              {statusConfig[selectedOrder.status]?.label}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <span className="font-medium text-sm">{selectedOrder.customer_name}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground pl-1">
-                      <Phone className="w-3.5 h-3.5" />
-                      {selectedOrder.customer_phone}
+
+                    {selectedOrder.notes && (
+                      <div className="space-y-3">
+                        <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground flex items-center gap-2">
+                          <span className="w-1 h-1 rounded-full bg-primary" />
+                          Notes Internes
+                        </h3>
+                        <div className="bg-primary/5 p-4 rounded-xl border border-primary/10 text-sm italic text-foreground/80 leading-relaxed">
+                          "{selectedOrder.notes}"
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right: Items & Summary */}
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground flex items-center gap-2">
+                        <span className="w-1 h-1 rounded-full bg-primary" />
+                        Articles Commandés
+                      </h3>
+                      <div className="border border-border/50 rounded-xl overflow-hidden shadow-sm">
+                        <div className="divide-y divide-border/50">
+                          {selectedOrder.items.map((item, idx) => (
+                            <div key={idx} className="p-4 flex justify-between items-center hover:bg-muted/10 transition-colors">
+                              <div className="flex-1 min-w-0 pr-4">
+                                <p className="font-bold text-sm truncate">{item.product_name}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                  Qté: <span className="font-semibold">{item.quantity}</span> × {item.unit_price} DH
+                                </p>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <p className="font-bold text-sm">{(item.quantity * item.unit_price).toLocaleString()} DH</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="bg-muted/30 p-4 border-t border-border/50 space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Sous-total</span>
+                            <span className="font-medium">{selectedOrder.total.toLocaleString()} DH</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Livraison</span>
+                            <span className="font-medium text-green-600">Gratuite</span>
+                          </div>
+                          <div className="flex justify-between text-lg font-bold pt-2 border-t border-border/50">
+                            <span className="font-serif">Total</span>
+                            <span className="font-serif text-primary">{selectedOrder.total.toLocaleString()} DH</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-start gap-3 text-sm text-muted-foreground pl-1">
-                      <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                      <span>{selectedOrder.customer_address}, {selectedOrder.customer_city}</span>
+
+                    {/* Timeline Tracker */}
+                    <div className="space-y-4">
+                      <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground flex items-center gap-2">
+                        <History className="w-4 h-4 text-primary" />
+                        Historique de Statut
+                      </h3>
+                      <div className="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-muted border border-border/50 rounded-xl p-6">
+                        <div className="relative">
+                          <div className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-primary border-4 border-background" />
+                          <div className="flex flex-col">
+                            <span className="text-sm font-bold">Commande Reçue</span>
+                            <span className="text-xs text-muted-foreground mt-0.5">
+                              {format(new Date(selectedOrder.created_at), "PPP à HH:mm", { locale: fr })}
+                            </span>
+                          </div>
+                        </div>
+                        {selectedOrder.status_history?.map((step, idx) => (
+                          <div key={idx} className="relative">
+                            <div className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-primary border-4 border-background" />
+                            <div className="flex flex-col">
+                              <span className="text-sm font-bold">{step.label}</span>
+                              <span className="text-xs text-muted-foreground mt-0.5">
+                                {format(new Date(step.date), "PPP à HH:mm", { locale: fr })}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Articles de la commande</p>
-                <div className="border border-border rounded-lg divide-y divide-border">
-                  {selectedOrder.items.map((item, idx) => (
-                    <div key={idx} className="p-4 flex justify-between items-center bg-card/50">
-                      <div className="space-y-0.5">
-                        <p className="font-medium text-sm">{item.product_name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {item.quantity} x {item.unit_price} DH
-                        </p>
-                      </div>
-                      <span className="font-medium text-sm">{(item.quantity * item.unit_price).toLocaleString()} DH</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Timeline Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <History className="w-4 h-4 text-primary" />
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Suivi de la commande</p>
-                </div>
-                <div className="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-muted">
-                  {/* Initial creation step */}
-                  <div className="relative">
-                    <div className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-primary border-4 border-background" />
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold">Commande Reçue</span>
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(selectedOrder.created_at), "PPP à HH:mm", { locale: fr })}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* History steps */}
-                  {selectedOrder.status_history?.map((step, idx) => (
-                    <div key={idx} className="relative animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: `${(idx + 1) * 100}ms` }}>
-                      <div className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-primary border-4 border-background" />
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold">{step.label}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {format(new Date(step.date), "PPP à HH:mm", { locale: fr })}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* If no history yet and status is not pending, show current status as last step */}
-                  {(!selectedOrder.status_history || selectedOrder.status_history.length === 0) && selectedOrder.status !== 'pending' && (
-                    <div className="relative">
-                      <div className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-primary border-4 border-background" />
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold">{statusConfig[selectedOrder.status].label}</span>
-                        <span className="text-xs text-muted-foreground">Statut actuel</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {selectedOrder.notes && (
-                <div className="space-y-2">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Notes de la commande</p>
-                  <div className="bg-primary/5 p-4 rounded-lg text-sm italic text-foreground/80 border-l-2 border-primary">
-                    "{selectedOrder.notes}"
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-between items-end pt-4 border-t border-border">
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Total de la commande</p>
-                  <p className="text-3xl font-serif text-primary">{selectedOrder.total.toLocaleString()} DH</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" className="gap-2 text-green-600 border-green-200 hover:bg-green-50" onClick={() => openWhatsApp(selectedOrder)}>
+              {/* Actions Footer */}
+              <div className="p-6 bg-muted/20 border-t border-border flex justify-between items-center">
+                <div className="flex gap-3">
+                  <Button variant="outline" className="h-11 px-6 rounded-none gap-2 text-green-600 border-green-200 hover:bg-green-50 shadow-sm" onClick={() => openWhatsApp(selectedOrder)}>
                     <WhatsAppIcon className="w-4 h-4" /> WhatsApp
                   </Button>
-                  <Button variant="outline" className="gap-2" onClick={() => generateInvoice(selectedOrder)}>
+                  <Button variant="outline" className="h-11 px-6 rounded-none gap-2 shadow-sm" onClick={() => generateInvoice(selectedOrder)}>
                     <FileText className="w-4 h-4" /> Facture PDF
                   </Button>
-                  <Button variant="outline" onClick={() => setSelectedOrder(null)}>Fermer</Button>
                 </div>
+                <Button variant="secondary" className="h-11 px-8 rounded-none shadow-sm" onClick={() => setSelectedOrder(null)}>Fermer</Button>
               </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
 
-      {/* Edit Order Dialog */}
       <Dialog open={!!editingOrder} onOpenChange={(open) => !open && setEditingOrder(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="font-serif text-2xl">Modifier la Commande</DialogTitle>
+        <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto p-0 rounded-xl overflow-hidden shadow-2xl">
+          <DialogHeader className="p-6 bg-primary text-primary-foreground">
+            <DialogTitle className="font-serif text-2xl font-bold">Modifier la Commande</DialogTitle>
           </DialogHeader>
           {editingOrder && (
-            <form onSubmit={handleUpdateOrder} className="space-y-6 mt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Nom du client</Label>
-                  <Input 
-                    value={editingOrder.customer_name} 
-                    onChange={(e) => setEditingOrder({...editingOrder, customer_name: e.target.value})} 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Téléphone</Label>
-                  <Input 
-                    value={editingOrder.customer_phone} 
-                    onChange={(e) => setEditingOrder({...editingOrder, customer_phone: e.target.value})} 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Ville</Label>
-                  <Input 
-                    value={editingOrder.customer_city} 
-                    onChange={(e) => setEditingOrder({...editingOrder, customer_city: e.target.value})} 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Statut</Label>
-                  <Select 
-                    value={editingOrder.status} 
-                    onValueChange={(val: DbOrder['status']) => setEditingOrder({...editingOrder, status: val})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(statusConfig).map(([key, { label }]) => (
-                        <SelectItem key={key} value={key}>{label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Adresse complète</Label>
-                <Textarea 
-                  value={editingOrder.customer_address} 
-                  onChange={(e) => setEditingOrder({...editingOrder, customer_address: e.target.value})} 
-                />
-              </div>
-
+            <form onSubmit={handleUpdateOrder} className="p-6 space-y-8 bg-background">
+              {/* Customer Info Section */}
               <div className="space-y-4">
-                <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground border-b pb-2">Articles</p>
-                <div className="space-y-3">
+                <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground flex items-center gap-2">
+                  <span className="w-1 h-1 rounded-full bg-primary" />
+                  Informations de Livraison
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold uppercase text-muted-foreground">Nom Complet</Label>
+                    <Input
+                      value={editingOrder.customer_name}
+                      onChange={(e) => setEditingOrder({ ...editingOrder, customer_name: e.target.value })}
+                      className="h-11"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold uppercase text-muted-foreground">Téléphone</Label>
+                    <Input
+                      value={editingOrder.customer_phone}
+                      onChange={(e) => setEditingOrder({ ...editingOrder, customer_phone: e.target.value })}
+                      className="h-11"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold uppercase text-muted-foreground">Ville</Label>
+                    <Input
+                      value={editingOrder.customer_city}
+                      onChange={(e) => setEditingOrder({ ...editingOrder, customer_city: e.target.value })}
+                      className="h-11"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold uppercase text-muted-foreground">Statut de la Commande</Label>
+                    <Select
+                      value={editingOrder.status}
+                      onValueChange={(val: DbOrder['status']) => setEditingOrder({ ...editingOrder, status: val })}
+                    >
+                      <SelectTrigger className="h-11">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(statusConfig).map(([key, { label }]) => (
+                          <SelectItem key={key} value={key}>{label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold uppercase text-muted-foreground">Adresse complète</Label>
+                  <Textarea
+                    value={editingOrder.customer_address}
+                    onChange={(e) => setEditingOrder({ ...editingOrder, customer_address: e.target.value })}
+                    className="min-h-[80px] resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Items Section */}
+              <div className="space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground flex items-center gap-2">
+                  <span className="w-1 h-1 rounded-full bg-primary" />
+                  Modifier les Articles
+                </h3>
+                <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar border border-border/50 rounded-xl p-3 bg-muted/5">
                   {editingOrder.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-4 p-3 border border-border rounded-lg bg-muted/20">
+                    <div key={idx} className="flex items-center gap-4 p-4 border border-border rounded-xl bg-background hover:bg-muted/10 transition-colors">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{item.product_name}</p>
-                        <p className="text-xs text-muted-foreground">{item.unit_price} DH / unité</p>
+                        <p className="text-sm font-bold truncate">{item.product_name}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{item.unit_price} DH / unité</p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button 
-                          type="button" 
-                          size="icon" 
-                          variant="outline" 
-                          className="h-8 w-8"
+                      <div className="flex items-center gap-3 bg-muted/20 border border-border rounded-full p-1 px-3 shadow-sm">
+                        <button
+                          type="button"
                           onClick={() => {
                             const newItems = [...editingOrder.items];
                             if (newItems[idx].quantity > 1) {
                               newItems[idx].quantity -= 1;
-                              setEditingOrder({...editingOrder, items: newItems});
+                              setEditingOrder({ ...editingOrder, items: newItems });
                             }
                           }}
+                          className="w-6 h-6 flex items-center justify-center hover:text-primary transition-colors"
                         >
                           <Minus className="w-3 h-3" />
-                        </Button>
-                        <span className="w-8 text-center font-medium">{item.quantity}</span>
-                        <Button 
-                          type="button" 
-                          size="icon" 
-                          variant="outline" 
-                          className="h-8 w-8"
+                        </button>
+                        <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
+                        <button
+                          type="button"
                           onClick={() => {
                             const newItems = [...editingOrder.items];
                             newItems[idx].quantity += 1;
-                            setEditingOrder({...editingOrder, items: newItems});
+                            setEditingOrder({ ...editingOrder, items: newItems });
                           }}
+                          className="w-6 h-6 flex items-center justify-center hover:text-primary transition-colors"
                         >
                           <Plus className="w-3 h-3" />
-                        </Button>
+                        </button>
                       </div>
-                      <div className="w-20 text-right font-medium text-sm">
-                        {item.quantity * item.unit_price} DH
+                      <div className="w-24 text-right">
+                        <p className="text-sm font-bold text-primary">{item.quantity * item.unit_price} DH</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Notes (Interne)</Label>
-                <Textarea 
-                  value={editingOrder.notes || ""} 
-                  onChange={(e) => setEditingOrder({...editingOrder, notes: e.target.value})} 
+              {/* Internal Notes */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold uppercase text-muted-foreground">Notes de Gestion (Interne)</Label>
+                <Textarea
+                  value={editingOrder.notes || ""}
+                  onChange={(e) => setEditingOrder({ ...editingOrder, notes: e.target.value })}
                   placeholder="Notes sur la livraison, préférences client..."
+                  className="min-h-[80px] resize-none"
                 />
               </div>
 
-              <div className="flex justify-between items-center pt-4 border-t">
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Total recalculé : </span>
-                  <span className="font-bold text-lg text-primary">
+              {/* Footer Actions */}
+              <div className="flex justify-between items-center pt-6 border-t border-border">
+                <div>
+                  <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Total recalculé</p>
+                  <p className="text-2xl font-serif font-bold text-primary">
                     {editingOrder.items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0).toLocaleString()} DH
-                  </span>
+                  </p>
                 </div>
                 <div className="flex gap-3">
-                  <Button type="button" variant="outline" onClick={() => setEditingOrder(null)}>Annuler</Button>
-                  <Button type="submit" className="px-8 bg-primary">Enregistrer les modifications</Button>
+                  <Button type="button" variant="outline" className="h-11 px-6 rounded-none" onClick={() => setEditingOrder(null)}>Annuler</Button>
+                  <Button type="submit" className="h-11 px-8 rounded-none shadow-md">Enregistrer</Button>
                 </div>
               </div>
             </form>
@@ -723,8 +780,8 @@ const AdminOrders = () => {
       </Dialog>
 
       {/* Delete Confirmation Alert */}
-      <AlertDialog 
-        open={!!orderToDelete || isBulkDeleting} 
+      <AlertDialog
+        open={!!orderToDelete || isBulkDeleting}
         onOpenChange={(open) => {
           if (!open) {
             setOrderToDelete(null);
@@ -741,7 +798,7 @@ const AdminOrders = () => {
               {isBulkDeleting ? `Supprimer ${selectedOrderIds.length} commandes` : "Confirmer la suppression"}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-muted-foreground">
-              {isBulkDeleting 
+              {isBulkDeleting
                 ? `Êtes-vous sûr de vouloir supprimer ces ${selectedOrderIds.length} commandes ?`
                 : "Êtes-vous vraiment sûr de vouloir supprimer cette commande ?"
               } <br />
@@ -750,7 +807,7 @@ const AdminOrders = () => {
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 gap-3">
             <AlertDialogCancel className="rounded-none border-border hover:bg-muted">Annuler</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleDelete}
               className="rounded-none bg-destructive hover:bg-destructive/90 text-destructive-foreground px-8"
             >

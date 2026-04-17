@@ -22,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Zap, Tag, Percent, ShoppingCart, Star, Loader2, AlertTriangle } from "lucide-react";
+import { Plus, Pencil, Trash2, Zap, Tag, Percent, ShoppingCart, Star, Loader2, AlertTriangle, Search } from "lucide-react";
 
 const PROMO_TYPES = [
   { value: "percentage", label: "Réduction %", icon: Percent },
@@ -65,6 +65,9 @@ const AdminPromotions = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [promoToDelete, setPromoToDelete] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  const filtered = promotions.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
 
   const openCreate = () => {
     setEditing(null);
@@ -214,7 +217,7 @@ const AdminPromotions = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="font-serif text-xl sm:text-2xl text-foreground">Promotions Produits</h1>
+            <h1 className="font-serif text-3xl font-bold tracking-tight">Promotions Produits</h1>
             <p className="text-sm text-muted-foreground">{promotions.length} promotion(s)</p>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -233,21 +236,32 @@ const AdminPromotions = () => {
           </div>
         </div>
 
-        {promotions.length > 0 && (
-          <div className="flex items-center gap-2">
-            <Checkbox 
-              checked={selectedIds.length === promotions.length}
-              onCheckedChange={toggleSelectAll}
-              id="select-all"
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:pl-1">
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input 
+              placeholder="Rechercher une promotion..." 
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)} 
+              className="pl-9 h-10" 
             />
-            <label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
-              Tout sélectionner
-            </label>
           </div>
-        )}
+          {promotions.length > 0 && (
+            <div className="flex items-center gap-2 shrink-0">
+              <Checkbox 
+                checked={filtered.length > 0 && selectedIds.length === filtered.length}
+                onCheckedChange={toggleSelectAll}
+                id="select-all"
+              />
+              <label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer whitespace-nowrap">
+                Tout sélectionner
+              </label>
+            </div>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {promotions.map((p) => {
+          {filtered.map((p) => {
             const info = typeInfo(p.type);
             const Icon = info.icon;
             const active = isActive(p);

@@ -20,7 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Package, AlertTriangle, Loader2, Upload, AlertCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, Package, AlertTriangle, Loader2, Upload, AlertCircle, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -43,6 +43,9 @@ const AdminPackaging = () => {
   const [form, setForm] = useState(emptyForm);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [search, setSearch] = useState("");
+
+  const filtered = packaging.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
 
   const handleImageUpload = async (file: File) => {
     setUploading(true);
@@ -145,7 +148,7 @@ const AdminPackaging = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="font-serif text-xl sm:text-2xl text-foreground">Gestion des Emballages</h1>
+            <h1 className="font-serif text-3xl font-bold tracking-tight">Gestion des Emballages</h1>
             <p className="text-sm text-muted-foreground">{packaging.length} emballage(s)</p>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -164,18 +167,34 @@ const AdminPackaging = () => {
           </div>
         </div>
 
-        {packaging.length > 0 && (
-          <div className="flex items-center gap-2">
-            <Checkbox 
-              checked={selectedIds.length === packaging.length}
-              onCheckedChange={toggleSelectAll}
-              id="select-all"
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:pl-1">
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input 
+              placeholder="Rechercher un emballage..." 
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)} 
+              className="pl-9 h-10" 
             />
-            <label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
-              Tout sélectionner
-            </label>
+            {search && (
+              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
-        )}
+          {packaging.length > 0 && (
+            <div className="flex items-center gap-2 shrink-0">
+              <Checkbox 
+                checked={filtered.length > 0 && selectedIds.length === filtered.length}
+                onCheckedChange={toggleSelectAll}
+                id="select-all"
+              />
+              <label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer whitespace-nowrap">
+                Tout sélectionner
+              </label>
+            </div>
+          )}
+        </div>
 
         {lowStock.length > 0 && (
           <Card className="border-destructive/50 bg-destructive/5">
@@ -191,7 +210,7 @@ const AdminPackaging = () => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {packaging.map((p) => {
+          {filtered.map((p) => {
             const isSelected = selectedIds.includes(p.id);
             return (
               <Card key={p.id} className={`transition-colors ${!p.active ? "opacity-50" : ""} ${isSelected ? 'border-primary bg-primary/5 shadow-sm' : ''}`}>

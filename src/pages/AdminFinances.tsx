@@ -283,7 +283,7 @@ const AdminFinances = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="font-serif text-xl sm:text-2xl text-foreground">Gestion Financière</h1>
+            <h1 className="font-serif text-3xl font-bold tracking-tight">Gestion Financière</h1>
             <p className="text-sm text-muted-foreground">{orders.length} commandes enregistrées</p>
           </div>
           <div className="flex gap-2">

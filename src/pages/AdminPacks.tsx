@@ -147,13 +147,13 @@ const AdminPacks = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="font-serif text-xl sm:text-2xl text-foreground">Gestion des Packs</h1>
+            <h1 className="font-serif text-3xl font-bold tracking-tight">Gestion des Packs</h1>
             <p className="text-sm text-muted-foreground">{packs.length} packs</p>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
             {selectedIds.length > 0 && (
-              <Button 
-                variant="destructive" 
+              <Button
+                variant="destructive"
                 onClick={() => setIsBulkDeleting(true)}
                 className="rounded-none gap-2"
               >
@@ -166,7 +166,7 @@ const AdminPacks = () => {
           </div>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex flex-col items-start gap-4 sm:pl-1">
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input placeholder="Rechercher un pack..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 pr-9" />
@@ -183,7 +183,7 @@ const AdminPacks = () => {
             <thead className="bg-muted/50">
               <tr>
                 <th className="p-3 w-10">
-                  <Checkbox 
+                  <Checkbox
                     checked={filtered.length > 0 && selectedIds.length === filtered.length}
                     onCheckedChange={toggleSelectAll}
                   />
@@ -201,37 +201,38 @@ const AdminPacks = () => {
                 return (
                   <tr key={p.id} className={`border-t border-border hover:bg-muted/20 transition-colors ${isSelected ? 'bg-primary/5' : ''}`}>
                     <td className="p-3 text-center">
-                      <Checkbox 
+                      <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => toggleSelect(p.id)}
                       />
                     </td>
                     <td className="p-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center">
-                        <Package className="w-5 h-5 text-primary" />
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center">
+                          <Package className="w-5 h-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{p.name}</p>
+                          <p className="text-xs text-muted-foreground">{p.items.length} produits</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium">{p.name}</p>
-                        <p className="text-xs text-muted-foreground">{p.items.length} produits</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-3 text-muted-foreground text-xs">
-                    {p.items.map((i) => i.product_name).join(", ")}
-                  </td>
-                  <td className="p-3 text-right font-medium">{p.price} DH</td>
-                  <td className="p-3 text-center">
-                    <Switch checked={p.active} onCheckedChange={() => toggleActive.mutate({ id: p.id, active: !p.active })} />
-                  </td>
-                  <td className="p-3 text-right space-x-1">
-                    <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil className="w-4 h-4" /></Button>
-                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => setPackToDelete(p.id)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </td>
-                </tr>
-              )})}
+                    </td>
+                    <td className="p-3 text-muted-foreground text-xs">
+                      {p.items.map((i) => i.product_name).join(", ")}
+                    </td>
+                    <td className="p-3 text-right font-medium">{p.price} DH</td>
+                    <td className="p-3 text-center">
+                      <Switch checked={p.active} onCheckedChange={() => toggleActive.mutate({ id: p.id, active: !p.active })} />
+                    </td>
+                    <td className="p-3 text-right space-x-1">
+                      <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil className="w-4 h-4" /></Button>
+                      <Button size="icon" variant="ghost" className="text-destructive" onClick={() => setPackToDelete(p.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
           {filtered.length === 0 && (
@@ -255,24 +256,24 @@ const AdminPacks = () => {
                   <p className="text-xs text-muted-foreground">{p.items.length} produits · {p.price} DH</p>
                 </div>
               </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Checkbox 
-                      checked={selectedIds.includes(p.id)}
-                      onCheckedChange={() => toggleSelect(p.id)}
-                    />
-                    <div className="flex items-center gap-2">
-                      <Switch checked={p.active} onCheckedChange={() => toggleActive.mutate({ id: p.id, active: !p.active })} />
-                      <span className="text-xs text-muted-foreground">{p.active ? "Actif" : "Inactif"}</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil className="w-4 h-4" /></Button>
-                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => setPackToDelete(p.id)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Checkbox
+                    checked={selectedIds.includes(p.id)}
+                    onCheckedChange={() => toggleSelect(p.id)}
+                  />
+                  <div className="flex items-center gap-2">
+                    <Switch checked={p.active} onCheckedChange={() => toggleActive.mutate({ id: p.id, active: !p.active })} />
+                    <span className="text-xs text-muted-foreground">{p.active ? "Actif" : "Inactif"}</span>
                   </div>
                 </div>
+                <div className="flex gap-1">
+                  <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil className="w-4 h-4" /></Button>
+                  <Button size="icon" variant="ghost" className="text-destructive" onClick={() => setPackToDelete(p.id)}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -292,7 +293,7 @@ const AdminPacks = () => {
                     <label className="text-sm font-medium mb-1.5 block">Nom du pack *</label>
                     <Input value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} placeholder="Ex: Pack Rituel Matinal" />
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Prix du pack (DH) *</label>
                     <Input type="number" value={editing.price} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })} />
@@ -302,7 +303,7 @@ const AdminPacks = () => {
                     <label className="text-sm font-medium mb-1.5 block">Description courte</label>
                     <Textarea value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} rows={2} />
                   </div>
-                  
+
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Description longue</label>
                     <Textarea value={editing.long_description} onChange={(e) => setEditing({ ...editing, long_description: e.target.value })} rows={4} />
@@ -328,7 +329,7 @@ const AdminPacks = () => {
                       {editing.product_ids.length} sélectionné(s)
                     </span>
                   </div>
-                  
+
                   <div className="space-y-2 max-h-[350px] overflow-y-auto border border-border rounded-lg p-3 bg-muted/10">
                     {products.filter(p => p.active).map((p) => (
                       <label key={p.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-2 rounded-md transition-colors border border-transparent hover:border-border">
@@ -378,9 +379,9 @@ const AdminPacks = () => {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog 
-        open={!!packToDelete || isBulkDeleting} 
-        onOpenChange={(open) => { if (!open) { setPackToDelete(null); setIsBulkDeleting(false); }}}
+      <AlertDialog
+        open={!!packToDelete || isBulkDeleting}
+        onOpenChange={(open) => { if (!open) { setPackToDelete(null); setIsBulkDeleting(false); } }}
       >
         <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
@@ -391,8 +392,8 @@ const AdminPacks = () => {
               {isBulkDeleting ? `Supprimer ${selectedIds.length} packs` : "Confirmer la suppression"}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {isBulkDeleting 
-                ? `Êtes-vous sûr de vouloir supprimer ces ${selectedIds.length} packs ?` 
+              {isBulkDeleting
+                ? `Êtes-vous sûr de vouloir supprimer ces ${selectedIds.length} packs ?`
                 : "Êtes-vous sûr de vouloir supprimer ce pack ?"
               } <br />
               Cette action est irréversible.

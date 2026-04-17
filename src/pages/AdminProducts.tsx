@@ -234,7 +234,7 @@ const AdminProducts = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="font-serif text-xl sm:text-2xl text-foreground">Gestion des Produits</h1>
+            <h1 className="font-serif text-3xl font-bold tracking-tight">Gestion des Produits</h1>
             <p className="text-sm text-muted-foreground">{products.length} produits · {categories.length} catégories</p>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -265,7 +265,7 @@ const AdminProducts = () => {
           </div>
         )}
 
-        <div className="flex justify-center">
+        <div className="flex flex-col items-start gap-4 sm:pl-1">
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
