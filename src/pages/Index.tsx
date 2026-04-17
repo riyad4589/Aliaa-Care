@@ -18,15 +18,8 @@ import infusionHerbaleImg from "@/assets/infusion-herbale.jpeg";
 import selsDeBainImg from "@/assets/sels-de-bain.jpeg";
 import laitCorporelImg from "@/assets/lait-corporel.jpeg";
 
-const instagramImages = [
-  coffretImg, 
-  gommageCorpsImg, 
-  eauDeRoseImg, 
-  infusionHerbaleImg, 
-  selsDeBainImg, 
-  laitCorporelImg
-];
-
+// Dynamic images will be used from products
+  
 
 const Index = () => {
   const { products, collections, getFeaturedProducts, banner } = useClientProducts();
@@ -40,6 +33,14 @@ const Index = () => {
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroImageY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  
+  // Get all product images and randomize them
+  const allProductImages = products.flatMap(p => p.images);
+  const randomizedImages = [...allProductImages].sort(() => Math.random() - 0.5);
+  // Ensure we have enough images for the marquee (min 10)
+  const displayImages = randomizedImages.length > 0 ? randomizedImages : [];
+  // Use a fallback if no products
+  const finalImages = displayImages.length > 0 ? displayImages : [coffretImg, gommageCorpsImg, eauDeRoseImg];
 
   return (
     <Layout>
@@ -210,7 +211,19 @@ const Index = () => {
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.6 }} className="text-center mb-12">
             <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("index.followUs")}</p>
-            <h2 className="font-serif text-3xl md:text-4xl text-foreground mb-4">@aliaacare</h2>
+            <div className="flex items-center justify-center gap-6 mb-4">
+              <a href="https://www.instagram.com/aliaacare/" target="_blank" rel="noopener noreferrer" className="font-serif text-2xl md:text-3xl text-foreground hover:text-primary transition-colors flex items-center gap-2">
+                <Instagram className="w-6 h-6" />
+                <span>Instagram</span>
+              </a>
+              <span className="w-px h-8 bg-border hidden sm:block" />
+              <a href="https://www.tiktok.com/@aliaacare" target="_blank" rel="noopener noreferrer" className="font-serif text-2xl md:text-3xl text-foreground hover:text-primary transition-colors flex items-center gap-2">
+                <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.9-.32-1.98-.23-2.81.36-.54.38-.89.98-1.03 1.64-.28 1.22.2 2.56 1.25 3.19.5.34 1.14.44 1.73.39.45-.03.9-.17 1.3-.4.74-.42 1.22-1.2 1.32-2.03.01-2.89 0-5.79.01-8.68z"/>
+                </svg>
+                <span>TikTok</span>
+              </a>
+            </div>
             <p className="text-muted-foreground max-w-md mx-auto">{t("index.followDesc")}</p>
           </motion.div>
           <div className="relative overflow-hidden -mx-4 md:-mx-8 lg:-mx-12">
@@ -218,28 +231,18 @@ const Index = () => {
               className="flex gap-4 md:gap-6 w-max px-4 md:px-8 lg:px-12"
               animate={{ x: [0, "-50%"] }}
               transition={{ 
-                duration: 40, 
+                duration: 60, 
                 repeat: Infinity, 
                 ease: "linear" 
               }}
             >
-              {[...instagramImages, ...instagramImages].map((image, index) => (
-                <a 
+              {[...finalImages, ...finalImages].map((image, index) => (
+                <div 
                   key={index} 
-                  href="https://www.instagram.com/aliaacare/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="relative aspect-square w-48 md:w-72 lg:w-80 overflow-hidden group cursor-pointer flex-shrink-0"
+                  className="w-[200px] md:w-[280px] aspect-square rounded-lg overflow-hidden bg-muted"
                 >
-                  <img 
-                    src={image} 
-                    alt="Instagram" 
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
-                  />
-                  <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/40 transition-colors duration-300 flex items-center justify-center">
-                    <Instagram className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  </div>
-                </a>
+                  <img src={image} alt="" className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
+                </div>
               ))}
             </motion.div>
           </div>

@@ -142,6 +142,17 @@ export function useDeleteProduct() {
   });
 }
 
+export function useBulkDeleteProducts() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("products").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
+  });
+}
+
 export function useToggleProductActive() {
   const qc = useQueryClient();
   return useMutation({

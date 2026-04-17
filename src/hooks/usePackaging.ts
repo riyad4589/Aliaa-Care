@@ -57,3 +57,14 @@ export const useDeletePackaging = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["packaging"] }),
   });
 };
+
+export const useBulkDeletePackaging = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("packaging").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["packaging"] }),
+  });
+};

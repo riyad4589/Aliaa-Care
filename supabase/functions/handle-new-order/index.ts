@@ -50,10 +50,8 @@ serve(async (req) => {
       `💰 *Total : ${order.total.toLocaleString()} DH*\n` +
       `📍 *Livraison :* ${order.customer_city}\n\n` +
       `---------------------------\n` +
-      `⚠️ *ACTION REQUISE :*\n` +
-      `Veuillez répondre directement à ce message :\n\n` +
-      `✅ Répondez *OUI* pour confirmer l'envoi.\n` +
-      `❌ Répondez *NON* pour annuler votre commande.\n\n` +
+      `✅ Votre commande est en cours de traitement.\n` +
+      `📞 *Un conseiller ALIAA vous contactera très prochainement sur ce numéro pour confirmer les détails de votre livraison.*\n\n` +
       `---------------------------\n` +
       `_L'équipe ALIAA vous remercie pour votre confiance !_`;
 

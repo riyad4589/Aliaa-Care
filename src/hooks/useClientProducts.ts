@@ -14,6 +14,7 @@ export interface ClientProduct {
   longDescription: string;
   materials: string;
   weight?: number;
+  stock: number;
   images: string[];
   featured?: boolean;
   new?: boolean;
@@ -41,6 +42,7 @@ function toClientProduct(p: DbProduct): ClientProduct {
     longDescription: p.long_description || "",
     materials: p.materials || "",
     weight: p.weight ?? undefined,
+    stock: p.stock,
     images: p.images.length > 0 ? p.images : ["/placeholder.svg"],
     featured: p.featured ?? false,
     new: p.is_new ?? false,

@@ -66,80 +66,206 @@ const AdminFinances = () => {
   const exportCSV = () => {
     const BOM = "\uFEFF";
     const separator = ";";
-    const headers = ["Date", "Revenu (DH)", "Coût (DH)", "Profit (DH)", "Marge (%)"].join(separator);
-    const rows = chartData.map((d) => {
-      const margin = d.revenue > 0 ? ((d.revenue - d.cost) / d.revenue * 100).toFixed(1) : "0.0";
-      return [new Date(d.date).toLocaleDateString("fr-FR"), d.revenue.toLocaleString("fr-FR"), d.cost.toLocaleString("fr-FR"), d.profit.toLocaleString("fr-FR"), margin].join(separator);
-    });
+    const now = new Date();
+    
+    // Header Section
+    const reportTitle = "ALIAA NATURAL CARE - RAPPORT FINANCIER";
+    const generatedDate = `Généré le: ${now.toLocaleDateString("fr-FR")} à ${now.toLocaleTimeString("fr-FR")}`;
+    const periodStr = `Période: ${chartPeriod} derniers jours`;
+    
+    // Summary Metrics
     const totalRevenue = chartData.reduce((s, d) => s + d.revenue, 0);
     const totalCost = chartData.reduce((s, d) => s + d.cost, 0);
-    const totalProfit = chartData.reduce((s, d) => s + d.profit, 0);
+    const totalProfit = totalRevenue - totalCost;
+    const totalOrders = orders.length;
     const totalMargin = totalRevenue > 0 ? ((totalRevenue - totalCost) / totalRevenue * 100).toFixed(1) : "0.0";
-    const totalRow = ["TOTAL", totalRevenue.toLocaleString("fr-FR"), totalCost.toLocaleString("fr-FR"), totalProfit.toLocaleString("fr-FR"), totalMargin].join(separator);
-    const content = BOM + [headers, ...rows, "", totalRow].join("\n");
+
+    const summaryHeaders = ["MÉTRIQUES GLOBALES", "VALEUR"].join(separator);
+    const summaryRows = [
+      ["Revenu Total", `${totalRevenue.toFixed(2).replace(".", ",")} DH`],
+      ["Coût Total", `${totalCost.toFixed(2).replace(".", ",")} DH`],
+      ["Profit Total", `${totalProfit.toFixed(2).replace(".", ",")} DH`],
+      ["Marge Moyenne", `${totalMargin.replace(".", ",")}%`],
+      ["Total Commandes", totalOrders]
+    ].map(row => row.join(separator));
+
+    // Daily Details
+    const detailsHeaderTitle = "DÉTAILS QUOTIDIENS";
+    const detailsHeaders = ["Date", "Commandes", "Revenu (DH)", "Coût (DH)", "Profit (DH)", "Marge (%)"].join(separator);
+    
+    const dayRows = chartData.filter(d => d.revenue > 0 || d.cost > 0).map((d) => {
+      const dayOrdersCount = orders.filter(o => o.created_at.startsWith(d.date)).length;
+      const margin = d.revenue > 0 ? ((d.revenue - d.cost) / d.revenue * 100).toFixed(1) : "0.0";
+      return [
+        new Date(d.date).toLocaleDateString("fr-FR"), 
+        dayOrdersCount,
+        d.revenue.toFixed(2).replace(".", ","), 
+        d.cost.toFixed(2).replace(".", ","), 
+        d.profit.toFixed(2).replace(".", ","), 
+        margin.replace(".", ",")
+      ].join(separator);
+    });
+
+    const content = BOM + [
+      reportTitle,
+      generatedDate,
+      periodStr,
+      "",
+      summaryHeaders,
+      ...summaryRows,
+      "",
+      detailsHeaderTitle,
+      detailsHeaders,
+      ...dayRows
+    ].join("\n");
+
     const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `finances-aliaa-${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `rapport-aliaa-${now.toISOString().split("T")[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast({ title: "CSV exporté" });
+    toast({ title: "CSV stylisé exporté" });
   };
 
   const exportPDF = () => {
     const doc = new jsPDF();
-    const now = new Date();
-    const dateStr = now.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
-    doc.setFontSize(20);
+    const primaryColor = [74, 85, 67]; // Botanical Green
+    const accentColor = [120, 135, 110]; // Lighter Green
+    
+    // Header background with full width
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(0, 0, 210, 50, "F");
+    
+    // Logo text replacement or title
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(28);
     doc.setFont("helvetica", "bold");
-    doc.text("ALIAA Natural Care", 14, 22);
-    doc.setFontSize(12);
+    doc.text("ALIAA NATURAL CARE", 20, 25);
+    
+    doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(100);
-    doc.text("Rapport Financier", 14, 30);
+    doc.text("Performance & Bien-être . Rapport Financier", 20, 35);
+    
+    // Date & Period Info
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" });
     doc.setFontSize(9);
-    doc.text(`Généré le ${dateStr}`, 14, 36);
-    doc.setDrawColor(200);
-    doc.line(14, 40, 196, 40);
-    doc.setTextColor(0);
-    doc.setFontSize(13);
+    doc.text(`Généré le ${dateStr}`, 150, 35);
+    doc.text(`Analyse sur ${chartPeriod} jours`, 150, 42);
+    
+    doc.setTextColor(0, 0, 0);
+    
+    // 1. Executive Summary
+    doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text("Résumé des Revenus", 14, 50);
-    const summaryData = [
-      ["Aujourd'hui", `${dayRevenue.toLocaleString("fr-FR")} DH`],
-      ["Ce mois", `${monthRevenue.toLocaleString("fr-FR")} DH`],
-      ["Cette année", `${yearRevenue.toLocaleString("fr-FR")} DH`],
-      ["Commandes totales", `${orders.length}`],
-    ];
-    autoTable(doc, { startY: 54, head: [["Période", "Montant"]], body: summaryData, theme: "grid", headStyles: { fillColor: [74, 85, 67], fontSize: 10 }, styles: { fontSize: 10, cellPadding: 4 }, columnStyles: { 1: { halign: "right" } }, margin: { left: 14, right: 14 } });
-    const tableEndY = (doc as any).lastAutoTable.finalY + 12;
-    doc.setFontSize(13);
+    doc.text("1. Résumé Exécutif", 20, 65);
+    
+    const totalRevenue = chartData.reduce((s, d) => s + d.revenue, 0);
+    const totalCost = chartData.reduce((s, d) => s + d.cost, 0);
+    const totalProfit = totalRevenue - totalCost;
+    const globalMargin = totalRevenue > 0 ? (totalProfit / totalRevenue * 100).toFixed(1) : "0";
+    
+    autoTable(doc, {
+      startY: 70,
+      head: [["MÉTRIQUES CLÉS", "RÉSULTATS"]],
+      body: [
+        ["Revenu Total Brut", `${totalRevenue.toLocaleString("fr-FR")} DH`],
+        ["Coût des Ventes", `${totalCost.toLocaleString("fr-FR")} DH`],
+        ["Bénéfice Net (Profit)", `${totalProfit.toLocaleString("fr-FR")} DH`],
+        ["Marge Bénéficiaire", `${globalMargin}%`],
+        ["Volume de Commandes", orders.length.toString()]
+      ],
+      theme: "striped",
+      headStyles: { fillColor: primaryColor, fontSize: 11, cellPadding: 6 },
+      styles: { fontSize: 11, cellPadding: 6, font: "helvetica" },
+      columnStyles: { 1: { halign: "right", fontStyle: "bold", textColor: primaryColor } },
+      margin: { left: 20, right: 20 }
+    });
+    
+    // 2. Daily Analysis
+    const table2Y = (doc as any).lastAutoTable.finalY + 20;
+    doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text(`Détail par jour (${chartPeriod} derniers jours)`, 14, tableEndY);
-    const dayRows = chartData.filter((d) => d.revenue > 0 || d.cost > 0).map((d) => [new Date(d.date).toLocaleDateString("fr-FR"), `${d.revenue.toLocaleString("fr-FR")} DH`, `${d.cost.toLocaleString("fr-FR")} DH`, `${d.profit.toLocaleString("fr-FR")} DH`, d.revenue > 0 ? `${((d.profit / d.revenue) * 100).toFixed(1)}%` : "-"]);
-    if (dayRows.length > 0) {
-      autoTable(doc, { startY: tableEndY + 4, head: [["Date", "Revenu", "Coût", "Profit", "Marge"]], body: dayRows, theme: "striped", headStyles: { fillColor: [74, 85, 67], fontSize: 9 }, styles: { fontSize: 9, cellPadding: 3 }, columnStyles: { 1: { halign: "right" }, 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" } }, margin: { left: 14, right: 14 } });
-    }
-    const marginStartY = (doc as any).lastAutoTable.finalY + 12;
-    if (marginStartY > 250) doc.addPage();
-    const mY = marginStartY > 250 ? 20 : marginStartY;
-    doc.setFontSize(13);
+    doc.text("2. Analyse Quotidienne", 20, table2Y);
+    
+    const dayRows = chartData
+      .filter((d) => d.revenue > 0 || d.cost > 0)
+      .map((d) => [
+        new Date(d.date).toLocaleDateString("fr-FR"), 
+        `${d.revenue.toLocaleString("fr-FR")} DH`, 
+        `${d.cost.toLocaleString("fr-FR")} DH`, 
+        `${d.profit.toLocaleString("fr-FR")} DH`, 
+        d.revenue > 0 ? `${((d.profit / d.revenue) * 100).toFixed(1)}%` : "-"
+      ]);
+      
+    autoTable(doc, {
+      startY: table2Y + 8,
+      head: [["Date", "Revenu", "Coût", "Profit", "Marge"]],
+      body: dayRows,
+      theme: "grid",
+      headStyles: { fillColor: primaryColor, fontSize: 10, cellPadding: 5 },
+      styles: { fontSize: 10, cellPadding: 4, font: "helvetica" },
+      columnStyles: { 
+        1: { halign: "right" }, 
+        2: { halign: "right" }, 
+        3: { halign: "right" }, 
+        4: { halign: "right", fontStyle: "bold" } 
+      },
+      margin: { left: 20, right: 20 }
+    });
+    
+    // 3. Performance by Product
+    let mY = (doc as any).lastAutoTable.finalY + 20;
+    if (mY > 230) { doc.addPage(); mY = 30; }
+    
+    doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text("Marges par Produit", 14, mY);
-    if (margins.length > 0) {
-      const marginRows = margins.map((m) => [m.productName, `${m.revenue.toLocaleString("fr-FR")} DH`, `${m.cost.toLocaleString("fr-FR")} DH`, `${(m.revenue - m.cost).toLocaleString("fr-FR")} DH`, `${m.margin.toFixed(1)}%`]);
-      autoTable(doc, { startY: mY + 4, head: [["Produit", "Revenu", "Coût", "Profit", "Marge"]], body: marginRows, theme: "striped", headStyles: { fillColor: [74, 85, 67], fontSize: 9 }, styles: { fontSize: 9, cellPadding: 3 }, columnStyles: { 1: { halign: "right" }, 2: { halign: "right" }, 3: { halign: "right" }, 4: { halign: "right" } }, margin: { left: 14, right: 14 } });
-    }
+    doc.text("3. Performance par Produit", 20, mY);
+    
+    const marginRows = margins
+      .sort((a, b) => b.revenue - a.revenue)
+      .map((m) => [
+        m.productName, 
+        `${m.revenue.toLocaleString("fr-FR")} DH`, 
+        `${m.cost.toLocaleString("fr-FR")} DH`, 
+        `${(m.revenue - m.cost).toLocaleString("fr-FR")} DH`, 
+        `${m.margin.toFixed(1)}%`
+      ]);
+      
+    autoTable(doc, {
+      startY: mY + 8,
+      head: [["Désignation Produit", "Revenu", "Coût", "Profit", "Marge"]],
+      body: marginRows,
+      theme: "striped",
+      headStyles: { fillColor: accentColor, fontSize: 10, cellPadding: 5 },
+      styles: { fontSize: 10, cellPadding: 4, font: "helvetica" },
+      columnStyles: { 
+        1: { halign: "right" }, 
+        2: { halign: "right" }, 
+        3: { halign: "right" }, 
+        4: { halign: "right", fontStyle: "bold" } 
+      },
+      margin: { left: 20, right: 20 }
+    });
+    
+    // Footer with pagination
     const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
       doc.setFontSize(8);
       doc.setTextColor(150);
-      doc.text(`ALIAA Natural Care - Confidentiel - Page ${i}/${pageCount}`, 14, 290);
+      doc.text(`ALIAA Natural Care . Rapport Confidentiel . Page ${i}/${pageCount}`, 20, 285);
+      doc.text("Contact: contact@aliaacare.ma . www.aliaacare.ma", 125, 285);
+      
+      // Bottom line
+      doc.setDrawColor(230);
+      doc.line(20, 280, 190, 280);
     }
-    doc.save(`rapport-aliaa-${now.toISOString().split("T")[0]}.pdf`);
-    toast({ title: "Rapport PDF exporté" });
+    
+    doc.save(`Rapport_Financier_ALIAA_${now.toISOString().split("T")[0]}.pdf`);
+    toast({ title: "Rapport PDF amélioré exporté" });
   };
 
   if (isLoading) {

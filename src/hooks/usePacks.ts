@@ -144,6 +144,17 @@ export function useDeletePack() {
   });
 }
 
+export function useBulkDeletePacks() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("packs" as any).delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["packs"] }),
+  });
+}
+
 export function useTogglePackActive() {
   const qc = useQueryClient();
   return useMutation({

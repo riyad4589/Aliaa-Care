@@ -57,10 +57,18 @@ export const Footer = () => {
               <li><a href="mailto:contact@aliaacare.com" className="text-sm text-background/60 hover:text-background transition-colors duration-300">contact@aliaacare.com</a></li>
               <li><p className="text-sm text-background/40 leading-relaxed">{t("footer.schedule")}</p></li>
               <li className="pt-2">
-                <a href="https://www.instagram.com/aliaacare/" target="_blank" rel="noopener noreferrer" className="text-sm text-background/60 hover:text-background transition-colors duration-300 flex items-center gap-2">
-                  <Instagram className="w-4 h-4 text-primary" />
-                  <span>@aliaacare</span>
-                </a>
+                <div className="flex flex-col gap-3">
+                  <a href="https://www.instagram.com/aliaacare/" target="_blank" rel="noopener noreferrer" className="text-sm text-background/60 hover:text-background transition-colors duration-300 flex items-center gap-2">
+                    <Instagram className="w-4 h-4 text-primary" />
+                    <span>Instagram</span>
+                  </a>
+                  <a href="https://www.tiktok.com/@aliaacare" target="_blank" rel="noopener noreferrer" className="text-sm text-background/60 hover:text-background transition-colors duration-300 flex items-center gap-2">
+                    <svg className="w-4 h-4 fill-primary" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.9-.32-1.98-.23-2.81.36-.54.38-.89.98-1.03 1.64-.28 1.22.2 2.56 1.25 3.19.5.34 1.14.44 1.73.39.45-.03.9-.17 1.3-.4.74-.42 1.22-1.2 1.32-2.03.01-2.89 0-5.79.01-8.68z"/>
+                    </svg>
+                    <span>TikTok</span>
+                  </a>
+                </div>
               </li>
             </ul>
           </div>

@@ -1,18 +1,28 @@
 import { useState } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
-import { usePromotions, useCreatePromotion, useUpdatePromotion, useDeletePromotion, Promotion, TierRule } from "@/hooks/usePromotions";
+import { usePromotions, useCreatePromotion, useUpdatePromotion, useDeletePromotion, useBulkDeletePromotions, Promotion, TierRule } from "@/hooks/usePromotions";
 import { useProducts } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Zap, Tag, Percent, ShoppingCart, Star, Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Plus, Pencil, Trash2, Zap, Tag, Percent, ShoppingCart, Star, Loader2, AlertTriangle } from "lucide-react";
 
 const PROMO_TYPES = [
   { value: "percentage", label: "Réduction %", icon: Percent },
@@ -51,6 +61,10 @@ const AdminPromotions = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Promotion | null>(null);
   const [form, setForm] = useState(defaultForm);
+  const bulkDeletePromos = useBulkDeletePromotions();
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [promoToDelete, setPromoToDelete] = useState<string | null>(null);
 
   const openCreate = () => {
     setEditing(null);
@@ -114,10 +128,33 @@ const AdminPromotions = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer cette promotion ?")) return;
-    await deleteMut.mutateAsync(id);
-    toast({ title: "Promotion supprimée" });
+  const handleDelete = async () => {
+    try {
+      if (isBulkDeleting) {
+        await bulkDeletePromos.mutateAsync(selectedIds);
+        toast({ title: `${selectedIds.length} promotions supprimées` });
+        setSelectedIds([]);
+        setIsBulkDeleting(false);
+      } else if (promoToDelete) {
+        await deleteMut.mutateAsync(promoToDelete);
+        toast({ title: "Promotion supprimée" });
+        setPromoToDelete(null);
+      }
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de supprimer", variant: "destructive" });
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === promotions.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(promotions.map(p => p.id));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
   const isActive = (p: Promotion) => {
@@ -180,54 +217,86 @@ const AdminPromotions = () => {
             <h1 className="font-serif text-xl sm:text-2xl text-foreground">Promotions Produits</h1>
             <p className="text-sm text-muted-foreground">{promotions.length} promotion(s)</p>
           </div>
-          <Button onClick={openCreate} className="gap-2 rounded-none">
-            <Plus className="w-4 h-4" /> Nouvelle Promotion
-          </Button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            {selectedIds.length > 0 && (
+              <Button 
+                variant="destructive" 
+                onClick={() => setIsBulkDeleting(true)}
+                className="rounded-none gap-2"
+              >
+                <Trash2 className="w-4 h-4" /> Supprimer ({selectedIds.length})
+              </Button>
+            )}
+            <Button onClick={openCreate} className="gap-2 rounded-none flex-1 sm:flex-initial">
+              <Plus className="w-4 h-4" /> Nouvelle Promotion
+            </Button>
+          </div>
         </div>
+
+        {promotions.length > 0 && (
+          <div className="flex items-center gap-2">
+            <Checkbox 
+              checked={selectedIds.length === promotions.length}
+              onCheckedChange={toggleSelectAll}
+              id="select-all"
+            />
+            <label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
+              Tout sélectionner
+            </label>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {promotions.map((p) => {
             const info = typeInfo(p.type);
             const Icon = info.icon;
             const active = isActive(p);
+            const isSelected = selectedIds.includes(p.id);
             return (
-              <Card key={p.id} className={!active ? "opacity-60" : ""}>
+              <Card key={p.id} className={`transition-colors ${!active ? "opacity-60" : ""} ${isSelected ? 'border-primary bg-primary/5 shadow-sm' : ''}`}>
                 <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3 min-w-0 flex-1">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                        <Icon className="w-5 h-5 text-primary" />
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="font-medium text-sm truncate">{p.name}</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">{info.label}</p>
-                        <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                          {p.discount_percent > 0 && (
-                            <Badge variant="secondary" className="text-xs">-{p.discount_percent}%</Badge>
-                          )}
-                          {p.is_flash && <Badge variant="destructive" className="text-xs">Flash</Badge>}
-                          {p.type === "buy_x_get_y" && (
-                            <Badge variant="secondary" className="text-xs">{p.buy_quantity} acheté(s) → {p.get_quantity} offert(s)</Badge>
-                          )}
-                          {p.type === "tiered" && p.tier_rules && (
-                            <Badge variant="secondary" className="text-xs">{p.tier_rules.length} palier(s)</Badge>
-                          )}
-                          <Badge variant={active ? "default" : "outline"} className="text-xs">
-                            {active ? "Active" : "Inactive"}
-                          </Badge>
+                  <div className="flex items-start gap-3">
+                    <Checkbox 
+                      checked={isSelected}
+                      onCheckedChange={() => toggleSelect(p.id)}
+                      className="mt-1"
+                    />
+                    <div className="flex items-start justify-between gap-3 flex-1 min-w-0">
+                      <div className="flex items-start gap-3 min-w-0 flex-1">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <Icon className="w-5 h-5 text-primary" />
                         </div>
-                        <p className="text-[11px] text-muted-foreground mt-2">
-                          {new Date(p.starts_at).toLocaleDateString("fr-FR")} → {new Date(p.ends_at).toLocaleDateString("fr-FR")}
-                        </p>
+                        <div className="min-w-0">
+                          <h3 className="font-medium text-sm truncate">{p.name}</h3>
+                          <p className="text-xs text-muted-foreground mt-0.5">{info.label}</p>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                            {p.discount_percent > 0 && (
+                              <Badge variant="secondary" className="text-xs">-{p.discount_percent}%</Badge>
+                            )}
+                            {p.is_flash && <Badge variant="destructive" className="text-xs">Flash</Badge>}
+                            {p.type === "buy_x_get_y" && (
+                              <Badge variant="secondary" className="text-xs">{p.buy_quantity} acheté(s) → {p.get_quantity} offert(s)</Badge>
+                            )}
+                            {p.type === "tiered" && p.tier_rules && (
+                              <Badge variant="secondary" className="text-xs">{p.tier_rules.length} palier(s)</Badge>
+                            )}
+                            <Badge variant={active ? "default" : "outline"} className="text-xs">
+                              {active ? "Active" : "Inactive"}
+                            </Badge>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground mt-2">
+                            {new Date(p.starts_at).toLocaleDateString("fr-FR")} → {new Date(p.ends_at).toLocaleDateString("fr-FR")}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex gap-1 shrink-0">
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(p)}>
-                        <Pencil className="w-3.5 h-3.5" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(p.id)}>
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
+                      <div className="flex gap-1 shrink-0">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(p)}>
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => setPromoToDelete(p.id)}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -244,132 +313,185 @@ const AdminPromotions = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editing ? "Modifier la promotion" : "Nouvelle promotion"}</DialogTitle>
+            <DialogTitle className="font-serif text-2xl">{editing ? "Modifier la promotion" : "Nouvelle promotion"}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Nom *</label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ex: Black Friday -30%" />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">Type</label>
-              <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v, is_flash: v === "flash" })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {PROMO_TYPES.map(t => (
-                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {(form.type === "percentage" || form.type === "flash" || form.type === "product_of_day") && (
-              <div>
-                <label className="text-sm font-medium">Réduction (%)</label>
-                <Input type="number" min={1} max={100} value={form.discount_percent}
-                  onChange={(e) => setForm({ ...form, discount_percent: Number(e.target.value) })} />
-              </div>
-            )}
-
-            {form.type === "buy_x_get_y" && (
-              <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-6 pt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Left Column: Rules & Config */}
+              <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium">Acheter X</label>
-                  <Input type="number" min={1} value={form.buy_quantity}
-                    onChange={(e) => setForm({ ...form, buy_quantity: Number(e.target.value) })} />
+                  <label className="text-sm font-medium mb-1.5 block">Nom de la promotion *</label>
+                  <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ex: Black Friday -30%" />
                 </div>
-                <div>
-                  <label className="text-sm font-medium">Offrir Y</label>
-                  <Input type="number" min={1} value={form.get_quantity}
-                    onChange={(e) => setForm({ ...form, get_quantity: Number(e.target.value) })} />
-                </div>
-              </div>
-            )}
 
-            {form.type === "tiered" && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Paliers de réduction</label>
-                {form.tier_rules.map((rule, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground shrink-0">Dès</span>
-                    <Input type="number" min={1} value={rule.min_qty} className="w-20"
-                      onChange={(e) => updateTierRule(i, "min_qty", Number(e.target.value))} />
-                    <span className="text-xs text-muted-foreground shrink-0">articles →</span>
-                    <Input type="number" min={1} max={100} value={rule.discount_percent} className="w-20"
-                      onChange={(e) => updateTierRule(i, "discount_percent", Number(e.target.value))} />
-                    <span className="text-xs text-muted-foreground shrink-0">%</span>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive shrink-0"
-                      onClick={() => removeTierRule(i)}><Trash2 className="w-3 h-3" /></Button>
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Type de promotion</label>
+                  <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v, is_flash: v === "flash" })}>
+                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {PROMO_TYPES.map(t => (
+                        <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="p-4 bg-muted/20 rounded-lg border border-border">
+                  {(form.type === "percentage" || form.type === "flash" || form.type === "product_of_day") && (
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Réduction (%)</label>
+                      <Input type="number" min={1} max={100} value={form.discount_percent}
+                        onChange={(e) => setForm({ ...form, discount_percent: Number(e.target.value) })} />
+                    </div>
+                  )}
+
+                  {form.type === "buy_x_get_y" && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-sm font-medium mb-1.5 block">Acheter X</label>
+                        <Input type="number" min={1} value={form.buy_quantity}
+                          onChange={(e) => setForm({ ...form, buy_quantity: Number(e.target.value) })} />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-1.5 block">Offrir Y</label>
+                        <Input type="number" min={1} value={form.get_quantity}
+                          onChange={(e) => setForm({ ...form, get_quantity: Number(e.target.value) })} />
+                      </div>
+                    </div>
+                  )}
+
+                  {form.type === "tiered" && (
+                    <div className="space-y-3">
+                      <label className="text-sm font-medium block">Paliers de réduction</label>
+                      <div className="space-y-2">
+                        {form.tier_rules.map((rule, i) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground shrink-0">Dès</span>
+                            <Input type="number" min={1} value={rule.min_qty} className="w-16 h-8 text-xs"
+                              onChange={(e) => updateTierRule(i, "min_qty", Number(e.target.value))} />
+                            <span className="text-xs text-muted-foreground shrink-0">art. →</span>
+                            <Input type="number" min={1} max={100} value={rule.discount_percent} className="w-16 h-8 text-xs"
+                              onChange={(e) => updateTierRule(i, "discount_percent", Number(e.target.value))} />
+                            <span className="text-xs text-muted-foreground shrink-0">%</span>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive shrink-0"
+                              onClick={() => removeTierRule(i)}><Trash2 className="w-3 h-3" /></Button>
+                          </div>
+                        ))}
+                      </div>
+                      <Button variant="outline" size="sm" onClick={addTierRule} className="text-[10px] h-7 w-full border-dashed">+ Ajouter un palier</Button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-sm font-medium mb-1.5 block">Date de début</label>
+                    <Input type="datetime-local" value={form.starts_at}
+                      onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
                   </div>
-                ))}
-                <Button variant="outline" size="sm" onClick={addTierRule} className="text-xs">+ Ajouter un palier</Button>
-              </div>
-            )}
+                  <div>
+                    <label className="text-sm font-medium mb-1.5 block">Date de fin</label>
+                    <Input type="datetime-local" value={form.ends_at}
+                      onChange={(e) => setForm({ ...form, ends_at: e.target.value })} />
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-sm font-medium">Début</label>
-                <Input type="datetime-local" value={form.starts_at}
-                  onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border">
+                  <Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} />
+                  <span className="text-sm font-medium">Promotion active</span>
+                </div>
               </div>
-              <div>
-                <label className="text-sm font-medium">Fin</label>
-                <Input type="datetime-local" value={form.ends_at}
-                  onChange={(e) => setForm({ ...form, ends_at: e.target.value })} />
+
+              {/* Right Column: Targeting */}
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Cible de la promotion</label>
+                  <Select value={form.target_type} onValueChange={(v) => setForm({ ...form, target_type: v })}>
+                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous les produits</SelectItem>
+                      <SelectItem value="specific_products">Produits spécifiques</SelectItem>
+                      <SelectItem value="specific_categories">Catégories spécifiques</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="bg-muted/10 border border-border rounded-lg p-3 min-h-[300px]">
+                  {form.target_type === "specific_products" && (
+                    <div className="space-y-1 max-h-[350px] overflow-y-auto">
+                      {products.map(p => (
+                        <label key={p.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-2 rounded-md transition-colors">
+                          <Checkbox checked={form.product_ids.includes(p.id)}
+                            onCheckedChange={() => toggleProductId(p.id)} />
+                          <span className="truncate">{p.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+
+                  {form.target_type === "specific_categories" && (
+                    <div className="space-y-1 max-h-[350px] overflow-y-auto">
+                      {categories.map(c => (
+                        <label key={c.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-2 rounded-md transition-colors">
+                          <Checkbox checked={form.category_ids.includes(c.id)}
+                            onCheckedChange={() => toggleCategoryId(c.id)} />
+                          <span className="truncate">{c.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+
+                  {form.target_type === "all" && (
+                    <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
+                      <Zap className="w-12 h-12 text-primary/30 mb-3" />
+                      <p className="text-sm text-muted-foreground">Cette promotion sera appliquée à tous les articles de la boutique sans exception.</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div>
-              <label className="text-sm font-medium">Cible</label>
-              <Select value={form.target_type} onValueChange={(v) => setForm({ ...form, target_type: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les produits</SelectItem>
-                  <SelectItem value="specific_products">Produits spécifiques</SelectItem>
-                  <SelectItem value="specific_categories">Catégories spécifiques</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex gap-3 pt-6 border-t border-border">
+              <Button variant="outline" className="flex-1 rounded-none" onClick={() => setDialogOpen(false)}>Annuler</Button>
+              <Button onClick={handleSave} className="flex-1 rounded-none h-11" disabled={createMut.isPending || updateMut.isPending}>
+                {(createMut.isPending || updateMut.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {editing ? "Enregistrer les modifications" : "Créer la promotion"}
+              </Button>
             </div>
-
-            {form.target_type === "specific_products" && (
-              <div className="max-h-40 overflow-y-auto border border-border rounded p-2 space-y-1">
-                {products.map(p => (
-                  <label key={p.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-1 rounded">
-                    <Checkbox checked={form.product_ids.includes(p.id)}
-                      onCheckedChange={() => toggleProductId(p.id)} />
-                    {p.name}
-                  </label>
-                ))}
-              </div>
-            )}
-
-            {form.target_type === "specific_categories" && (
-              <div className="max-h-40 overflow-y-auto border border-border rounded p-2 space-y-1">
-                {categories.map(c => (
-                  <label key={c.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 p-1 rounded">
-                    <Checkbox checked={form.category_ids.includes(c.id)}
-                      onCheckedChange={() => toggleCategoryId(c.id)} />
-                    {c.name}
-                  </label>
-                ))}
-              </div>
-            )}
-
-            <div className="flex items-center gap-2">
-              <Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} />
-              <span className="text-sm">Active</span>
-            </div>
-
-            <Button onClick={handleSave} className="w-full rounded-none" disabled={createMut.isPending || updateMut.isPending}>
-              {(createMut.isPending || updateMut.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {editing ? "Modifier" : "Créer"}
-            </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog 
+        open={!!promoToDelete || isBulkDeleting} 
+        onOpenChange={(open) => { if (!open) { setPromoToDelete(null); setIsBulkDeleting(false); }}}
+      >
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive mb-4">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <AlertDialogTitle className="font-serif text-xl">
+              {isBulkDeleting ? `Supprimer ${selectedIds.length} promotions` : "Confirmer la suppression"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isBulkDeleting 
+                ? `Êtes-vous sûr de vouloir supprimer ces ${selectedIds.length} promotions ?` 
+                : "Êtes-vous sûr de vouloir supprimer cette promotion ?"
+              } <br />
+              Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-3">
+            <AlertDialogCancel className="rounded-none">Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="rounded-none bg-destructive hover:bg-destructive/90">
+              Supprimer {isBulkDeleting ? `(${selectedIds.length})` : ""}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 };

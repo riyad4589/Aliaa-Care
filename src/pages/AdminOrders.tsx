@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
-import { useOrders, useUpdateOrderStatus, useDeleteOrder, DbOrder } from "@/hooks/useOrders";
+import { useOrders, useUpdateOrderStatus, useDeleteOrder, useBulkDeleteOrders, useUpdateOrderDetails, DbOrder } from "@/hooks/useOrders";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -20,10 +21,29 @@ import {
   CheckCircle,
   XCircle,
   ChevronDown,
-  Trash2
+  Trash2,
+  AlertTriangle,
+  Pencil,
+  Plus,
+  Minus,
+  FileText,
+  History,
+  Circle,
+  MessageSquare
 } from "lucide-react";
+import { generateInvoice } from "@/utils/invoiceGenerator";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -36,6 +56,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 const statusConfig = {
   pending: { label: "En attente", color: "bg-amber-100 text-amber-700 border-amber-200", icon: Clock },
@@ -49,30 +78,106 @@ const AdminOrders = () => {
   const { data: orders = [], isLoading } = useOrders();
   const updateStatus = useUpdateOrderStatus();
   const deleteOrder = useDeleteOrder();
+  const bulkDeleteOrders = useBulkDeleteOrders();
+  const updateOrderDetails = useUpdateOrderDetails();
   const { toast } = useToast();
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedOrder, setSelectedOrder] = useState<DbOrder | null>(null);
+  const [editingOrder, setEditingOrder] = useState<DbOrder | null>(null);
+  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cette commande ? Cette action est irréversible.")) {
-      try {
-        await deleteOrder.mutateAsync(id);
+  const handleDelete = async () => {
+    try {
+      if (isBulkDeleting) {
+        await bulkDeleteOrders.mutateAsync(selectedOrderIds);
+        toast({ title: `${selectedOrderIds.length} commandes supprimées` });
+        setSelectedOrderIds([]);
+        setIsBulkDeleting(false);
+      } else if (orderToDelete) {
+        await deleteOrder.mutateAsync(orderToDelete);
         toast({ title: "Commande supprimée" });
-      } catch (err) {
-        toast({ title: "Erreur", description: "Impossible de supprimer la commande", variant: "destructive" });
+        setOrderToDelete(null);
       }
+    } catch (err) {
+      toast({ title: "Erreur", description: "Impossible de supprimer", variant: "destructive" });
     }
   };
 
-  const filteredOrders = orders.filter((o) =>
-    o.order_number.toLowerCase().includes(search.toLowerCase()) ||
-    o.customer_name.toLowerCase().includes(search.toLowerCase()) ||
-    o.customer_phone.includes(search)
-  );
+  const toggleSelectAll = () => {
+    if (selectedOrderIds.length === filteredOrders.length) {
+      setSelectedOrderIds([]);
+    } else {
+      setSelectedOrderIds(filteredOrders.map(o => o.id));
+    }
+  };
+
+  const toggleSelectOrder = (id: string) => {
+    setSelectedOrderIds(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleUpdateOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingOrder) return;
+
+    try {
+      const total = editingOrder.items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+      await updateOrderDetails.mutateAsync({
+        id: editingOrder.id,
+        updates: {
+          customer_name: editingOrder.customer_name,
+          customer_phone: editingOrder.customer_phone,
+          customer_address: editingOrder.customer_address,
+          customer_city: editingOrder.customer_city,
+          notes: editingOrder.notes,
+          total,
+          status: editingOrder.status,
+        },
+        items: editingOrder.items,
+      });
+      toast({ title: "Commande mise à jour" });
+      setEditingOrder(null);
+    } catch (err) {
+      toast({ title: "Erreur", description: "Impossible de mettre à jour la commande", variant: "destructive" });
+    }
+  };
+
+  const filteredOrders = orders.filter((o) => {
+    const matchesSearch = 
+      o.order_number.toLowerCase().includes(search.toLowerCase()) ||
+      o.customer_name.toLowerCase().includes(search.toLowerCase()) ||
+      o.customer_phone.includes(search);
+    
+    const matchesStatus = statusFilter === "all" || o.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  const openWhatsApp = (order: DbOrder) => {
+    // Basic phone cleaning: remove non-digits, and handle Moroccan format
+    let phone = order.customer_phone.replace(/\D/g, "");
+    if (phone.startsWith("0")) {
+      phone = "212" + phone.substring(1);
+    } else if (!phone.startsWith("212") && phone.length === 9) {
+      phone = "212" + phone;
+    }
+    
+    const message = encodeURIComponent(`Bonjour ${order.customer_name}, c'est Aliaa Care concernant votre commande #${order.order_number}. `);
+    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+  };
 
   const handleStatusChange = async (orderId: string, newStatus: DbOrder['status']) => {
+    const order = orders.find(o => o.id === orderId);
     try {
-      await updateStatus.mutateAsync({ id: orderId, status: newStatus });
+      await updateStatus.mutateAsync({ 
+        id: orderId, 
+        status: newStatus,
+        currentHistory: order?.status_history || []
+      });
       toast({ title: "Statut mis à jour", description: `La commande est maintenant ${statusConfig[newStatus].label.toLowerCase()}.` });
     } catch (error) {
       toast({ title: "Erreur", description: "Impossible de mettre à jour le statut", variant: "destructive" });
@@ -97,24 +202,48 @@ const AdminOrders = () => {
             <h1 className="font-serif text-xl sm:text-2xl text-foreground">Gestion des Commandes</h1>
             <p className="text-sm text-muted-foreground">{orders.length} commandes au total</p>
           </div>
+          {selectedOrderIds.length > 0 && (
+            <Button 
+              variant="destructive" 
+              className="gap-2 animate-in fade-in slide-in-from-right-2"
+              onClick={() => setIsBulkDeleting(true)}
+            >
+              <Trash2 className="w-4 h-4" />
+              Supprimer ({selectedOrderIds.length})
+            </Button>
+          )}
         </div>
 
-        <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Rechercher par N°, nom ou téléphone..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 pr-9"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
+        <div className="flex flex-col md:flex-row md:justify-center gap-4">
+          <div className="relative w-full max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher par N°, nom ou téléphone..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 pr-9"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full md:w-[200px]">
+              <SelectValue placeholder="Filtrer par statut" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les statuts</SelectItem>
+              {Object.entries(statusConfig).map(([key, { label }]) => (
+                <SelectItem key={key} value={key}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Desktop Table */}
@@ -122,6 +251,12 @@ const AdminOrders = () => {
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr>
+                <th className="p-4 w-10">
+                  <Checkbox 
+                    checked={filteredOrders.length > 0 && selectedOrderIds.length === filteredOrders.length}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                </th>
                 <th className="text-left p-4 font-medium">N° Commande</th>
                 <th className="text-left p-4 font-medium">Client</th>
                 <th className="text-left p-4 font-medium">Date</th>
@@ -135,8 +270,15 @@ const AdminOrders = () => {
                 const currentStatus = (order.status && statusConfig[order.status]) ? order.status : 'pending';
                 const statusInfo = statusConfig[currentStatus];
                 const StatusIcon = statusInfo.icon;
+                const isSelected = selectedOrderIds.includes(order.id);
                 return (
-                  <tr key={order.id} className="border-t border-border hover:bg-muted/20 transition-colors">
+                  <tr key={order.id} className={`border-t border-border hover:bg-muted/20 transition-colors ${isSelected ? 'bg-primary/5' : ''}`}>
+                    <td className="p-4">
+                      <Checkbox 
+                        checked={isSelected}
+                        onCheckedChange={() => toggleSelectOrder(order.id)}
+                      />
+                    </td>
                     <td className="p-4 font-mono font-medium text-primary">#{order.order_number}</td>
                     <td className="p-4">
                       <div className="flex flex-col">
@@ -185,8 +327,34 @@ const AdminOrders = () => {
                       <Button 
                         size="icon" 
                         variant="ghost" 
+                        onClick={() => setEditingOrder(order)}
+                        title="Modifier la commande"
+                      >
+                        <Pencil className="w-4 h-4 text-blue-600" />
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                        onClick={() => openWhatsApp(order)}
+                        title="Contacter sur WhatsApp"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        className="text-primary"
+                        onClick={() => generateInvoice(order)}
+                        title="Générer facture PDF"
+                      >
+                        <FileText className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
                         className="text-destructive"
-                        onClick={() => handleDelete(order.id)}
+                        onClick={() => setOrderToDelete(order.id)}
                         title="Supprimer la commande"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -252,10 +420,19 @@ const AdminOrders = () => {
                 <div className="flex justify-between items-center pt-2 border-t border-border">
                   <span className="font-serif text-lg">{order.total.toLocaleString()} DH</span>
                   <div className="flex gap-1">
+                    <Button size="sm" variant="outline" onClick={() => setEditingOrder(order)} className="gap-2">
+                      <Pencil className="w-4 h-4" /> Modifier
+                    </Button>
                     <Button size="sm" variant="outline" onClick={() => setSelectedOrder(order)} className="gap-2">
                       <Eye className="w-4 h-4" /> Détails
                     </Button>
-                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => handleDelete(order.id)}>
+                    <Button size="icon" variant="ghost" onClick={() => openWhatsApp(order)} className="text-green-600 hover:text-green-700 hover:bg-green-50">
+                      <MessageSquare className="w-4 h-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => generateInvoice(order)} className="text-primary">
+                      <FileText className="w-4 h-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => setOrderToDelete(order.id)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -336,6 +513,50 @@ const AdminOrders = () => {
                 </div>
               </div>
 
+              {/* Timeline Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <History className="w-4 h-4 text-primary" />
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Suivi de la commande</p>
+                </div>
+                <div className="relative pl-6 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-muted">
+                  {/* Initial creation step */}
+                  <div className="relative">
+                    <div className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-primary border-4 border-background" />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold">Commande Reçue</span>
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(selectedOrder.created_at), "PPP à HH:mm", { locale: fr })}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* History steps */}
+                  {selectedOrder.status_history?.map((step, idx) => (
+                    <div key={idx} className="relative animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: `${(idx + 1) * 100}ms` }}>
+                      <div className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-primary border-4 border-background" />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold">{step.label}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(step.date), "PPP à HH:mm", { locale: fr })}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* If no history yet and status is not pending, show current status as last step */}
+                  {(!selectedOrder.status_history || selectedOrder.status_history.length === 0) && selectedOrder.status !== 'pending' && (
+                    <div className="relative">
+                      <div className="absolute -left-[23px] top-1 w-3 h-3 rounded-full bg-primary border-4 border-background" />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold">{statusConfig[selectedOrder.status].label}</span>
+                        <span className="text-xs text-muted-foreground">Statut actuel</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {selectedOrder.notes && (
                 <div className="space-y-2">
                   <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Notes de la commande</p>
@@ -351,6 +572,12 @@ const AdminOrders = () => {
                   <p className="text-3xl font-serif text-primary">{selectedOrder.total.toLocaleString()} DH</p>
                 </div>
                 <div className="flex gap-2">
+                  <Button variant="outline" className="gap-2 text-green-600 border-green-200 hover:bg-green-50" onClick={() => openWhatsApp(selectedOrder)}>
+                    <MessageSquare className="w-4 h-4" /> WhatsApp
+                  </Button>
+                  <Button variant="outline" className="gap-2" onClick={() => generateInvoice(selectedOrder)}>
+                    <FileText className="w-4 h-4" /> Facture PDF
+                  </Button>
                   <Button variant="outline" onClick={() => setSelectedOrder(null)}>Fermer</Button>
                 </div>
               </div>
@@ -358,6 +585,174 @@ const AdminOrders = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Edit Order Dialog */}
+      <Dialog open={!!editingOrder} onOpenChange={(open) => !open && setEditingOrder(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-2xl">Modifier la Commande</DialogTitle>
+          </DialogHeader>
+          {editingOrder && (
+            <form onSubmit={handleUpdateOrder} className="space-y-6 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Nom du client</Label>
+                  <Input 
+                    value={editingOrder.customer_name} 
+                    onChange={(e) => setEditingOrder({...editingOrder, customer_name: e.target.value})} 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Téléphone</Label>
+                  <Input 
+                    value={editingOrder.customer_phone} 
+                    onChange={(e) => setEditingOrder({...editingOrder, customer_phone: e.target.value})} 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Ville</Label>
+                  <Input 
+                    value={editingOrder.customer_city} 
+                    onChange={(e) => setEditingOrder({...editingOrder, customer_city: e.target.value})} 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Statut</Label>
+                  <Select 
+                    value={editingOrder.status} 
+                    onValueChange={(val: DbOrder['status']) => setEditingOrder({...editingOrder, status: val})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(statusConfig).map(([key, { label }]) => (
+                        <SelectItem key={key} value={key}>{label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Adresse complète</Label>
+                <Textarea 
+                  value={editingOrder.customer_address} 
+                  onChange={(e) => setEditingOrder({...editingOrder, customer_address: e.target.value})} 
+                />
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground border-b pb-2">Articles</p>
+                <div className="space-y-3">
+                  {editingOrder.items.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-4 p-3 border border-border rounded-lg bg-muted/20">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{item.product_name}</p>
+                        <p className="text-xs text-muted-foreground">{item.unit_price} DH / unité</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          type="button" 
+                          size="icon" 
+                          variant="outline" 
+                          className="h-8 w-8"
+                          onClick={() => {
+                            const newItems = [...editingOrder.items];
+                            if (newItems[idx].quantity > 1) {
+                              newItems[idx].quantity -= 1;
+                              setEditingOrder({...editingOrder, items: newItems});
+                            }
+                          }}
+                        >
+                          <Minus className="w-3 h-3" />
+                        </Button>
+                        <span className="w-8 text-center font-medium">{item.quantity}</span>
+                        <Button 
+                          type="button" 
+                          size="icon" 
+                          variant="outline" 
+                          className="h-8 w-8"
+                          onClick={() => {
+                            const newItems = [...editingOrder.items];
+                            newItems[idx].quantity += 1;
+                            setEditingOrder({...editingOrder, items: newItems});
+                          }}
+                        >
+                          <Plus className="w-3 h-3" />
+                        </Button>
+                      </div>
+                      <div className="w-20 text-right font-medium text-sm">
+                        {item.quantity * item.unit_price} DH
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Notes (Interne)</Label>
+                <Textarea 
+                  value={editingOrder.notes || ""} 
+                  onChange={(e) => setEditingOrder({...editingOrder, notes: e.target.value})} 
+                  placeholder="Notes sur la livraison, préférences client..."
+                />
+              </div>
+
+              <div className="flex justify-between items-center pt-4 border-t">
+                <div className="text-sm">
+                  <span className="text-muted-foreground">Total recalculé : </span>
+                  <span className="font-bold text-lg text-primary">
+                    {editingOrder.items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0).toLocaleString()} DH
+                  </span>
+                </div>
+                <div className="flex gap-3">
+                  <Button type="button" variant="outline" onClick={() => setEditingOrder(null)}>Annuler</Button>
+                  <Button type="submit" className="px-8 bg-primary">Enregistrer les modifications</Button>
+                </div>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Alert */}
+      <AlertDialog 
+        open={!!orderToDelete || isBulkDeleting} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setOrderToDelete(null);
+            setIsBulkDeleting(false);
+          }
+        }}
+      >
+        <AlertDialogContent className="rounded-2xl border-destructive/20">
+          <AlertDialogHeader>
+            <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive mb-4">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <AlertDialogTitle className="font-serif text-xl">
+              {isBulkDeleting ? `Supprimer ${selectedOrderIds.length} commandes` : "Confirmer la suppression"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              {isBulkDeleting 
+                ? `Êtes-vous sûr de vouloir supprimer ces ${selectedOrderIds.length} commandes ?`
+                : "Êtes-vous vraiment sûr de vouloir supprimer cette commande ?"
+              } <br />
+              <span className="font-semibold text-destructive mt-2 inline-block">Attention : Cette action est irréversible et supprimera toutes les données associées.</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-6 gap-3">
+            <AlertDialogCancel className="rounded-none border-border hover:bg-muted">Annuler</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="rounded-none bg-destructive hover:bg-destructive/90 text-destructive-foreground px-8"
+            >
+              Supprimer {isBulkDeleting ? `(${selectedOrderIds.length})` : "définitivement"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 };

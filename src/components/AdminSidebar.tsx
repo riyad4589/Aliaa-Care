@@ -1,4 +1,4 @@
-import { Package, TrendingUp, ArrowLeft, FolderOpen, Gift, Tag, BoxSelect, Megaphone, ShoppingCart } from "lucide-react";
+import { LayoutDashboard, Package, TrendingUp, ArrowLeft, FolderOpen, Gift, Tag, BoxSelect, Megaphone, ShoppingCart } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -14,7 +14,8 @@ import {
 import { cn } from "@/lib/utils";
 
 const items = [
-  { title: "Catalogue", url: "/admin/products", icon: Package },
+  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
+  { title: "Produits", url: "/admin/products", icon: Package },
   { title: "Catégories", url: "/admin/categories", icon: FolderOpen },
   { title: "Packs", url: "/admin/packs", icon: Gift },
   { title: "Codes Promo", url: "/admin/promo-codes", icon: Tag },

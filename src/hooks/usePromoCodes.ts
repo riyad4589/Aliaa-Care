@@ -56,6 +56,17 @@ export const useDeletePromoCode = () => {
   });
 };
 
+export const useBulkDeletePromoCodes = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("promo_codes").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["promo_codes"] }),
+  });
+};
+
 export const useUpdatePromoCode = () => {
   const qc = useQueryClient();
   return useMutation({

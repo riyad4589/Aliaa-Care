@@ -49,7 +49,7 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
       className="group"
     >
       <Link to={`/product/${product.slug}`} className="block">
-        <div className={cn("relative overflow-hidden bg-muted/50 mb-5 rounded-lg", variant === "large" ? "aspect-[3/4]" : "aspect-[4/5]")}>
+        <div className={cn("relative overflow-hidden bg-muted/50 mb-5 rounded-lg", variant === "large" ? "aspect-square" : "aspect-square")}>
           <img src={product.images[0]} alt={product.name}
             className={cn("w-full h-full object-cover transition-all duration-[1s] ease-out", hasSecondImage ? "group-hover:opacity-0 group-hover:scale-105" : "group-hover:scale-105")} />
           {hasSecondImage && (
@@ -85,6 +85,12 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
             )}
             {flashPromo && (
               <FlashCountdown endsAt={flashPromo.ends_at} />
+            )}
+            {product.stock === 0 && (
+              <motion.span initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
+                className="px-3 py-1.5 text-[10px] font-bold tracking-[0.2em] uppercase bg-destructive text-destructive-foreground rounded-sm">
+                {t("common.outOfStock")}
+              </motion.span>
             )}
           </div>
           <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center pb-6 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100">

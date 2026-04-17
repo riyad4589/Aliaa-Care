@@ -13,6 +13,7 @@ export interface DbOrder {
   customer_address: string;
   customer_city: string;
   notes?: string;
+  status_history?: { status: string; date: string; label: string }[];
   items: { product_id: string | null; product_name: string; quantity: number; unit_price: number; cost_price: number }[];
 }
 
@@ -39,10 +40,22 @@ export function useOrders() {
 export function useUpdateOrderStatus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: DbOrder['status'] }) => {
+    mutationFn: async ({ id, status, currentHistory = [] }: { id: string; status: DbOrder['status']; currentHistory?: any[] }) => {
+      const newStep = {
+        status,
+        date: new Date().toISOString(),
+        label: status === 'pending' ? 'En attente' : 
+               status === 'confirmed' ? 'Confirmée' : 
+               status === 'shipped' ? 'Expédiée' : 
+               status === 'delivered' ? 'Livrée' : 'Annulée'
+      };
+
       const { data, error } = await supabase
         .from("orders")
-        .update({ status })
+        .update({ 
+          status,
+          status_history: [...currentHistory, newStep]
+        })
         .eq("id", id)
         .select()
         .single();
@@ -59,6 +72,60 @@ export function useDeleteOrder() {
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("orders").delete().eq("id", id);
       if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["orders"] }),
+  });
+}
+
+export function useBulkDeleteOrders() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("orders").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["orders"] }),
+  });
+}
+
+export function useUpdateOrderDetails() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      id: string;
+      updates: {
+        customer_name: string;
+        customer_phone: string;
+        customer_address: string;
+        customer_city: string;
+        notes?: string;
+        total: number;
+        status: DbOrder['status'];
+      };
+      items: { product_id: string | null; product_name: string; quantity: number; unit_price: number; cost_price: number }[];
+    }) => {
+      const { id, updates, items } = input;
+      
+      // 1. Update order record
+      const { error: orderError } = await supabase
+        .from("orders")
+        .update(updates)
+        .eq("id", id);
+      if (orderError) throw orderError;
+
+      // 2. Refresh items: delete and re-insert
+      const { error: deleteError } = await supabase
+        .from("order_items")
+        .delete()
+        .eq("order_id", id);
+      if (deleteError) throw deleteError;
+
+      if (items.length > 0) {
+        const { error: insertError } = await supabase
+          .from("order_items")
+          .insert(items.map(item => ({ ...item, order_id: id })));
+        if (insertError) throw insertError;
+      }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["orders"] }),
   });

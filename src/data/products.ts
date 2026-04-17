@@ -32,6 +32,7 @@ export interface Product {
   longDescription: string;
   materials: string;
   weight?: number;
+  stock?: number;
   images: string[];
   featured?: boolean;
   new?: boolean;

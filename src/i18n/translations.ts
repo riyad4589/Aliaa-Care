@@ -30,6 +30,7 @@ const translations = {
   "common.pack": { fr: "Pack", en: "Pack", ar: "حزمة" },
   "common.ourPacks": { fr: "Nos Packs", en: "Our Packs", ar: "حزمنا" },
   "common.save": { fr: "Économisez", en: "Save", ar: "وفّري" },
+  "common.outOfStock": { fr: "Rupture de Stock", en: "Out of Stock", ar: "نفذت الكمية" },
 
   // Header
   "header.wishlistEmpty": { fr: "Votre liste de souhaits est vide", en: "Your wishlist is empty", ar: "قائمة أمنياتك فارغة" },

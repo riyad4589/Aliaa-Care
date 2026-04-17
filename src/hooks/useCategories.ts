@@ -28,7 +28,7 @@ export function useCategories() {
 export function useAddCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { name: string; slug: string; description?: string; active?: boolean }) => {
+    mutationFn: async (input: { name: string; slug: string; description?: string; image?: string; active?: boolean }) => {
       const { data, error } = await supabase.from("categories").insert(input).select().single();
       if (error) throw error;
       return data;
@@ -53,6 +53,17 @@ export function useDeleteCategory() {
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("categories").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["categories"] }),
+  });
+}
+
+export function useBulkDeleteCategories() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("categories").delete().in("id", ids);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["categories"] }),

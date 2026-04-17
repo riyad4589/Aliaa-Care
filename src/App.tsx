@@ -20,6 +20,7 @@ import AdminPromoCodes from "./pages/AdminPromoCodes";
 import AdminPackaging from "./pages/AdminPackaging";
 import AdminPromotions from "./pages/AdminPromotions";
 import AdminOrders from "./pages/AdminOrders";
+import AdminDashboard from "./pages/AdminDashboard";
 import PackDetail from "./pages/PackDetail";
 import Packs from "./pages/Packs";
 import NotFound from "./pages/NotFound";
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/cart" element={<Cart />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/finances" element={<AdminFinances />} />
           <Route path="/admin/categories" element={<AdminCategories />} />

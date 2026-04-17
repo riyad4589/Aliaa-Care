@@ -129,3 +129,14 @@ export function useDeletePromotion() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["promotions"] }),
   });
 }
+
+export function useBulkDeletePromotions() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("promotions").delete().in("id", ids);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["promotions"] }),
+  });
+}

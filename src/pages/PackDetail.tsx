@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Package, ShoppingBag, ArrowLeft } from "lucide-react";
+import { Package, ShoppingBag, ArrowLeft, MessageSquare } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { usePacks } from "@/hooks/usePacks";
 import { useCart } from "@/hooks/useCart";
@@ -126,12 +126,26 @@ const PackDetail = () => {
                 ))}
               </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
               <QuantitySelector quantity={quantity} onQuantityChange={setQuantity} />
-              <Button size="lg" className="flex-1 rounded-none text-sm tracking-[0.15em] uppercase py-6" onClick={handleAddToCart}>
+              <Button size="lg" className="flex-1 w-full rounded-none text-sm tracking-[0.15em] uppercase py-6" onClick={handleAddToCart}>
                 <ShoppingBag className="w-4 h-4 ltr:mr-2 rtl:ml-2" />{t("common.addToCart")}
               </Button>
             </div>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="mt-4 rounded-none w-full py-6 text-sm tracking-[0.1em] uppercase border-[#25D366] text-[#25D366] hover:bg-[#25D366]/5 transition-colors"
+              onClick={() => {
+                const phone = "212652535301";
+                const url = window.location.href;
+                const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le pack : ${pack.name}\nPrix : ${pack.price} DH\nLien : ${url}`);
+                window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+              }}
+            >
+              <MessageSquare className="w-4 h-4 ltr:mr-3 rtl:ml-3" />
+              Question sur ce pack (WhatsApp)
+            </Button>
           </motion.div>
         </div>
       </section>

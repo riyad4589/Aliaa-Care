@@ -47,7 +47,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
       className="group border border-border rounded-lg overflow-hidden bg-background hover:shadow-lg transition-shadow duration-500 cursor-pointer"
     >
       {/* Product images grid */}
-      <div className="relative aspect-[4/3] bg-muted/30 overflow-hidden">
+      <div className="relative aspect-video bg-muted/30 overflow-hidden">
         {pack.items.length >= 3 ? (
           <div className="grid grid-cols-2 grid-rows-2 h-full gap-0.5">
             {pack.items.slice(0, 4).map((item, i) => (

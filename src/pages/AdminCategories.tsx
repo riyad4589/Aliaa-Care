@@ -1,13 +1,25 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
-import { useCategories, useAddCategory, useUpdateCategory, useDeleteCategory, DbCategory } from "@/hooks/useCategories";
+import { useCategories, useAddCategory, useUpdateCategory, useDeleteCategory, useBulkDeleteCategories, DbCategory } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, FolderOpen, Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Plus, Pencil, Trash2, FolderOpen, Loader2, Search, X, AlertTriangle, Upload } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminCategories = () => {
   const { data: categories = [], isLoading } = useCategories();
@@ -15,18 +27,51 @@ const AdminCategories = () => {
   const addCategory = useAddCategory();
   const updateCategory = useUpdateCategory();
   const deleteCategory = useDeleteCategory();
+  const bulkDeleteCategories = useBulkDeleteCategories();
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<{ id?: string; name: string; description: string; slug: string } | null>(null);
+  const [editing, setEditing] = useState<{ id?: string; name: string; description: string; slug: string; image: string } | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [search, setSearch] = useState("");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
   const openNew = () => {
-    setEditing({ name: "", description: "", slug: "" });
+    setEditing({ name: "", description: "", slug: "", image: "" });
     setDialogOpen(true);
   };
 
   const openEdit = (c: DbCategory) => {
-    setEditing({ id: c.id, name: c.name, description: c.description || "", slug: c.slug });
+    setEditing({ id: c.id, name: c.name, description: c.description || "", slug: c.slug, image: c.image || "" });
     setDialogOpen(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editing) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from("category-images").upload(path, file);
+      if (error) {
+        // Fallback to product-images if category-images doesn't exist
+        const { error: err2 } = await supabase.storage.from("product-images").upload(path, file);
+        if (err2) throw err2;
+        const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+        setEditing({ ...editing, image: data.publicUrl });
+      } else {
+        const { data } = supabase.storage.from("category-images").getPublicUrl(path);
+        setEditing({ ...editing, image: data.publicUrl });
+      }
+      toast({ title: "Image importée" });
+    } catch {
+      toast({ title: "Erreur d'upload", variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSave = async () => {
@@ -38,10 +83,10 @@ const AdminCategories = () => {
 
     try {
       if (editing.id) {
-        await updateCategory.mutateAsync({ id: editing.id, updates: { name: editing.name, slug, description: editing.description } });
+        await updateCategory.mutateAsync({ id: editing.id, updates: { name: editing.name, slug, description: editing.description, image: editing.image } });
         toast({ title: "Catégorie mise à jour" });
       } else {
-        await addCategory.mutateAsync({ name: editing.name, slug, description: editing.description });
+        await addCategory.mutateAsync({ name: editing.name, slug, description: editing.description, image: editing.image });
         toast({ title: "Catégorie ajoutée" });
       }
       setDialogOpen(false);
@@ -51,10 +96,39 @@ const AdminCategories = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    await deleteCategory.mutateAsync(id);
-    toast({ title: "Catégorie supprimée" });
+  const handleDelete = async () => {
+    try {
+      if (isBulkDeleting) {
+        await bulkDeleteCategories.mutateAsync(selectedIds);
+        toast({ title: `${selectedIds.length} catégories supprimées` });
+        setSelectedIds([]);
+        setIsBulkDeleting(false);
+      } else if (categoryToDelete) {
+        await deleteCategory.mutateAsync(categoryToDelete);
+        toast({ title: "Catégorie supprimée" });
+        setCategoryToDelete(null);
+      }
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de supprimer", variant: "destructive" });
+    }
   };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredCategories.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredCategories.map(c => c.id));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const filteredCategories = categories.filter((c) =>
+    c.name.toLowerCase().includes(search.toLowerCase()) ||
+    (c.description && c.description.toLowerCase().includes(search.toLowerCase()))
+  );
 
   const productCount = (catId: string) =>
     products.filter((p) => p.category_ids.includes(catId)).length;
@@ -77,9 +151,40 @@ const AdminCategories = () => {
             <h1 className="font-serif text-xl sm:text-2xl text-foreground">Gestion des Catégories</h1>
             <p className="text-sm text-muted-foreground">{categories.length} catégories</p>
           </div>
-          <Button onClick={openNew} className="rounded-none gap-2 w-full sm:w-auto">
-            <Plus className="w-4 h-4" /> Ajouter Catégorie
-          </Button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            {selectedIds.length > 0 && (
+              <Button 
+                variant="destructive" 
+                onClick={() => setIsBulkDeleting(true)}
+                className="rounded-none gap-2"
+              >
+                <Trash2 className="w-4 h-4" /> Supprimer ({selectedIds.length})
+              </Button>
+            )}
+            <Button onClick={openNew} className="rounded-none gap-2 flex-1 sm:flex-initial">
+              <Plus className="w-4 h-4" /> Ajouter Catégorie
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex justify-center">
+          <div className="relative w-full max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher une catégorie..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 pr-9"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Desktop table */}
@@ -87,6 +192,12 @@ const AdminCategories = () => {
           <table className="w-full text-sm">
             <thead className="bg-muted/50">
               <tr>
+                <th className="p-3 w-10">
+                  <Checkbox 
+                    checked={filteredCategories.length > 0 && selectedIds.length === filteredCategories.length}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                </th>
                 <th className="text-left p-3 font-medium">Nom</th>
                 <th className="text-left p-3 font-medium">Description</th>
                 <th className="text-right p-3 font-medium">Produits</th>
@@ -94,56 +205,78 @@ const AdminCategories = () => {
               </tr>
             </thead>
             <tbody>
-              {categories.map((c) => (
-                <tr key={c.id} className="border-t border-border hover:bg-muted/20">
-                  <td className="p-3 font-medium">{c.name}</td>
-                  <td className="p-3 text-muted-foreground max-w-xs truncate">{c.description}</td>
-                  <td className="p-3 text-right">{productCount(c.id)}</td>
-                  <td className="p-3 text-right space-x-1">
-                    <Button size="icon" variant="ghost" onClick={() => openEdit(c)}>
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button size="icon" variant="ghost" className="text-destructive" onClick={() => handleDelete(c.id)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+              {filteredCategories.map((c) => {
+                const isSelected = selectedIds.includes(c.id);
+                return (
+                  <tr key={c.id} className={`border-t border-border hover:bg-muted/20 transition-colors ${isSelected ? 'bg-primary/5' : ''}`}>
+                    <td className="p-3 text-center">
+                      <Checkbox 
+                        checked={isSelected}
+                        onCheckedChange={() => toggleSelect(c.id)}
+                      />
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-muted overflow-hidden shrink-0 border border-border">
+                          <img src={c.image || "/placeholder.svg"} alt={c.name} className="w-full h-full object-cover" />
+                        </div>
+                        <span className="font-medium">{c.name}</span>
+                      </div>
+                    </td>
+                    <td className="p-3 text-muted-foreground max-w-xs truncate">{c.description}</td>
+                    <td className="p-3 text-right">{productCount(c.id)}</td>
+                    <td className="p-3 text-right space-x-1">
+                      <Button size="icon" variant="ghost" onClick={() => openEdit(c)}>
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="text-destructive" onClick={() => setCategoryToDelete(c.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
-          {categories.length === 0 && (
+          {filteredCategories.length === 0 && (
             <div className="p-12 text-center text-muted-foreground">
               <FolderOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
-              <p>Aucune catégorie</p>
+              <p>Aucune catégorie trouvée</p>
             </div>
           )}
         </div>
 
         {/* Mobile cards */}
         <div className="md:hidden space-y-3">
-          {categories.map((c) => (
-            <div key={c.id} className="border border-border rounded-lg p-3">
-              <div className="flex items-center justify-between">
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-sm">{c.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{c.description}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{productCount(c.id)} produits</p>
-                </div>
-                <div className="flex gap-1 shrink-0">
-                  <Button size="icon" variant="ghost" onClick={() => openEdit(c)}>
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="text-destructive" onClick={() => handleDelete(c.id)}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
+          {filteredCategories.map((c) => (
+            <div key={c.id} className={`border border-border rounded-lg p-3 flex items-start gap-3 transition-colors ${selectedIds.includes(c.id) ? 'bg-primary/5 border-primary/20' : ''}`}>
+              <Checkbox 
+                checked={selectedIds.includes(c.id)}
+                onCheckedChange={() => toggleSelect(c.id)}
+                className="mt-1"
+              />
+              <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden shrink-0 border border-border">
+                <img src={c.image || "/placeholder.svg"} alt={c.name} className="w-full h-full object-cover" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-sm">{c.name}</p>
+                <p className="text-xs text-muted-foreground truncate">{c.description}</p>
+                <p className="text-xs text-muted-foreground mt-1">{productCount(c.id)} produits</p>
+              </div>
+              <div className="flex gap-1 shrink-0">
+                <Button size="icon" variant="ghost" onClick={() => openEdit(c)}>
+                  <Pencil className="w-4 h-4" />
+                </Button>
+                <Button size="icon" variant="ghost" className="text-destructive" onClick={() => setCategoryToDelete(c.id)}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           ))}
-          {categories.length === 0 && (
+          {filteredCategories.length === 0 && (
             <div className="p-12 text-center text-muted-foreground">
               <FolderOpen className="w-10 h-10 mx-auto mb-3 opacity-30" />
-              <p>Aucune catégorie</p>
+              <p>Aucune catégorie trouvée</p>
             </div>
           )}
         </div>
@@ -164,6 +297,34 @@ const AdminCategories = () => {
                 <label className="text-sm font-medium">Description</label>
                 <Textarea value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} rows={2} />
               </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Image de la catégorie</label>
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-20 rounded-lg bg-muted overflow-hidden border border-border shrink-0">
+                    <img src={editing.image || "/placeholder.svg"} alt="Aperçu" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={uploading}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="gap-2 w-full"
+                    >
+                      {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                      {uploading ? "Upload..." : "Changer l'image"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
               <Button onClick={handleSave} className="w-full rounded-none">
                 {editing.id ? "Enregistrer" : "Ajouter"}
               </Button>
@@ -171,6 +332,35 @@ const AdminCategories = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog 
+        open={!!categoryToDelete || isBulkDeleting} 
+        onOpenChange={(open) => { if (!open) { setCategoryToDelete(null); setIsBulkDeleting(false); }}}
+      >
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive mb-4">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <AlertDialogTitle className="font-serif text-xl">
+              {isBulkDeleting ? `Supprimer ${selectedIds.length} catégories` : "Confirmer la suppression"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isBulkDeleting 
+                ? `Êtes-vous sûr de vouloir supprimer ces ${selectedIds.length} catégories ?` 
+                : "Êtes-vous sûr de vouloir supprimer cette catégorie ?"
+              } <br />
+              Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-3">
+            <AlertDialogCancel className="rounded-none">Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="rounded-none bg-destructive hover:bg-destructive/90">
+              Supprimer {isBulkDeleting ? `(${selectedIds.length})` : ""}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 };

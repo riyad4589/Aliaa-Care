@@ -1,17 +1,27 @@
 import { useState } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
-import { usePromoCodes, useAddPromoCode, useUpdatePromoCode, useDeletePromoCode, PromoCode } from "@/hooks/usePromoCodes";
+import { usePromoCodes, useAddPromoCode, useUpdatePromoCode, useDeletePromoCode, useBulkDeletePromoCodes, PromoCode } from "@/hooks/usePromoCodes";
 import { useProducts, DbProduct } from "@/hooks/useProducts";
 import { usePacks } from "@/hooks/usePacks";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Copy, Shuffle, Tag, Calendar, Hash, Search, Pencil } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Plus, Trash2, Copy, Shuffle, Tag, Calendar, Hash, Search, Pencil, AlertTriangle } from "lucide-react";
 
 const generateCode = () => {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -54,6 +64,10 @@ const AdminPromoCodes = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<EditingPromo>(defaultPromo);
   const [search, setSearch] = useState("");
+  const bulkDeletePromos = useBulkDeletePromoCodes();
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [promoToDelete, setPromoToDelete] = useState<string | null>(null);
 
   const isEditMode = !!editing.id;
 
@@ -119,9 +133,33 @@ const AdminPromoCodes = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    await deletePromo.mutateAsync(id);
-    toast({ title: "Code promo supprimé" });
+  const handleDelete = async () => {
+    try {
+      if (isBulkDeleting) {
+        await bulkDeletePromos.mutateAsync(selectedIds);
+        toast({ title: `${selectedIds.length} codes promos supprimés` });
+        setSelectedIds([]);
+        setIsBulkDeleting(false);
+      } else if (promoToDelete) {
+        await deletePromo.mutateAsync(promoToDelete);
+        toast({ title: "Code promo supprimé" });
+        setPromoToDelete(null);
+      }
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de supprimer", variant: "destructive" });
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filtered.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filtered.map(p => p.id));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
   const isExpired = (p: PromoCode) => p.expires_at && new Date(p.expires_at) < new Date();
@@ -162,12 +200,38 @@ const AdminPromoCodes = () => {
             <h1 className="text-2xl font-bold flex items-center gap-2"><Tag className="w-6 h-6" />Codes Promo</h1>
             <p className="text-sm text-muted-foreground">{promoCodes.length} code(s) promo</p>
           </div>
-          <Button onClick={handleOpen}><Plus className="w-4 h-4 mr-2" />Nouveau Code</Button>
+          <div className="flex gap-2 w-full md:w-auto">
+            {selectedIds.length > 0 && (
+              <Button 
+                variant="destructive" 
+                onClick={() => setIsBulkDeleting(true)}
+              >
+                <Trash2 className="w-4 h-4 mr-2" /> Supprimer ({selectedIds.length})
+              </Button>
+            )}
+            <Button onClick={handleOpen} className="flex-1 md:flex-initial">
+              <Plus className="w-4 h-4 mr-2" />Nouveau Code
+            </Button>
+          </div>
         </div>
 
-        <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Rechercher un code..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+        <div className="flex justify-center">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+          <div className="relative w-full max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input placeholder="Rechercher un code..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox 
+              checked={filtered.length > 0 && selectedIds.length === filtered.length}
+              onCheckedChange={toggleSelectAll}
+              id="select-all"
+            />
+            <label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer">
+              Tout sélectionner
+            </label>
+          </div>
+        </div>
         </div>
 
         {isLoading ? (
@@ -176,9 +240,17 @@ const AdminPromoCodes = () => {
           <div className="text-center py-12 text-muted-foreground">Aucun code promo</div>
         ) : (
           <div className="grid gap-4">
-            {filtered.map((promo) => (
-              <div key={promo.id} className="border border-border rounded-lg p-5 bg-card flex flex-col md:flex-row md:items-center gap-4">
-                <div className="flex-1 min-w-0 space-y-2">
+            {filtered.map((promo) => {
+              const isSelected = selectedIds.includes(promo.id);
+              return (
+                <div key={promo.id} className={`border rounded-lg p-5 bg-card flex flex-col md:flex-row md:items-center gap-4 transition-colors ${isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-border'}`}>
+                  <div className="shrink-0">
+                    <Checkbox 
+                      checked={isSelected}
+                      onCheckedChange={() => toggleSelect(promo.id)}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0 space-y-2">
                   <div className="flex items-center gap-3 flex-wrap">
                     <code className="text-lg font-mono font-bold tracking-wider bg-muted px-3 py-1 rounded">{promo.code}</code>
                     {getStatusBadge(promo)}
@@ -208,107 +280,152 @@ const AdminPromoCodes = () => {
                   <Button variant="ghost" size="sm" onClick={() => { navigator.clipboard.writeText(promo.code); toast({ title: "Code copié" }); }}>
                     <Copy className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDelete(promo.id)}>
+                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setPromoToDelete(promo.id)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEditMode ? "Modifier le Code Promo" : "Nouveau Code Promo"}</DialogTitle>
+            <DialogTitle className="font-serif text-2xl">{isEditMode ? "Modifier le Code Promo" : "Nouveau Code Promo"}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-5 pt-2">
-            <div>
-              <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Code</label>
-              <div className="flex gap-2">
-                <Input value={editing.code} onChange={(e) => setEditing({ ...editing, code: e.target.value.toUpperCase() })}
-                  placeholder="Ex: WELCOME20" className="font-mono tracking-wider" />
-                {!isEditMode && (
-                  <Button variant="outline" size="icon" onClick={() => setEditing({ ...editing, code: generateCode() })} title="Générer un code">
-                    <Shuffle className="w-4 h-4" />
-                  </Button>
+          <div className="space-y-6 pt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Left Column: General Settings */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Code Promo *</label>
+                  <div className="flex gap-2">
+                    <Input value={editing.code} onChange={(e) => setEditing({ ...editing, code: e.target.value.toUpperCase() })}
+                      placeholder="Ex: WELCOME20" className="font-mono tracking-wider h-11 text-lg" />
+                    {!isEditMode && (
+                      <Button variant="outline" size="icon" className="h-11 w-11" onClick={() => setEditing({ ...editing, code: generateCode() })} title="Générer un code">
+                        <Shuffle className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Réduction (%)</label>
+                    <Input type="number" min={1} max={100} value={editing.discount_percent}
+                      onChange={(e) => setEditing({ ...editing, discount_percent: parseInt(e.target.value) || 0 })} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Nombre max d'utilisations</label>
+                    <Input type="number" min={1} value={editing.max_uses ?? ""} placeholder="Illimité"
+                      onChange={(e) => setEditing({ ...editing, max_uses: e.target.value ? parseInt(e.target.value) : null })} />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Date d'expiration</label>
+                  <Input type="datetime-local" value={editing.expires_at} onChange={(e) => setEditing({ ...editing, expires_at: e.target.value })} />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Type d'application</label>
+                  <Select value={editing.applies_to} onValueChange={(v) => setEditing({ ...editing, applies_to: v })}>
+                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous les produits & packs</SelectItem>
+                      <SelectItem value="products">Produits spécifiques</SelectItem>
+                      <SelectItem value="packs">Packs spécifiques</SelectItem>
+                      <SelectItem value="custom">Produits & packs spécifiques</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border">
+                  <Switch checked={editing.active} onCheckedChange={(v) => setEditing({ ...editing, active: v })} />
+                  <span className="text-sm font-medium">Activer ce code promo</span>
+                </div>
+              </div>
+
+              {/* Right Column: Targets Selection */}
+              <div className="space-y-4">
+                {(editing.applies_to === "products" || editing.applies_to === "custom") && (
+                  <div>
+                    <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Sélectionner les Produits</label>
+                    <div className="border border-border rounded-lg p-3 max-h-[200px] overflow-y-auto space-y-1 bg-muted/10">
+                      {(products as DbProduct[]).map((p) => (
+                        <label key={p.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-1.5 rounded-md transition-colors">
+                          <Checkbox checked={editing.product_ids.includes(p.id)} onCheckedChange={() => toggleProductId(p.id)} />
+                          <span className="truncate">{p.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {(editing.applies_to === "packs" || editing.applies_to === "custom") && (
+                  <div>
+                    <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Sélectionner les Packs</label>
+                    <div className="border border-border rounded-lg p-3 max-h-[200px] overflow-y-auto space-y-1 bg-muted/10">
+                      {packs.map((p) => (
+                        <label key={p.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-1.5 rounded-md transition-colors">
+                          <Checkbox checked={editing.pack_ids.includes(p.id)} onCheckedChange={() => togglePackId(p.id)} />
+                          <span className="truncate">{p.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {editing.applies_to === "all" && (
+                  <div className="h-full flex flex-col items-center justify-center p-8 text-center bg-muted/20 rounded-lg border border-dashed border-border">
+                    <Tag className="w-12 h-12 text-muted-foreground/30 mb-3" />
+                    <p className="text-sm text-muted-foreground">Ce code s'appliquera automatiquement à l'ensemble du catalogue.</p>
+                  </div>
                 )}
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Réduction (%)</label>
-              <Input type="number" min={1} max={100} value={editing.discount_percent}
-                onChange={(e) => setEditing({ ...editing, discount_percent: parseInt(e.target.value) || 0 })} />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">S'applique à</label>
-              <Select value={editing.applies_to} onValueChange={(v) => setEditing({ ...editing, applies_to: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les produits & packs</SelectItem>
-                  <SelectItem value="products">Produits spécifiques</SelectItem>
-                  <SelectItem value="packs">Packs spécifiques</SelectItem>
-                  <SelectItem value="custom">Produits & packs spécifiques</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {(editing.applies_to === "products" || editing.applies_to === "custom") && (
-              <div>
-                <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Produits</label>
-                <div className="border border-border rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
-                  {(products as DbProduct[]).map((p) => (
-                    <label key={p.id} className="flex items-center gap-2 text-sm cursor-pointer">
-                      <Checkbox checked={editing.product_ids.includes(p.id)} onCheckedChange={() => toggleProductId(p.id)} />
-                      {p.name}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {(editing.applies_to === "packs" || editing.applies_to === "custom") && (
-              <div>
-                <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Packs</label>
-                <div className="border border-border rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
-                  {packs.map((p) => (
-                    <label key={p.id} className="flex items-center gap-2 text-sm cursor-pointer">
-                      <Checkbox checked={editing.pack_ids.includes(p.id)} onCheckedChange={() => togglePackId(p.id)} />
-                      {p.name}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div>
-              <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Date d'expiration (optionnel)</label>
-              <Input type="datetime-local" value={editing.expires_at} onChange={(e) => setEditing({ ...editing, expires_at: e.target.value })} />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Nombre max d'utilisations (vide = illimité)</label>
-              <Input type="number" min={1} value={editing.max_uses ?? ""} placeholder="Illimité"
-                onChange={(e) => setEditing({ ...editing, max_uses: e.target.value ? parseInt(e.target.value) : null })} />
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Switch checked={editing.active} onCheckedChange={(v) => setEditing({ ...editing, active: v })} />
-              <span className="text-sm">Actif</span>
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              <Button variant="outline" className="flex-1" onClick={() => setDialogOpen(false)}>Annuler</Button>
-              <Button className="flex-1" onClick={handleSave} disabled={isSaving}>
-                {isSaving ? "Enregistrement..." : isEditMode ? "Enregistrer" : "Créer le code"}
+            <div className="flex gap-3 pt-6 border-t border-border">
+              <Button variant="outline" className="flex-1 rounded-none" onClick={() => setDialogOpen(false)}>Annuler</Button>
+              <Button className="flex-1 rounded-none h-11" onClick={handleSave} disabled={isSaving}>
+                {isSaving ? "Enregistrement..." : isEditMode ? "Enregistrer les modifications" : "Créer le code promo"}
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog 
+        open={!!promoToDelete || isBulkDeleting} 
+        onOpenChange={(open) => { if (!open) { setPromoToDelete(null); setIsBulkDeleting(false); }}}
+      >
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive mb-4">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <AlertDialogTitle className="font-serif text-xl">
+              {isBulkDeleting ? `Supprimer ${selectedIds.length} codes promos` : "Confirmer la suppression"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isBulkDeleting 
+                ? `Êtes-vous sûr de vouloir supprimer ces ${selectedIds.length} codes promos ?` 
+                : "Êtes-vous sûr de vouloir supprimer ce code promo ?"
+              } <br />
+              Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-3">
+            <AlertDialogCancel className="rounded-none">Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="rounded-none bg-destructive hover:bg-destructive/90">
+              Supprimer {isBulkDeleting ? `(${selectedIds.length})` : ""}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 };

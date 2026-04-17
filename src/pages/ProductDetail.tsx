@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Heart, ChevronLeft, ChevronRight, ArrowRight, ShoppingBag } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight, ArrowRight, ShoppingBag, MessageSquare } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
 import { QuantitySelector } from "@/components/QuantitySelector";
@@ -22,6 +22,8 @@ const ProductDetail = () => {
   const product = getProductBySlug(slug || "");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const [isZooming, setIsZooming] = useState(false);
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
   const { addItem: addToCart } = useCart();
   const { toast } = useToast();
@@ -63,6 +65,13 @@ const ProductDetail = () => {
 
   const nextImage = () => setCurrentImageIndex((prev) => prev === product.images.length - 1 ? 0 : prev + 1);
   const prevImage = () => setCurrentImageIndex((prev) => prev === 0 ? product.images.length - 1 : prev - 1);
+  
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    setZoomPos({ x, y });
+  };
 
   return (
     <Layout>
@@ -82,14 +91,29 @@ const ProductDetail = () => {
 
       <section className="py-10 md:py-16">
         <div className="container-full">
-          <div className="grid lg:grid-cols-12 gap-12 lg:gap-20">
-            <div className="lg:col-span-7 space-y-4">
-              <div className="relative aspect-[4/5] overflow-hidden bg-muted/30 group cursor-zoom-in rounded-lg">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-24 items-start">
+            <div className="lg:col-span-5 space-y-4">
+              <div 
+                className="relative aspect-square max-h-[500px] overflow-hidden bg-muted/30 group cursor-zoom-in rounded-lg"
+                onMouseMove={handleMouseMove}
+                onMouseEnter={() => setIsZooming(true)}
+                onMouseLeave={() => setIsZooming(false)}
+              >
                 <AnimatePresence mode="wait">
-                  <motion.img key={currentImageIndex} src={product.images[currentImageIndex]} alt={product.name}
-                    initial={{ opacity: 0, scale: 1.02 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const }}
-                    className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105" />
+                  <motion.img 
+                    key={currentImageIndex} 
+                    src={product.images[currentImageIndex]} 
+                    alt={product.name}
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }} 
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    style={{
+                      transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                      transform: isZooming ? "scale(2)" : "scale(1)"
+                    }}
+                    className="w-full h-full object-cover transition-transform duration-200 ease-out" 
+                  />
                 </AnimatePresence>
                 {product.images.length > 1 && (
                   <>
@@ -111,6 +135,9 @@ const ProductDetail = () => {
                   {product.new && (
                     <span className="px-3 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase bg-foreground text-background rounded-sm">{t("common.new")}</span>
                   )}
+                  {product.stock === 0 && (
+                    <span className="px-3 py-1.5 text-[10px] font-bold tracking-[0.2em] uppercase bg-destructive text-destructive-foreground rounded-sm">{t("common.outOfStock")}</span>
+                  )}
                 </div>
               </div>
               {product.images.length > 1 && (
@@ -128,7 +155,7 @@ const ProductDetail = () => {
 
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] as const }}
-              className="lg:col-span-5 lg:sticky lg:top-28 lg:self-start">
+              className="lg:col-span-7 lg:sticky lg:top-28 lg:self-start">
               {collection && (
                 <Link to={`/products?collection=${collection.slug}`}
                   className="inline-block text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-5 hover:text-primary/80 transition-colors">{collection.name}</Link>
@@ -166,6 +193,11 @@ const ProductDetail = () => {
                         <FlashCountdown endsAt={flashPromo.ends_at} label="Offre flash" />
                       </div>
                     )}
+                    {product.stock === 0 && (
+                      <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-sm">
+                        <p className="text-destructive text-sm font-medium">{t("common.outOfStock")}</p>
+                      </div>
+                    )}
                   </div>
                 );
               })()}
@@ -188,12 +220,32 @@ const ProductDetail = () => {
                 <QuantitySelector quantity={quantity} onQuantityChange={setQuantity} />
               </div>
               <div className="flex flex-col gap-3">
-                <Button size="lg" onClick={handleAddToCart} className="rounded-none w-full py-6 text-sm tracking-[0.15em] uppercase btn-premium">
-                  <ShoppingBag className="w-4 h-4 ltr:mr-3 rtl:ml-3" />{t("common.addToCart")}
+                <Button 
+                  size="lg" 
+                  onClick={handleAddToCart} 
+                  disabled={product.stock === 0}
+                  className="rounded-none w-full py-6 text-sm tracking-[0.15em] uppercase btn-premium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ShoppingBag className="w-4 h-4 ltr:mr-3 rtl:ml-3" />
+                  {product.stock === 0 ? "Indisponible" : t("common.addToCart")}
                 </Button>
                 <Button variant="outline" size="lg" className="rounded-none w-full py-6 text-sm tracking-[0.1em] uppercase" onClick={handleWishlistToggle}>
                   <Heart className={cn("w-4 h-4 ltr:mr-3 rtl:ml-3 transition-all duration-300", inWishlist && "fill-primary text-primary")} />
                   {inWishlist ? t("productDetail.saved") : t("productDetail.addToFavorites")}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="rounded-none w-full py-6 text-sm tracking-[0.1em] uppercase border-[#25D366] text-[#25D366] hover:bg-[#25D366]/5 transition-colors"
+                  onClick={() => {
+                    const phone = "212652535301";
+                    const url = window.location.href;
+                    const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le produit : ${product.name}\nPrix : ${product.price} DH\nLien : ${url}`);
+                    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+                  }}
+                >
+                  <MessageSquare className="w-4 h-4 ltr:mr-3 rtl:ml-3" />
+                  Question sur WhatsApp
                 </Button>
               </div>
               <div className="mt-10 pt-8 border-t border-border grid grid-cols-2 gap-6">

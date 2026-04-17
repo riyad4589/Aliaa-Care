@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { CustomCursor } from "./CustomCursor";
+import { ScrollToTopButton } from "./ScrollToTopButton";
+import { WhatsAppButton } from "./WhatsAppButton";
 import { useLanguage } from "@/hooks/useLanguage";
 
 interface LayoutProps {
@@ -40,6 +42,8 @@ export const Layout = ({ children }: LayoutProps) => {
         {children}
       </motion.main>
       <Footer />
+      <ScrollToTopButton />
+      <WhatsAppButton />
     </div>
   );
 };

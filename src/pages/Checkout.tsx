@@ -34,26 +34,37 @@ const Checkout = () => {
   // Calculate discount
   const getDiscount = () => {
     if (!appliedPromo) return 0;
+    
+    const discountFactor = (Number(appliedPromo.discount_percent) || 0) / 100;
+    
     if (appliedPromo.applies_to === "all") {
-      return subtotal * (appliedPromo.discount_percent / 100);
+      return subtotal * discountFactor;
     }
+
     // Calculate discount only on eligible items
     let eligibleTotal = 0;
+    const promoProductIds = appliedPromo.product_ids || [];
+    const promoPackIds = appliedPromo.pack_ids || [];
+
     for (const item of items) {
-      const isProduct = appliedPromo.applies_to === "products" || appliedPromo.applies_to === "custom";
-      const isPack = appliedPromo.applies_to === "packs" || appliedPromo.applies_to === "custom";
-      if (
-        (isProduct && appliedPromo.product_ids.includes(item.product.id)) ||
-        (isPack && appliedPromo.pack_ids.includes(item.product.id))
-      ) {
+      // Determine if item is a pack or a product
+      // Packs usually have a specific collection or flag, but here we can check if it's in pack_ids or product_ids
+      const isProductEligible = (appliedPromo.applies_to === "products" || appliedPromo.applies_to === "custom") && 
+                               promoProductIds.includes(item.product.id);
+      
+      const isPackEligible = (appliedPromo.applies_to === "packs" || appliedPromo.applies_to === "custom") && 
+                            promoPackIds.includes(item.product.id);
+
+      if (isProductEligible || isPackEligible) {
         eligibleTotal += item.product.price * item.quantity;
       }
     }
-    return eligibleTotal * (appliedPromo.discount_percent / 100);
+    
+    return eligibleTotal * discountFactor;
   };
 
-  const discount = getDiscount();
-  const afterDiscount = subtotal - discount;
+  const discount = Math.round(getDiscount());
+  const afterDiscount = Math.max(0, subtotal - discount);
   const shipping = afterDiscount > 500 ? 0 : 25;
   const total = afterDiscount + shipping;
 
@@ -83,6 +94,23 @@ const Checkout = () => {
     setPromoError("");
     try {
       const promo = await validatePromo.mutateAsync(promoInput);
+      
+      // Temporary check for eligible items
+      let isEligible = promo.applies_to === "all";
+      if (!isEligible) {
+        const promoProductIds = promo.product_ids || [];
+        const promoPackIds = promo.pack_ids || [];
+        isEligible = items.some(item => 
+          (promo.applies_to === "products" || promo.applies_to === "custom") && promoProductIds.includes(item.product.id) ||
+          (promo.applies_to === "packs" || promo.applies_to === "custom") && promoPackIds.includes(item.product.id)
+        );
+      }
+
+      if (!isEligible) {
+        setPromoError("Ce code ne s'applique pas aux articles de votre panier");
+        return;
+      }
+
       setAppliedPromo(promo);
       setPromoInput("");
       toast({ title: t("checkout.promoApplied"), description: `-${promo.discount_percent}%` });
