@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Package } from "lucide-react";
+import { Package, Heart } from "lucide-react";
 import { DbPack } from "@/hooks/usePacks";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
+import { useWishlist } from "@/hooks/useWishlist";
+import { cn } from "@/lib/utils";
 
 interface PackCardProps {
   pack: DbPack;
@@ -14,6 +16,9 @@ interface PackCardProps {
 export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
   const { addItem } = useCart();
   const { toast } = useToast();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+  
+  const inWishlist = isInWishlist(pack.id);
 
   const totalValue = pack.items.reduce((sum, item) => sum + (item.product_price || 0) * item.quantity, 0);
   const savings = totalValue - pack.price;
@@ -35,6 +40,28 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
       images: [firstImage],
     });
     toast({ title: "Pack ajouté au panier", description: pack.name });
+  };
+
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (inWishlist) {
+      removeFromWishlist(pack.id);
+      toast({ title: "Retiré des favoris", description: pack.name });
+    } else {
+      addToWishlist({
+        id: pack.id,
+        name: pack.name,
+        slug: pack.slug,
+        collection: "",
+        price: pack.price,
+        description: pack.description,
+        longDescription: pack.long_description,
+        materials: "",
+        images: [firstImage],
+      } as any);
+      toast({ title: "Ajouté aux favoris", description: pack.name });
+    }
   };
 
   return (
@@ -78,6 +105,13 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
             </span>
           )}
         </div>
+
+        <button 
+          onClick={handleWishlistToggle}
+          className="absolute top-4 right-4 p-2.5 bg-background/80 backdrop-blur-md rounded-full shadow-sm hover:bg-background transition-all duration-300 z-10 group/heart"
+        >
+          <Heart className={cn("w-4 h-4 transition-all duration-300", inWishlist ? "fill-primary text-primary scale-110" : "text-muted-foreground group-hover/heart:scale-110")} />
+        </button>
       </div>
 
       <div className="p-5 space-y-3">

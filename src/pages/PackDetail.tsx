@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Package, ShoppingBag, ArrowLeft, MessageSquare } from "lucide-react";
+import { Package, ShoppingBag, ArrowLeft, MessageSquare, Heart } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { usePacks } from "@/hooks/usePacks";
 import { useCart } from "@/hooks/useCart";
@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { QuantitySelector } from "@/components/QuantitySelector";
 import { useT } from "@/hooks/useT";
 import { useState } from "react";
+import { useWishlist } from "@/hooks/useWishlist";
+import { cn } from "@/lib/utils";
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -25,6 +27,8 @@ const PackDetail = () => {
   const [quantity, setQuantity] = useState(1);
 
   const pack = packs?.find((p) => p.slug === slug && p.active);
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+  const inWishlist = pack ? isInWishlist(pack.id) : false;
 
   if (isLoading) {
     return (
@@ -72,6 +76,28 @@ const PackDetail = () => {
       });
     }
     toast({ title: t("pack.addedToCart"), description: `${pack.name} x${quantity}` });
+  };
+
+  const handleWishlistToggle = () => {
+    if (!pack) return;
+    if (inWishlist) {
+      removeFromWishlist(pack.id);
+      toast({ title: t("productDetail.removedFromFavorites"), description: pack.name });
+    } else {
+      const firstImage = pack.items[0]?.product_image || pack.image;
+      addToWishlist({
+        id: pack.id,
+        name: pack.name,
+        slug: pack.slug,
+        collection: "",
+        price: pack.price,
+        description: pack.description,
+        longDescription: pack.long_description,
+        materials: "",
+        images: [firstImage],
+      } as any);
+      toast({ title: t("productDetail.addedToFavorites"), description: pack.name });
+    }
   };
 
   return (
@@ -138,20 +164,28 @@ const PackDetail = () => {
                 <ShoppingBag className="w-4 h-4 ltr:mr-2 rtl:ml-2" />{t("common.addToCart")}
               </Button>
             </div>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="mt-4 rounded-none w-full py-6 text-sm tracking-[0.1em] uppercase border-[#25D366] text-[#25D366] hover:bg-[#25D366]/5 transition-colors"
-              onClick={() => {
-                const phone = "212652535301";
-                const url = window.location.href;
-                const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le pack : ${pack.name}\nPrix : ${pack.price} DH\nLien : ${url}`);
-                window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
-              }}
-            >
-              <WhatsAppIcon className="w-4 h-4 ltr:mr-3 rtl:ml-3" />
-              Question sur ce pack (WhatsApp)
-            </Button>
+            
+            <div className="flex flex-col sm:flex-row gap-4 mt-4">
+              <Button variant="outline" size="lg" className="rounded-none flex-1 py-6 text-sm tracking-[0.1em] uppercase" onClick={handleWishlistToggle}>
+                <Heart className={cn("w-4 h-4 ltr:mr-3 rtl:ml-3 transition-all duration-300", inWishlist && "fill-primary text-primary")} />
+                {inWishlist ? t("productDetail.saved") : t("productDetail.addToFavorites")}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="rounded-none flex-1 py-6 text-sm tracking-[0.1em] uppercase border-[#25D366] text-[#25D366] hover:bg-[#25D366]/5 transition-colors"
+                onClick={() => {
+                  const phone = "212652535301";
+                  const url = window.location.href;
+                  const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le pack : ${pack.name}\nPrix : ${pack.price} DH\nLien : ${url}`);
+                  window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+                }}
+              >
+                <WhatsAppIcon className="w-4 h-4 ltr:mr-3 rtl:ml-3" />
+                Question WhatsApp
+              </Button>
+            </div>
           </motion.div>
         </div>
       </section>

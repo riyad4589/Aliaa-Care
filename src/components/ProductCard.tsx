@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingBag } from "lucide-react";
 import { motion } from "framer-motion";
 import { Product } from "@/data/products";
 import { useClientProducts } from "@/hooks/useClientProducts";
@@ -8,6 +8,9 @@ import { useActivePromotions } from "@/hooks/usePromotions";
 import { useT } from "@/hooks/useT";
 import { FlashCountdown } from "@/components/FlashCountdown";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/hooks/useCart";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductCardProps {
   product: Product;
@@ -16,10 +19,12 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardProps) => {
-  const { addItem, removeItem, isInWishlist } = useWishlist();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+  const { addItem: addToCart } = useCart();
   const { collections } = useClientProducts();
   const { getProductDiscount, getFlashPromos } = useActivePromotions();
   const { t } = useT();
+  const { toast } = useToast();
   const inWishlist = isInWishlist(product.id);
   const collection = collections.find((c) => c.id === product.collection);
   const hasSecondImage = product.images.length > 1;
@@ -36,8 +41,21 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (inWishlist) removeItem(product.id);
-    else addItem(product);
+    if (inWishlist) {
+      removeFromWishlist(product.id);
+      toast({ title: t("productDetail.removedFromFavorites"), description: product.name });
+    } else {
+      addToWishlist(product);
+      toast({ title: t("productDetail.addedToFavorites"), description: product.name });
+    }
+  };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (product.stock === 0) return;
+    addToCart(product);
+    toast({ title: t("productDetail.addedToCart"), description: product.name });
   };
 
   return (
@@ -104,29 +122,42 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
             <p className="text-[11px] font-medium tracking-[0.2em] uppercase text-muted-foreground/70 transition-colors duration-300 group-hover:text-primary">{collection.name}</p>
           )}
           <h3 className="font-serif text-xl text-foreground transition-colors duration-300 group-hover:text-primary leading-snug">{product.name}</h3>
-          <p className="text-sm text-muted-foreground line-clamp-1 leading-relaxed">{product.description}</p>
-          <div className="flex items-center gap-3 pt-1">
-            {promoDiscount > 0 ? (
-              <>
-                <p className="text-base font-medium text-destructive tracking-wide">
-                  {Math.round(product.price * (1 - promoDiscount / 100)).toLocaleString()} DH
-                </p>
-                <p className="text-sm text-muted-foreground line-through">{product.price.toLocaleString()} DH</p>
-              </>
-            ) : hasOriginalPrice ? (
-              <>
-                <p className="text-base font-medium text-foreground tracking-wide">{product.price.toLocaleString()} DH</p>
-                <p className="text-sm text-muted-foreground line-through">{originalPrice.toLocaleString()} DH</p>
-              </>
-            ) : (
-              <p className="text-base font-medium text-foreground tracking-wide">{product.price.toLocaleString()} DH</p>
-            )}
-            {product.weight && (
-              <>
-                <span className="w-px h-3 bg-border" />
-                <p className="text-xs text-muted-foreground/60 tracking-wide">{t("common.netWeight")} : {product.weight} g</p>
-              </>
-            )}
+          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed h-10">{product.description}</p>
+          
+          <div className="flex items-center justify-between pt-2">
+            <div className="flex flex-col">
+              {promoDiscount > 0 ? (
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-bold text-destructive tracking-tight">
+                    {Math.round(product.price * (1 - promoDiscount / 100)).toLocaleString()} DH
+                  </p>
+                  <p className="text-xs text-muted-foreground line-through opacity-70">{product.price.toLocaleString()} DH</p>
+                </div>
+              ) : hasOriginalPrice ? (
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-bold text-foreground tracking-tight">{product.price.toLocaleString()} DH</p>
+                  <p className="text-xs text-muted-foreground line-through opacity-70">{originalPrice.toLocaleString()} DH</p>
+                </div>
+              ) : (
+                <p className="text-lg font-bold text-foreground tracking-tight">{product.price.toLocaleString()} DH</p>
+              )}
+              {product.weight && (
+                <p className="text-[10px] text-muted-foreground/60 tracking-wider uppercase font-medium">{product.weight}g</p>
+              )}
+            </div>
+
+            <Button
+              size="sm"
+              disabled={product.stock === 0}
+              className={cn(
+                "rounded-none text-[10px] tracking-[0.1em] uppercase px-4 h-9 transition-all duration-300",
+                product.stock === 0 ? "bg-muted text-muted-foreground" : "hover:bg-primary/90 shadow-sm"
+              )}
+              onClick={handleAddToCart}
+            >
+              <ShoppingBag className="w-3.5 h-3.5 ltr:mr-2 rtl:ml-2" />
+              {product.stock === 0 ? "Rupture" : "Ajouter"}
+            </Button>
           </div>
         </div>
       </Link>
