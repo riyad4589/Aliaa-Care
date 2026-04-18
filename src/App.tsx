@@ -11,32 +11,34 @@ import { GuestGuard } from "./components/auth/GuestGuard";
 import { ClientLayout } from "./components/layout/ClientLayout";
 import { AdminLayout } from "./components/layout/AdminLayout";
 
+import { lazy, Suspense } from "react";
+
 // Client Pages
-import Index from "./pages/Index";
-import Products from "./pages/Products";
-import ProductDetail from "./pages/ProductDetail";
-import About from "./pages/About";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import Wishlist from "./pages/Wishlist";
-import PackDetail from "./pages/PackDetail";
-import Packs from "./pages/Packs";
-import TrackOrder from "./pages/TrackOrder";
-import NotFound from "./pages/NotFound";
+const Index = lazy(() => import("./pages/Index"));
+const Products = lazy(() => import("./pages/Products"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const About = lazy(() => import("./pages/About"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const PackDetail = lazy(() => import("./pages/PackDetail"));
+const Packs = lazy(() => import("./pages/Packs"));
+const TrackOrder = lazy(() => import("./pages/TrackOrder"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Auth Pages
-import Login from "./pages/Auth/Login";
+const Login = lazy(() => import("./pages/Auth/Login"));
 
 // Admin Pages
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminProducts from "./pages/AdminProducts";
-import AdminFinances from "./pages/AdminFinances";
-import AdminCategories from "./pages/AdminCategories";
-import AdminPacks from "./pages/AdminPacks";
-import AdminPromoCodes from "./pages/AdminPromoCodes";
-import AdminPackaging from "./pages/AdminPackaging";
-import AdminPromotions from "./pages/AdminPromotions";
-import AdminOrders from "./pages/AdminOrders";
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminProducts = lazy(() => import("./pages/AdminProducts"));
+const AdminFinances = lazy(() => import("./pages/AdminFinances"));
+const AdminCategories = lazy(() => import("./pages/AdminCategories"));
+const AdminPacks = lazy(() => import("./pages/AdminPacks"));
+const AdminPromoCodes = lazy(() => import("./pages/AdminPromoCodes"));
+const AdminPackaging = lazy(() => import("./pages/AdminPackaging"));
+const AdminPromotions = lazy(() => import("./pages/AdminPromotions"));
+const AdminOrders = lazy(() => import("./pages/AdminOrders"));
 
 const queryClient = new QueryClient();
 
@@ -49,47 +51,49 @@ const App = () => (
         <LanguageSelector />
         <BrowserRouter>
           <ScrollToTop />
-          <Routes>
-            {/* Auth Routes */}
-            <Route path="/auth" element={<GuestGuard><OutletWrapper /></GuestGuard>}>
-              <Route path="login" element={<Login />} />
-              <Route index element={<Navigate to="/auth/login" replace />} />
-            </Route>
+          <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>}>
+            <Routes>
+              {/* Auth Routes */}
+              <Route path="/auth" element={<GuestGuard><OutletWrapper /></GuestGuard>}>
+                <Route path="login" element={<Login />} />
+                <Route index element={<Navigate to="/auth/login" replace />} />
+              </Route>
 
-            {/* Client Routes */}
-            <Route path="/" element={<ClientLayout />}>
-              <Route index element={<Index />} />
-              <Route path="products" element={<Products />} />
-              <Route path="product/:slug" element={<ProductDetail />} />
-              <Route path="about" element={<About />} />
-              <Route path="cart" element={<Cart />} />
-              <Route path="wishlist" element={<Wishlist />} />
-              <Route path="checkout" element={<Checkout />} />
-              <Route path="packs" element={<Packs />} />
-              <Route path="pack/:slug" element={<PackDetail />} />
-              <Route path="track-order" element={<TrackOrder />} />
-            </Route>
+              {/* Client Routes */}
+              <Route path="/" element={<ClientLayout />}>
+                <Route index element={<Index />} />
+                <Route path="products" element={<Products />} />
+                <Route path="product/:slug" element={<ProductDetail />} />
+                <Route path="about" element={<About />} />
+                <Route path="cart" element={<Cart />} />
+                <Route path="wishlist" element={<Wishlist />} />
+                <Route path="checkout" element={<Checkout />} />
+                <Route path="packs" element={<Packs />} />
+                <Route path="pack/:slug" element={<PackDetail />} />
+                <Route path="track-order" element={<TrackOrder />} />
+              </Route>
 
-            {/* Admin Routes */}
-            <Route path="/admin" element={
-              <AdminGuard>
-                <AdminLayout />
-              </AdminGuard>
-            }>
-              <Route index element={<AdminDashboard />} />
-              <Route path="products" element={<AdminProducts />} />
-              <Route path="finances" element={<AdminFinances />} />
-              <Route path="categories" element={<AdminCategories />} />
-              <Route path="packs" element={<AdminPacks />} />
-              <Route path="promo-codes" element={<AdminPromoCodes />} />
-              <Route path="packaging" element={<AdminPackaging />} />
-              <Route path="promotions" element={<AdminPromotions />} />
-              <Route path="orders" element={<AdminOrders />} />
-            </Route>
+              {/* Admin Routes */}
+              <Route path="/admin" element={
+                <AdminGuard>
+                  <AdminLayout />
+                </AdminGuard>
+              }>
+                <Route index element={<AdminDashboard />} />
+                <Route path="products" element={<AdminProducts />} />
+                <Route path="finances" element={<AdminFinances />} />
+                <Route path="categories" element={<AdminCategories />} />
+                <Route path="packs" element={<AdminPacks />} />
+                <Route path="promo-codes" element={<AdminPromoCodes />} />
+                <Route path="packaging" element={<AdminPackaging />} />
+                <Route path="promotions" element={<AdminPromotions />} />
+                <Route path="orders" element={<AdminOrders />} />
+              </Route>
 
-            {/* Catch-all */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              {/* Catch-all */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

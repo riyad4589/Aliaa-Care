@@ -26,56 +26,36 @@ export interface DbPackItem {
 }
 
 async function fetchPacks(): Promise<DbPack[]> {
-  const { data: packs, error } = await supabase
+  const { data, error } = await supabase
     .from("packs")
-    .select("*")
-    .order("created_at", { ascending: false });
+    .select(`
+      *,
+      items:pack_items(
+        *,
+        product:products(
+          id, name, price, slug,
+          images:product_images(image_url, position)
+        )
+      )
+    `)
+    .order("created_at", { ascending: false })
+    .order("position", { foreignTable: "pack_items.product.images", ascending: true });
 
   if (error) throw error;
 
-  const { data: items, error: itemsError } = await supabase
-    .from("pack_items")
-    .select("*");
-
-  if (itemsError) throw itemsError;
-
-  // Get product info for items
-  const productIds = [...new Set((items || []).map((i) => i.product_id))];
-  const { data: products } = await supabase
-    .from("products")
-    .select("id, name, price, slug")
-    .in("id", productIds);
-
-  const { data: productImages } = await supabase
-    .from("product_images")
-    .select("product_id, image_url, position")
-    .in("product_id", productIds)
-    .order("position", { ascending: true });
-
-  const productMap = new Map((products || []).map((p) => [p.id, p]));
-  const imageMap = new Map<string, string>();
-  (productImages || []).forEach((img) => {
-    if (!imageMap.has(img.product_id)) imageMap.set(img.product_id, img.image_url);
-  });
-
-  const enrichedItems = (items || []).map((item) => {
-    const product = productMap.get(item.product_id);
-    return {
-      ...item,
-      product_name: product?.name || "Produit inconnu",
-      product_image: imageMap.get(item.product_id) || "/placeholder.svg",
-      product_price: product?.price || 0,
-    };
-  });
-
-  return (packs || []).map((pack) => ({
+  return (data || []).map((pack) => ({
     ...pack,
     description: pack.description || "",
     long_description: pack.long_description || "",
     image: pack.image || "/placeholder.svg",
     featured: pack.featured ?? false,
-    items: enrichedItems.filter((i) => i.pack_id === pack.id),
-  }));
+    items: (pack.items || []).map((item) => ({
+      ...item,
+      product_name: item.product?.name || "Produit inconnu",
+      product_image: item.product?.images?.[0]?.image_url || "/placeholder.svg",
+      product_price: item.product?.price || 0,
+    })),
+  })) as unknown as DbPack[];
 }
 
 export function usePacks() {

@@ -21,18 +21,13 @@ export function useOrders() {
   return useQuery({
     queryKey: ["orders"],
     queryFn: async (): Promise<DbOrder[]> => {
-      const { data: orders, error } = await supabase
+      const { data, error } = await supabase
         .from("orders")
-        .select("*")
+        .select("*, items:order_items(*)")
         .order("created_at", { ascending: false });
       if (error) throw error;
 
-      const { data: items } = await supabase.from("order_items").select("*");
-
-      return (orders || []).map((o) => ({
-        ...o,
-        items: (items || []).filter((i) => i.order_id === o.id),
-      }));
+      return (data || []) as unknown as DbOrder[];
     },
   });
 }
@@ -185,7 +180,7 @@ export function useTrackOrder(orderNumber: string | null) {
       return {
         ...order,
         items: items || [],
-      } as DbOrder;
+      } as unknown as DbOrder;
     },
   });
 }

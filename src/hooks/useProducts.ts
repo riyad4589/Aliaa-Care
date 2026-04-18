@@ -25,26 +25,23 @@ export interface DbProduct {
 }
 
 async function fetchProducts(): Promise<DbProduct[]> {
-  const { data: products, error } = await supabase
+  const { data, error } = await supabase
     .from("products")
-    .select("*")
-    .order("created_at", { ascending: false });
+    .select(`
+      *,
+      images:product_images(image_url, position),
+      categories:product_categories(category_id)
+    `)
+    .order("created_at", { ascending: false })
+    .order("position", { foreignTable: "product_images", ascending: true });
+
   if (error) throw error;
 
-  const { data: images } = await supabase
-    .from("product_images")
-    .select("*")
-    .order("position");
-
-  const { data: pc } = await supabase
-    .from("product_categories")
-    .select("*");
-
-  return (products || []).map((p) => ({
+  return (data || []).map((p) => ({
     ...p,
-    images: (images || []).filter((i) => i.product_id === p.id).map((i) => i.image_url),
-    category_ids: (pc || []).filter((c) => c.product_id === p.id).map((c) => c.category_id),
-  }));
+    images: (p.images || []).map((img) => img.image_url),
+    category_ids: (p.categories || []).map((cat) => cat.category_id),
+  })) as unknown as DbProduct[];
 }
 
 export function useProducts() {

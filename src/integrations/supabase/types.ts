@@ -107,6 +107,13 @@ export type Database = {
           order_number: string
           total: number
           total_cost: number
+          status: string
+          customer_name: string
+          customer_phone: string
+          customer_address: string
+          customer_city: string
+          notes: string | null
+          status_history: Json | null
         }
         Insert: {
           created_at?: string
@@ -114,6 +121,13 @@ export type Database = {
           order_number: string
           total?: number
           total_cost?: number
+          status?: string
+          customer_name: string
+          customer_phone: string
+          customer_address: string
+          customer_city: string
+          notes?: string | null
+          status_history?: Json | null
         }
         Update: {
           created_at?: string
@@ -121,6 +135,13 @@ export type Database = {
           order_number?: string
           total?: number
           total_cost?: number
+          status?: string
+          customer_name?: string
+          customer_phone?: string
+          customer_address?: string
+          customer_city?: string
+          notes?: string | null
+          status_history?: Json | null
         }
         Relationships: []
       }
