@@ -27,14 +27,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<Profile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const loadingRef = useRef(true);
+
+  useEffect(() => {
+    // Update ref whenever isLoading changes
+    loadingRef.current = isLoading;
+  }, [isLoading]);
 
   useEffect(() => {
     let mounted = true;
     let authInitialized = false;
-    const loadingRef = useRef(true);
-
-    // Update ref whenever isLoading changes
-    loadingRef.current = isLoading;
 
     // Fail-safe: Force stop loading after 6 seconds if it's stuck
     const timeoutId = setTimeout(() => {
