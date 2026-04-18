@@ -1,10 +1,10 @@
 /**
  * Service pour gérer l'envoi de messages WhatsApp via UltraMsg
+ * NOTE: All UltraMsg API calls are proxied through the Supabase Edge Function
+ *       `send-whatsapp`. The token is NEVER exposed in the client bundle.
  */
 
-const INSTANCE_ID = import.meta.env.VITE_ULTRAMSG_INSTANCE_ID;
-const TOKEN = import.meta.env.VITE_ULTRAMSG_TOKEN;
-const API_URL = `https://api.ultramsg.com/${INSTANCE_ID}/messages/buttons`;
+import { supabase } from "@/integrations/supabase/client";
 
 export interface OrderItem {
   product_name: string;
@@ -37,69 +37,28 @@ export const formatPhoneNumber = (phone: string): string => {
 };
 
 /**
- * Envoie un message de confirmation de commande avec des boutons interactifs
+ * Envoie un message de confirmation de commande avec des boutons interactifs.
+ * Delegated to the `send-whatsapp` Supabase Edge Function so the UltraMsg
+ * token stays server-side and is never embedded in the client JS bundle.
  */
 export const sendOrderWhatsAppNotification = async (
   order: OrderData,
   items: OrderItem[]
 ) => {
-  if (!INSTANCE_ID || !TOKEN) {
-    console.error("UltraMsg credentials missing");
-    return;
-  }
+  const { data, error } = await supabase.functions.invoke("send-whatsapp", {
+    body: { order, items },
+  });
 
-  const itemsList = items
-    .map((item) => `• ${item.quantity}x ${item.product_name} (${item.unit_price} DH)`)
-    .join("\n");
-
-  const body = `*Nouvelle commande chez ALIAA Natural Care* 🌿\n\n` +
-    `Bonjour ${order.customerName},\n` +
-    `Merci pour votre commande *#${order.order_number}*.\n\n` +
-    `*Détails :*\n${itemsList}\n\n` +
-    `💰 *Total : ${order.total.toLocaleString()} DH*\n` +
-    `📍 *Adresse :* ${order.address}\n\n` +
-    `Veuillez confirmer la validité de cette commande :`;
-
-  // Construction des paramètres pour l'API UltraMsg (format x-www-form-urlencoded)
-  const params = new URLSearchParams();
-  params.append("token", TOKEN);
-  params.append("to", formatPhoneNumber(order.phone));
-  params.append("body", body);
-  params.append("footer", "ALIAA Natural Care - Qualité & Nature");
-  
-  // Format des boutons pour UltraMsg (JSON stringifié)
-  const buttons = [
-    {
-      "buttonId": "confirm_order",
-      "buttonText": { "displayText": "✅ Valider la commande" },
-      "type": 1
-    },
-    {
-      "buttonId": "cancel_order",
-      "buttonText": { "displayText": "❌ Rejeter la commande" },
-      "type": 1
-    }
-  ];
-  params.append("buttons", JSON.stringify(buttons));
-
-  try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: params.toString(),
-    });
-
-    const result = await response.json();
-    if (result.sent === "true") {
-      console.log("WhatsApp message sent successfully:", result.id);
-    } else {
-      console.warn("UltraMsg response:", result);
-    }
-    return result;
-  } catch (error) {
-    console.error("Error sending WhatsApp notification:", error);
+  if (error) {
+    console.error("Error sending WhatsApp notification via Edge Function:", error);
     throw error;
   }
+
+  if (data?.sent === "true") {
+    console.log("WhatsApp message sent successfully:", data.id);
+  } else {
+    console.warn("UltraMsg response:", data);
+  }
+
+  return data;
 };
