@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -30,13 +30,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let mounted = true;
+    let authInitialized = false;
+    const loadingRef = useRef(true);
 
-    // Get initial session and listen for auth changes in a unified way
+    // Update ref whenever isLoading changes
+    loadingRef.current = isLoading;
+
+    // Fail-safe: Force stop loading after 6 seconds if it's stuck
+    const timeoutId = setTimeout(() => {
+      if (mounted && loadingRef.current) {
+        console.warn("Auth initialization timed out, forcing stop loading.");
+        setIsLoading(false);
+      }
+    }, 6000);
+
     const initAuth = async () => {
+      if (authInitialized) return;
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!mounted) return;
         
+        authInitialized = true;
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -60,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
       
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        if (session?.user) {
+        if (session?.user && !authInitialized) {
           await fetchProfile(session.user.id);
         }
       } else if (event === 'SIGNED_OUT') {
@@ -73,6 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => {
       mounted = false;
+      clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);
