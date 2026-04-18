@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AdminLayout } from "@/components/AdminLayout";
+
 import { usePacks, useAddPack, useUpdatePack, useDeletePack, useBulkDeletePacks, useTogglePackActive, DbPack } from "@/hooks/usePacks";
 import { useProducts } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
@@ -139,11 +139,11 @@ const AdminPacks = () => {
   };
 
   if (isLoading) {
-    return <AdminLayout><div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div></AdminLayout>;
+    return <><div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div></>;
   }
 
   return (
-    <AdminLayout>
+    <>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -407,8 +407,9 @@ const AdminPacks = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AdminLayout>
+    </>
   );
 };
 
 export default AdminPacks;
+

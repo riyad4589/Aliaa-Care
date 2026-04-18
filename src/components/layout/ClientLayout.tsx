@@ -1,10 +1,11 @@
 import { ReactNode, useEffect } from "react";
+import { Outlet } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Header } from "./Header";
-import { Footer } from "./Footer";
-import { CustomCursor } from "./CustomCursor";
-import { ScrollToTopButton } from "./ScrollToTopButton";
-import { WhatsAppButton } from "./WhatsAppButton";
+import { Header } from "../Header";
+import { Footer } from "../Footer";
+import { CustomCursor } from "../CustomCursor";
+import { ScrollToTopButton } from "../ScrollToTopButton";
+import { WhatsAppButton } from "../WhatsAppButton";
 import { useLanguage } from "@/hooks/useLanguage";
 
 interface LayoutProps {
@@ -20,7 +21,7 @@ const pageVariants = {
   exit: { opacity: 0, transition: { duration: 0.3 } },
 };
 
-export const Layout = ({ children }: LayoutProps) => {
+export const ClientLayout = () => {
   const language = useLanguage((s) => s.language);
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export const Layout = ({ children }: LayoutProps) => {
         animate="animate"
         exit="exit"
       >
-        {children}
+        <Outlet />
       </motion.main>
       <Footer />
       <ScrollToTopButton />

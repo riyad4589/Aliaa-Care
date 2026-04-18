@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AdminLayout } from "@/components/AdminLayout";
+
 import { usePromoCodes, useAddPromoCode, useUpdatePromoCode, useDeletePromoCode, useBulkDeletePromoCodes, PromoCode } from "@/hooks/usePromoCodes";
 import { useProducts, DbProduct } from "@/hooks/useProducts";
 import { usePacks } from "@/hooks/usePacks";
@@ -195,7 +195,7 @@ const AdminPromoCodes = () => {
   const isSaving = addPromo.isPending || updatePromo.isPending;
 
   return (
-    <AdminLayout>
+    <>
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -451,8 +451,9 @@ const AdminPromoCodes = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </AdminLayout>
+    </>
   );
 };
 
 export default AdminPromoCodes;
+

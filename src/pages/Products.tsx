@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { Layout } from "@/components/Layout";
+
 import { ProductCard } from "@/components/ProductCard";
 import { useClientProducts } from "@/hooks/useClientProducts";
 import { useT } from "@/hooks/useT";
@@ -77,7 +77,7 @@ const Products = () => {
   };
 
   return (
-    <Layout>
+    <>
       <section className="relative h-[40vh] md:h-[55vh] overflow-hidden">
         <div className="absolute inset-0">
           <img src={currentCollection?.heroImage || chayNifasImg} alt={currentCollection?.name || t("common.products")}
@@ -164,8 +164,9 @@ const Products = () => {
           </motion.div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 };
 
 export default Products;
+

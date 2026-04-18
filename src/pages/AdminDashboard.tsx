@@ -1,4 +1,4 @@
-import { AdminLayout } from "@/components/AdminLayout";
+
 import { useOrders } from "@/hooks/useOrders";
 import { useProducts } from "@/hooks/useProducts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -122,8 +122,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <AdminLayout>
-      <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500">
         <div className="flex flex-col gap-2">
           <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground">Tableau de Bord</h1>
           <p className="text-muted-foreground">Bienvenue dans votre espace d'administration Aliaa-Care.</p>
@@ -311,8 +310,8 @@ const AdminDashboard = () => {
           </Card>
         </div>
       </div>
-    </AdminLayout>
   );
 };
 
 export default AdminDashboard;
+

@@ -1,5 +1,6 @@
-import { LayoutDashboard, Package, TrendingUp, ArrowLeft, FolderOpen, Gift, Tag, BoxSelect, Megaphone, ShoppingCart } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { LayoutDashboard, Package, TrendingUp, ArrowLeft, FolderOpen, Gift, Tag, BoxSelect, Megaphone, ShoppingCart, LogOut } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import {
   Sidebar,
   SidebarContent,
@@ -29,6 +30,13 @@ export function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth/login");
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -63,6 +71,12 @@ export function AdminSidebar() {
                     <ArrowLeft className="h-4 w-4 shrink-0" />
                     {!collapsed && <span>Retour au site</span>}
                   </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={handleSignOut} className="flex items-center gap-2 px-3 py-2 rounded-md text-destructive hover:bg-destructive/10 transition-colors w-full">
+                  <LogOut className="h-4 w-4 shrink-0" />
+                  {!collapsed && <span>Déconnexion</span>}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

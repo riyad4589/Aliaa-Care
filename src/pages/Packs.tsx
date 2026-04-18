@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Gift } from "lucide-react";
-import { Layout } from "@/components/Layout";
+
 import { usePacks } from "@/hooks/usePacks";
 import { PackCard } from "@/components/PackCard";
 import { useT } from "@/hooks/useT";
@@ -11,7 +11,7 @@ const Packs = () => {
   const activePacks = allPacks.filter((p) => p.active);
 
   return (
-    <Layout>
+    <>
       <section className="py-16 md:py-24">
         <div className="container-full">
           <motion.div
@@ -57,8 +57,9 @@ const Packs = () => {
           )}
         </div>
       </section>
-    </Layout>
+    </>
   );
 };
 
 export default Packs;
+

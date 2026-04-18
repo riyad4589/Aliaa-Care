@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart, Trash2, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Layout } from "@/components/Layout";
+
 import { useWishlist } from "@/hooks/useWishlist";
 import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ const Wishlist = () => {
   };
 
   return (
-    <Layout>
+    <>
       <div className="container-full py-12 md:py-20">
         <div className="mb-10">
           <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-2">{t("wishlist.title")}</h1>
@@ -78,8 +78,9 @@ const Wishlist = () => {
           </>
         )}
       </div>
-    </Layout>
+    </>
   );
 };
 
 export default Wishlist;
+

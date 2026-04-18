@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
-import { Heart, Menu, X, Settings, Globe } from "lucide-react";
+import { Heart, Menu, X, Settings, Globe, User, LogOut, LayoutDashboard } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useWishlist } from "@/hooks/useWishlist";
@@ -42,6 +43,13 @@ export const Header = () => {
   const { collections } = useClientProducts();
   const { t } = useT();
   const { language, setLanguage } = useLanguage();
+  const { user, profile, isAdmin, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -178,16 +186,37 @@ export const Header = () => {
 
             <CartIcon />
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link to="/admin" className="p-2 hover:bg-accent transition-colors duration-300 group">
-                  <Settings className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="bottom">
-                <p className="text-sm">{t("common.administration")}</p>
-              </TooltipContent>
-            </Tooltip>
+            {/* User Profile / Login */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="p-2 hover:bg-accent transition-colors duration-300 group">
+                <User className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 p-2">
+                {user ? (
+                  <>
+                    <div className="px-2 py-1.5 mb-1">
+                      <p className="text-sm font-medium">{profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}` : user.email}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                    {isAdmin && (
+                      <DropdownMenuItem onClick={() => navigate("/admin")}>
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        <span>Administration</span>
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Déconnexion</span>
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem onClick={() => navigate("/auth/login")}>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Se connecter</span>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <button className="md:hidden p-2 hover:bg-accent transition-colors duration-300" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               <AnimatePresence mode="wait">

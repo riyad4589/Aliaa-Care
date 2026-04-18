@@ -2,7 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, ChevronLeft, ChevronRight, ArrowRight, ShoppingBag, MessageSquare } from "lucide-react";
-import { Layout } from "@/components/Layout";
+
 import { ProductCard } from "@/components/ProductCard";
 import { QuantitySelector } from "@/components/QuantitySelector";
 import { FlashCountdown } from "@/components/FlashCountdown";
@@ -37,7 +37,7 @@ const ProductDetail = () => {
 
   if (!product) {
     return (
-      <Layout>
+      <>
         <div className="container-wide py-28 text-center">
           <h1 className="font-serif text-4xl mb-4">{t("productDetail.notFound")}</h1>
           <p className="text-muted-foreground mb-8">{t("productDetail.notFoundDesc")}</p>
@@ -45,7 +45,7 @@ const ProductDetail = () => {
             <Link to="/products">{t("index.viewAllProducts")}</Link>
           </Button>
         </div>
-      </Layout>
+      </>
     );
   }
 
@@ -80,7 +80,7 @@ const ProductDetail = () => {
   };
 
   return (
-    <Layout>
+    <>
       <div className="container-full py-6 border-b border-border">
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <Link to="/products" className="hover:text-foreground transition-colors">{t("common.shop")}</Link>
@@ -288,8 +288,9 @@ const ProductDetail = () => {
           </div>
         </section>
       )}
-    </Layout>
+    </>
   );
 };
 
 export default ProductDetail;
+
