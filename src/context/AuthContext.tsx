@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
       
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        if (session?.user && !authInitialized) {
+        if (session?.user) {
           await fetchProfile(session.user.id);
         }
       } else if (event === 'SIGNED_OUT') {
