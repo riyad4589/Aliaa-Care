@@ -29,6 +29,8 @@ export function useOrders() {
 
       return (data || []) as unknown as DbOrder[];
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchOnWindowFocus: false, // Prevents loading spinner when switching tabs
   });
 }
 
