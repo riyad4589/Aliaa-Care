@@ -114,8 +114,9 @@ const Checkout = () => {
       setAppliedPromo(promo);
       setPromoInput("");
       toast({ title: t("checkout.promoApplied"), description: `-${promo.discount_percent}%` });
-    } catch (err: any) {
-      setPromoError(err.message || t("checkout.promoInvalid"));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : t("checkout.promoInvalid");
+      setPromoError(message);
     }
   };
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useOrders, useUpdateOrderStatus, useDeleteOrder, useBulkDeleteOrders, useUpdateOrderDetails, DbOrder } from "@/hooks/useOrders";
+import { useProducts } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -29,7 +30,9 @@ import {
   FileText,
   History,
   Circle,
-  MessageSquare
+  MessageSquare,
+  PackagePlus,
+  ArrowUpDown
 } from "lucide-react";
 import { generateInvoice } from "@/utils/invoiceGenerator";
 import { format } from "date-fns";
@@ -65,6 +68,20 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
 const statusConfig = {
   pending: { label: "En attente", color: "bg-amber-100 text-amber-700 border-amber-200", icon: Clock },
@@ -82,6 +99,7 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 
 const AdminOrders = () => {
   const { data: orders = [], isLoading } = useOrders();
+  const { data: allProducts = [] } = useProducts();
   const updateStatus = useUpdateOrderStatus();
   const deleteOrder = useDeleteOrder();
   const bulkDeleteOrders = useBulkDeleteOrders();
@@ -94,6 +112,7 @@ const AdminOrders = () => {
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [productSearchOpen, setProductSearchOpen] = useState(false);
 
   const handleDelete = async () => {
     try {
@@ -638,131 +657,226 @@ const AdminOrders = () => {
       </Dialog>
 
       <Dialog open={!!editingOrder} onOpenChange={(open) => !open && setEditingOrder(null)}>
-        <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto p-0 rounded-xl overflow-hidden shadow-2xl">
-          <DialogHeader className="p-6 bg-primary text-primary-foreground">
+        <DialogContent className="max-w-2xl h-[90vh] p-0 rounded-xl shadow-2xl flex flex-col overflow-hidden">
+          <DialogHeader className="p-6 bg-primary text-primary-foreground shrink-0">
             <DialogTitle className="font-serif text-2xl font-bold">Modifier la Commande</DialogTitle>
           </DialogHeader>
           {editingOrder && (
-            <form onSubmit={handleUpdateOrder} className="p-6 space-y-8 bg-background">
-              {/* Customer Info Section */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground flex items-center gap-2">
-                  <span className="w-1 h-1 rounded-full bg-primary" />
-                  Informations de Livraison
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold uppercase text-muted-foreground">Nom Complet</Label>
-                    <Input
-                      value={editingOrder.customer_name}
-                      onChange={(e) => setEditingOrder({ ...editingOrder, customer_name: e.target.value })}
-                      className="h-11"
-                    />
+            <form onSubmit={handleUpdateOrder} className="flex-1 flex flex-col min-h-0 bg-background">
+              <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+                {/* Customer Info Section */}
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground flex items-center gap-2">
+                    <span className="w-1 h-1 rounded-full bg-primary" />
+                    Informations de Livraison
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold uppercase text-muted-foreground">Nom Complet</Label>
+                      <Input
+                        value={editingOrder.customer_name}
+                        onChange={(e) => setEditingOrder({ ...editingOrder, customer_name: e.target.value })}
+                        className="h-11"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold uppercase text-muted-foreground">Téléphone</Label>
+                      <Input
+                        value={editingOrder.customer_phone}
+                        onChange={(e) => setEditingOrder({ ...editingOrder, customer_phone: e.target.value })}
+                        className="h-11"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold uppercase text-muted-foreground">Ville</Label>
+                      <Input
+                        value={editingOrder.customer_city}
+                        onChange={(e) => setEditingOrder({ ...editingOrder, customer_city: e.target.value })}
+                        className="h-11"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold uppercase text-muted-foreground">Statut de la Commande</Label>
+                      <Select
+                        value={editingOrder.status}
+                        onValueChange={(val: DbOrder['status']) => setEditingOrder({ ...editingOrder, status: val })}
+                      >
+                        <SelectTrigger className="h-11">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(statusConfig).map(([key, { label }]) => (
+                            <SelectItem key={key} value={key}>{label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold uppercase text-muted-foreground">Téléphone</Label>
-                    <Input
-                      value={editingOrder.customer_phone}
-                      onChange={(e) => setEditingOrder({ ...editingOrder, customer_phone: e.target.value })}
-                      className="h-11"
+                    <Label className="text-xs font-semibold uppercase text-muted-foreground">Adresse complète</Label>
+                    <Textarea
+                      value={editingOrder.customer_address}
+                      onChange={(e) => setEditingOrder({ ...editingOrder, customer_address: e.target.value })}
+                      className="min-h-[80px] resize-none"
                     />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold uppercase text-muted-foreground">Ville</Label>
-                    <Input
-                      value={editingOrder.customer_city}
-                      onChange={(e) => setEditingOrder({ ...editingOrder, customer_city: e.target.value })}
-                      className="h-11"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold uppercase text-muted-foreground">Statut de la Commande</Label>
-                    <Select
-                      value={editingOrder.status}
-                      onValueChange={(val: DbOrder['status']) => setEditingOrder({ ...editingOrder, status: val })}
-                    >
-                      <SelectTrigger className="h-11">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(statusConfig).map(([key, { label }]) => (
-                          <SelectItem key={key} value={key}>{label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                   </div>
                 </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground flex items-center gap-2">
+                      <span className="w-1 h-1 rounded-full bg-primary" />
+                      Modifier les Articles
+                    </h3>
+                    <Popover open={productSearchOpen} onOpenChange={setProductSearchOpen}>
+                      <PopoverTrigger asChild>
+                        <Button type="button" variant="outline" size="sm" className="h-8 rounded-full gap-2 border-primary/20 hover:bg-primary/5">
+                          <PackagePlus className="w-3.5 h-3.5 text-primary" />
+                          Ajouter un produit
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="p-0 w-[300px]" align="end">
+                        <Command>
+                          <CommandInput placeholder="Rechercher un produit..." />
+                          <CommandList>
+                            <CommandEmpty>Aucun produit trouvé.</CommandEmpty>
+                            <CommandGroup heading="Produits disponibles">
+                              {allProducts.map((product) => (
+                                <CommandItem
+                                  key={product.id}
+                                  value={product.name}
+                                  onSelect={() => {
+                                    const newItems = [...editingOrder.items];
+                                    const existingItem = newItems.find(i => i.product_id === product.id);
+                                    if (existingItem) {
+                                      existingItem.quantity += 1;
+                                    } else {
+                                      newItems.push({
+                                        product_id: product.id,
+                                        product_name: product.name,
+                                        quantity: 1,
+                                        unit_price: product.price,
+                                        cost_price: product.cost_price || 0
+                                      });
+                                    }
+                                    setEditingOrder({ ...editingOrder, items: newItems });
+                                    setProductSearchOpen(false);
+                                    toast({ title: "Produit ajouté", description: product.name });
+                                  }}
+                                  className="cursor-pointer"
+                                >
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">{product.name}</span>
+                                    <span className="text-xs text-muted-foreground">{product.price} DH</span>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  
+                  <div className="space-y-3 border border-border/50 rounded-xl p-3 bg-muted/5">
+                    {editingOrder.items.length === 0 ? (
+                      <div className="py-10 text-center border-2 border-dashed border-border rounded-lg">
+                        <ShoppingBag className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                        <p className="text-sm text-muted-foreground">Aucun article dans cette commande</p>
+                      </div>
+                    ) : (
+                      editingOrder.items.map((item, idx) => (
+                        <div key={idx} className="group flex flex-col sm:flex-row sm:items-center gap-4 p-4 border border-border rounded-xl bg-background hover:border-primary/30 transition-all duration-300 shadow-sm relative overflow-hidden">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-bold truncate">{item.product_name}</p>
+                            </div>
+                            <div className="flex items-center gap-2 mt-1.5">
+                              <div className="flex items-center bg-muted/50 rounded-md px-2 py-0.5 border border-border/50">
+                                <Input
+                                  type="number"
+                                  value={item.unit_price}
+                                  onChange={(e) => {
+                                    const newItems = [...editingOrder.items];
+                                    newItems[idx].unit_price = Number(e.target.value);
+                                    setEditingOrder({ ...editingOrder, items: newItems });
+                                  }}
+                                  className="h-6 w-16 p-0 border-none bg-transparent text-xs font-bold text-primary focus-visible:ring-0"
+                                />
+                                <span className="text-[10px] text-muted-foreground ml-1 uppercase font-bold">DH</span>
+                              </div>
+                              <span className="text-xs text-muted-foreground">par unité</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between sm:justify-end gap-6">
+                            <div className="flex items-center gap-3 bg-muted/30 border border-border rounded-full p-1 px-3 shadow-inner">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newItems = [...editingOrder.items];
+                                  if (newItems[idx].quantity > 1) {
+                                    newItems[idx].quantity -= 1;
+                                    setEditingOrder({ ...editingOrder, items: newItems });
+                                  }
+                                }}
+                                className="w-6 h-6 flex items-center justify-center hover:text-primary transition-colors disabled:opacity-30"
+                                disabled={item.quantity <= 1}
+                              >
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newItems = [...editingOrder.items];
+                                  newItems[idx].quantity += 1;
+                                  setEditingOrder({ ...editingOrder, items: newItems });
+                                }}
+                                className="w-6 h-6 flex items-center justify-center hover:text-primary transition-colors"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </button>
+                            </div>
+                            
+                            <div className="w-24 text-right">
+                              <p className="text-sm font-bold text-primary">{(item.quantity * item.unit_price).toLocaleString()} DH</p>
+                            </div>
+                            
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive transition-all opacity-0 group-hover:opacity-100"
+                              onClick={() => {
+                                const newItems = editingOrder.items.filter((_, i) => i !== idx);
+                                setEditingOrder({ ...editingOrder, items: newItems });
+                                toast({ title: "Article supprimé" });
+                              }}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Internal Notes */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold uppercase text-muted-foreground">Adresse complète</Label>
+                  <Label className="text-xs font-semibold uppercase text-muted-foreground">Notes de Gestion (Interne)</Label>
                   <Textarea
-                    value={editingOrder.customer_address}
-                    onChange={(e) => setEditingOrder({ ...editingOrder, customer_address: e.target.value })}
+                    value={editingOrder.notes || ""}
+                    onChange={(e) => setEditingOrder({ ...editingOrder, notes: e.target.value })}
+                    placeholder="Notes sur la livraison, préférences client..."
                     className="min-h-[80px] resize-none"
                   />
                 </div>
               </div>
 
-              {/* Items Section */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground flex items-center gap-2">
-                  <span className="w-1 h-1 rounded-full bg-primary" />
-                  Modifier les Articles
-                </h3>
-                <div className="space-y-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar border border-border/50 rounded-xl p-3 bg-muted/5">
-                  {editingOrder.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-4 p-4 border border-border rounded-xl bg-background hover:bg-muted/10 transition-colors">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold truncate">{item.product_name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{item.unit_price} DH / unité</p>
-                      </div>
-                      <div className="flex items-center gap-3 bg-muted/20 border border-border rounded-full p-1 px-3 shadow-sm">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newItems = [...editingOrder.items];
-                            if (newItems[idx].quantity > 1) {
-                              newItems[idx].quantity -= 1;
-                              setEditingOrder({ ...editingOrder, items: newItems });
-                            }
-                          }}
-                          className="w-6 h-6 flex items-center justify-center hover:text-primary transition-colors"
-                        >
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newItems = [...editingOrder.items];
-                            newItems[idx].quantity += 1;
-                            setEditingOrder({ ...editingOrder, items: newItems });
-                          }}
-                          className="w-6 h-6 flex items-center justify-center hover:text-primary transition-colors"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
-                      </div>
-                      <div className="w-24 text-right">
-                        <p className="text-sm font-bold text-primary">{item.quantity * item.unit_price} DH</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Internal Notes */}
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold uppercase text-muted-foreground">Notes de Gestion (Interne)</Label>
-                <Textarea
-                  value={editingOrder.notes || ""}
-                  onChange={(e) => setEditingOrder({ ...editingOrder, notes: e.target.value })}
-                  placeholder="Notes sur la livraison, préférences client..."
-                  className="min-h-[80px] resize-none"
-                />
-              </div>
-
               {/* Footer Actions */}
-              <div className="flex justify-between items-center pt-6 border-t border-border">
+              <div className="p-6 bg-muted/20 border-t border-border flex justify-between items-center shrink-0">
                 <div>
                   <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mb-1">Total recalculé</p>
                   <p className="text-2xl font-serif font-bold text-primary">

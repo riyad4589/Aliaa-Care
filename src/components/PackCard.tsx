@@ -61,7 +61,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
         longDescription: pack.long_description,
         materials: "",
         images: [firstImage],
-      } as any);
+      } as Product);
       toast({ title: t("productDetail.addedToFavorites"), description: pack.name });
     }
   };

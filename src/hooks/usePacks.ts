@@ -27,20 +27,20 @@ export interface DbPackItem {
 
 async function fetchPacks(): Promise<DbPack[]> {
   const { data: packs, error } = await supabase
-    .from("packs" as any)
+    .from("packs")
     .select("*")
     .order("created_at", { ascending: false });
 
   if (error) throw error;
 
   const { data: items, error: itemsError } = await supabase
-    .from("pack_items" as any)
+    .from("pack_items")
     .select("*");
 
   if (itemsError) throw itemsError;
 
   // Get product info for items
-  const productIds = [...new Set((items as any[]).map((i: any) => i.product_id))];
+  const productIds = [...new Set((items || []).map((i) => i.product_id))];
   const { data: products } = await supabase
     .from("products")
     .select("id, name, price, slug")
@@ -58,7 +58,7 @@ async function fetchPacks(): Promise<DbPack[]> {
     if (!imageMap.has(img.product_id)) imageMap.set(img.product_id, img.image_url);
   });
 
-  const enrichedItems = (items as any[]).map((item: any) => {
+  const enrichedItems = (items || []).map((item) => {
     const product = productMap.get(item.product_id);
     return {
       ...item,
@@ -68,13 +68,13 @@ async function fetchPacks(): Promise<DbPack[]> {
     };
   });
 
-  return (packs as any[]).map((pack: any) => ({
+  return (packs || []).map((pack) => ({
     ...pack,
     description: pack.description || "",
     long_description: pack.long_description || "",
     image: pack.image || "/placeholder.svg",
     featured: pack.featured ?? false,
-    items: enrichedItems.filter((i: any) => i.pack_id === pack.id),
+    items: enrichedItems.filter((i) => i.pack_id === pack.id),
   }));
 }
 
@@ -92,15 +92,15 @@ export function useAddPack() {
     }) => {
       const { product_ids, ...packData } = input;
       const { data, error } = await supabase
-        .from("packs" as any)
-        .insert(packData as any)
+        .from("packs")
+        .insert(packData)
         .select()
         .single();
       if (error) throw error;
 
-      if (product_ids.length > 0) {
-        const items = product_ids.map((pid) => ({ pack_id: (data as any).id, product_id: pid, quantity: 1 }));
-        const { error: itemsError } = await supabase.from("pack_items" as any).insert(items as any);
+      if (product_ids.length > 0 && data) {
+        const items = product_ids.map((pid) => ({ pack_id: data.id, product_id: pid, quantity: 1 }));
+        const { error: itemsError } = await supabase.from("pack_items").insert(items);
         if (itemsError) throw itemsError;
       }
       return data;
@@ -118,15 +118,15 @@ export function useUpdatePack() {
       product_ids: string[];
     }) => {
       const { error } = await supabase
-        .from("packs" as any)
-        .update(input.updates as any)
+        .from("packs")
+        .update(input.updates)
         .eq("id", input.id);
       if (error) throw error;
 
-      await supabase.from("pack_items" as any).delete().eq("pack_id", input.id);
+      await supabase.from("pack_items").delete().eq("pack_id", input.id);
       if (input.product_ids.length > 0) {
         const items = input.product_ids.map((pid) => ({ pack_id: input.id, product_id: pid, quantity: 1 }));
-        await supabase.from("pack_items" as any).insert(items as any);
+        await supabase.from("pack_items").insert(items);
       }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["packs"] }),
@@ -137,7 +137,7 @@ export function useDeletePack() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("packs" as any).delete().eq("id", id);
+      const { error } = await supabase.from("packs").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["packs"] }),
@@ -148,7 +148,7 @@ export function useBulkDeletePacks() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (ids: string[]) => {
-      const { error } = await supabase.from("packs" as any).delete().in("id", ids);
+      const { error } = await supabase.from("packs").delete().in("id", ids);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["packs"] }),
@@ -159,7 +159,7 @@ export function useTogglePackActive() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
-      const { error } = await supabase.from("packs" as any).update({ active } as any).eq("id", id);
+      const { error } = await supabase.from("packs").update({ active }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["packs"] }),

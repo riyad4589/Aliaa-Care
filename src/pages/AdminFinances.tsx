@@ -11,6 +11,12 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+interface jsPDFWithAutoTable extends jsPDF {
+  lastAutoTable: {
+    finalY: number;
+  };
+}
+
 const AdminFinances = () => {
   const { data: orders = [], isLoading } = useOrders();
   const { data: products = [] } = useProducts();
@@ -185,7 +191,7 @@ const AdminFinances = () => {
     });
     
     // 2. Daily Analysis
-    const table2Y = (doc as any).lastAutoTable.finalY + 20;
+    const table2Y = (doc as jsPDFWithAutoTable).lastAutoTable.finalY + 20;
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
     doc.text("2. Analyse Quotidienne", 20, table2Y);
@@ -217,7 +223,7 @@ const AdminFinances = () => {
     });
     
     // 3. Performance by Product
-    let mY = (doc as any).lastAutoTable.finalY + 20;
+    let mY = (doc as jsPDFWithAutoTable).lastAutoTable.finalY + 20;
     if (mY > 230) { doc.addPage(); mY = 30; }
     
     doc.setFontSize(16);

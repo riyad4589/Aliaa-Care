@@ -30,7 +30,7 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
   const hasSecondImage = product.images.length > 1;
 
   const discount = getProductDiscount(product.id, product.collections || []);
-  const originalPrice = (product as any).originalPrice;
+  const originalPrice = product.originalPrice;
   const hasOriginalPrice = originalPrice && originalPrice > product.price;
   const promoDiscount = discount > 0 ? discount : (hasOriginalPrice ? Math.round((1 - product.price / originalPrice) * 100) : 0);
   const flashPromo = getFlashPromos().find(fp =>

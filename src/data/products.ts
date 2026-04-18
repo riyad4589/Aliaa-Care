@@ -28,6 +28,7 @@ export interface Product {
   collection: string;
   collections?: string[];
   price: number;
+  originalPrice?: number;
   description: string;
   longDescription: string;
   materials: string;

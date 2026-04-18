@@ -169,7 +169,7 @@ const ProductDetail = () => {
               <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground mb-5 leading-[1.05]">{product.name}</h1>
               {(() => {
                 const discount = getProductDiscount(product.id, product.collections || []);
-                const originalPrice = (product as any).originalPrice;
+                const originalPrice = product.originalPrice;
                 const hasOriginal = originalPrice && originalPrice > product.price;
                 const promoDiscount = discount > 0 ? discount : (hasOriginal ? Math.round((1 - product.price / originalPrice) * 100) : 0);
                 const flashPromo = getFlashPromos().find(fp =>

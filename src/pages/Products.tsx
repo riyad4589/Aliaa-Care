@@ -35,11 +35,21 @@ const Products = () => {
       if (collection) result = result.filter((product) => product.collection === collection.id);
     }
     switch (activeSort) {
-      case "newest": result = result.filter((p) => p.new).concat(result.filter((p) => !p.new)); break;
-      case "price-asc": result.sort((a, b) => a.price - b.price); break;
-      case "price-desc": result.sort((a, b) => b.price - a.price); break;
-      case "name-asc": result.sort((a, b) => a.name.localeCompare(b.name)); break;
-      default: result = result.filter((p) => p.featured).concat(result.filter((p) => !p.featured)); break;
+      case "newest":
+        result = [...result.filter((p) => p.new), ...result.filter((p) => !p.new)];
+        break;
+      case "price-asc":
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case "price-desc":
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case "name-asc":
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      default:
+        result = [...result.filter((p) => p.featured), ...result.filter((p) => !p.featured)];
+        break;
     }
     return result;
   }, [activeCollection, activeSort, products, collections]);
@@ -48,13 +58,21 @@ const Products = () => {
 
   const handleFilterChange = (slug: string) => {
     const p = new URLSearchParams(searchParams);
-    slug === "all" ? p.delete("collection") : p.set("collection", slug);
+    if (slug === "all") {
+      p.delete("collection");
+    } else {
+      p.set("collection", slug);
+    }
     setSearchParams(p);
   };
 
   const handleSortChange = (value: string) => {
     const p = new URLSearchParams(searchParams);
-    value === "featured" ? p.delete("sort") : p.set("sort", value);
+    if (value === "featured") {
+      p.delete("sort");
+    } else {
+      p.set("sort", value);
+    }
     setSearchParams(p);
   };
 

@@ -40,7 +40,7 @@ export function useOrders() {
 export function useUpdateOrderStatus() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, status, currentHistory = [] }: { id: string; status: DbOrder['status']; currentHistory?: any[] }) => {
+    mutationFn: async ({ id, status, currentHistory = [] }: { id: string; status: DbOrder['status']; currentHistory?: DbOrder['status_history'] }) => {
       const newStep = {
         status,
         date: new Date().toISOString(),

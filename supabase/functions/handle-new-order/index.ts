@@ -9,6 +9,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+interface OrderItem {
+  quantity: number;
+  product_name: string;
+  unit_price: number;
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -38,8 +44,8 @@ serve(async (req) => {
     if (itemsError) throw itemsError;
 
     // Préparation du message UltraMsg
-    const itemsList = items
-      .map((item: any) => `• ${item.quantity}x ${item.product_name} (${item.unit_price} DH)`)
+    const itemsList = (items as OrderItem[])
+      .map((item) => `• ${item.quantity}x ${item.product_name} (${item.unit_price} DH)`)
       .join("\n");
 
     const body = `*ALIAA Natural Care* 🌿\n` +
@@ -56,7 +62,7 @@ serve(async (req) => {
       `_L'équipe ALIAA vous remercie pour votre confiance !_`;
 
     // Formatage du numéro de téléphone
-    let phone = order.customer_phone || ""; 
+    const phone = order.customer_phone || ""; 
     let cleanedPhone = phone.replace(/\D/g, "");
     if (cleanedPhone.startsWith("0")) cleanedPhone = "212" + cleanedPhone.substring(1);
     if (cleanedPhone.length === 9) cleanedPhone = "212" + cleanedPhone;
@@ -101,9 +107,10 @@ serve(async (req) => {
       status: 200,
     });
 
-  } catch (error: any) {
-    console.error("Error in Edge Function:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error in Edge Function:", message);
+    return new Response(JSON.stringify({ error: message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
     });

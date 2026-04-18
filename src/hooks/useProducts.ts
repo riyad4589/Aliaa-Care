@@ -16,6 +16,7 @@ export interface DbProduct {
   cost_price: number | null;
   featured: boolean | null;
   is_new: boolean | null;
+  original_price: number | null;
   created_at: string;
   updated_at: string;
   // Joined data

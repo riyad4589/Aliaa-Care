@@ -37,7 +37,7 @@ function toClientProduct(p: DbProduct): ClientProduct {
     collection: p.category_ids[0] || "",
     collections: p.category_ids,
     price: p.price,
-    originalPrice: (p as any).original_price ?? undefined,
+    originalPrice: p.original_price ?? undefined,
     description: p.description || "",
     longDescription: p.long_description || "",
     materials: p.materials || "",

@@ -83,7 +83,7 @@ serve(async (req) => {
     const from = data.from || ""; // Format: 212600000000@c.us
     
     // Extraire le numéro de téléphone sans le @c.us
-    let phone = from.split("@")[0]; 
+    const phone = from.split("@")[0]; 
 
     // Pour correspondre au stockage (souvent 06... ou 2126...), on normalise
     // On va chercher les commandes qui finissent par ce numéro
@@ -153,9 +153,10 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
-  } catch (error: any) {
-    console.error("Webhook Error:", error.message);
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Webhook Error:", message);
+    return new Response(JSON.stringify({ error: message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200, // On retourne 200 pour que UltraMsg ne réessaie pas indéfiniment en cas d'erreur de logique
     });

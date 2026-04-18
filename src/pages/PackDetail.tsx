@@ -11,6 +11,7 @@ import { useT } from "@/hooks/useT";
 import { useState } from "react";
 import { useWishlist } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
+import { Product } from "@/data/products";
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -95,7 +96,7 @@ const PackDetail = () => {
         longDescription: pack.long_description,
         materials: "",
         images: [firstImage],
-      } as any);
+      } as Product);
       toast({ title: t("productDetail.addedToFavorites"), description: pack.name });
     }
   };

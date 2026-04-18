@@ -9,8 +9,14 @@ const formatCurrency = (amount: number) => {
   return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " DH";
 };
 
+interface jsPDFWithAutoTable extends jsPDF {
+  lastAutoTable: {
+    finalY: number;
+  };
+}
+
 export const generateInvoice = async (order: DbOrder) => {
-  const doc = new jsPDF();
+  const doc = new jsPDF() as jsPDFWithAutoTable;
   const primaryColor = [74, 85, 67]; // Botanical Green
   
   // Helper to convert image to base64
@@ -135,7 +141,7 @@ export const generateInvoice = async (order: DbOrder) => {
     // Totals
     const subtotal = order.items.reduce((acc, item) => acc + (item.unit_price * item.quantity), 0);
     const deliveryFee = order.total - subtotal;
-    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    const finalY = doc.lastAutoTable.finalY + 10;
     
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");

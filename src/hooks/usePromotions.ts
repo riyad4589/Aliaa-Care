@@ -40,7 +40,10 @@ export function usePromotions() {
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data || []).map((d: any) => ({ ...d, tier_rules: d.tier_rules as TierRule[] | null })) as Promotion[];
+      return (data || []).map((d) => ({ 
+        ...d, 
+        tier_rules: d.tier_rules as unknown as TierRule[] | null 
+      })) as Promotion[];
     },
   });
 }
@@ -57,8 +60,8 @@ export function useActivePromotions() {
       if (promo.target_type === "all") applies = true;
       else if (promo.target_type === "specific_products" && promo.product_ids?.includes(productId)) applies = true;
       else if (promo.target_type === "specific_categories" && promo.category_ids?.some(cid => categoryIds.includes(cid))) applies = true;
-      if (applies && promo.discount_percent > maxDiscount) {
-        maxDiscount = promo.discount_percent;
+      if (applies && (promo.discount_percent || 0) > maxDiscount) {
+        maxDiscount = promo.discount_percent || 0;
       }
     }
     return maxDiscount;
@@ -101,7 +104,7 @@ export function useCreatePromotion() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: Omit<Promotion, "id" | "created_at">) => {
-      const { error } = await supabase.from("promotions").insert(input as any);
+      const { error } = await supabase.from("promotions").insert(input as unknown as Promotion);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["promotions"] }),
@@ -112,7 +115,7 @@ export function useUpdatePromotion() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Promotion> & { id: string }) => {
-      const { error } = await supabase.from("promotions").update(updates as any).eq("id", id);
+      const { error } = await supabase.from("promotions").update(updates as unknown as Partial<Promotion>).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["promotions"] }),
