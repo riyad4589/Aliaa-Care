@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Layout } from "@/components/Layout";
+
 import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
   return (
-    <Layout>
+    <>
       <section className="py-20 md:py-28">
         <div className="container-narrow text-center">
           <motion.div
@@ -31,8 +31,9 @@ const NotFound = () => {
           </motion.div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 };
 
 export default NotFound;
+

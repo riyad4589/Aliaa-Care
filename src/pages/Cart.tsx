@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, ShoppingBag, Trash2 } from "lucide-react";
-import { Layout } from "@/components/Layout";
+
 import { QuantitySelector } from "@/components/QuantitySelector";
 import { useCart } from "@/hooks/useCart";
 import { useActivePromotions } from "@/hooks/usePromotions";
@@ -22,7 +22,7 @@ const Cart = () => {
 
   if (items.length === 0) {
     return (
-      <Layout>
+      <>
         <div className="container-narrow py-28 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <ShoppingBag className="w-16 h-16 mx-auto mb-6 text-muted-foreground/30" />
@@ -33,12 +33,12 @@ const Cart = () => {
             </Button>
           </motion.div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout>
+    <>
       <div className="container-full py-6 border-b border-border">
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <Link to="/products" className="hover:text-foreground transition-colors">{t("common.shop")}</Link>
@@ -132,8 +132,9 @@ const Cart = () => {
           </div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 };
 
 export default Cart;
+

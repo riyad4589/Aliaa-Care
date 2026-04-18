@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ArrowRight } from "lucide-react";
-import { Layout } from "@/components/Layout";
+
 import { Button } from "@/components/ui/button";
 import { useT } from "@/hooks/useT";
 import coffretImg from "@/assets/coffret-aliaa.jpeg";
@@ -16,7 +16,7 @@ const About = () => {
   const heroImageY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
 
   return (
-    <Layout>
+    <>
       <section ref={heroRef} className="relative h-[80vh] md:h-screen overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: heroImageY }}>
           <img src={coffretImg} alt="ALIAA Natural Care" className="w-full h-[120%] object-cover" />
@@ -138,8 +138,9 @@ const About = () => {
           </motion.div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 };
 
 export default About;
+

@@ -13,7 +13,7 @@ import {
   ShoppingBag,
   ArrowRight
 } from "lucide-react";
-import { Layout } from "@/components/Layout";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTrackOrder } from "@/hooks/useOrders";
@@ -42,7 +42,7 @@ const TrackOrder = () => {
   };
 
   return (
-    <Layout>
+    <>
       <section className="py-20 md:py-32 relative overflow-hidden">
         {/* Background Decorative Elements */}
         <div className="absolute top-0 left-0 w-full h-full -z-10 pointer-events-none">
@@ -253,8 +253,9 @@ const TrackOrder = () => {
           </div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 };
 
 export default TrackOrder;
+

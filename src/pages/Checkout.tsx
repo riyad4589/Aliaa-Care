@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, AlertCircle, Tag, Check, X, Loader2 } from "lucide-react";
-import { Layout } from "@/components/Layout";
+
 import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,7 +70,7 @@ const Checkout = () => {
 
   if (items.length === 0) {
     return (
-      <Layout>
+      <>
         <div className="container-narrow py-28 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <h1 className="font-serif text-4xl mb-4">{t("checkout.noItems")}</h1>
@@ -80,7 +80,7 @@ const Checkout = () => {
             </Button>
           </motion.div>
         </div>
-      </Layout>
+      </>
     );
   }
 
@@ -161,7 +161,7 @@ const Checkout = () => {
   };
 
   return (
-    <Layout>
+    <>
       <div className="container-full py-6 border-b border-border">
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <Link to="/cart" className="hover:text-foreground transition-colors">{t("cart.yourCart")}</Link>
@@ -340,8 +340,9 @@ const Checkout = () => {
           </div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 };
 
 export default Checkout;
+

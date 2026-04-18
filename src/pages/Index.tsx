@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, ArrowDown, Instagram, Leaf, Heart, Sparkles } from "lucide-react";
 import { useRef } from "react";
-import { Layout } from "@/components/Layout";
+
 import { ProductCard } from "@/components/ProductCard";
 import { CollectionCard } from "@/components/CollectionCard";
 import { useClientProducts } from "@/hooks/useClientProducts";
@@ -34,7 +34,7 @@ const Index = () => {
   const finalImages = displayImages.length > 0 ? displayImages : [coffretImg, gommageCorpsImg, eauDeRoseImg];
 
   return (
-    <Layout>
+    <>
       {banner.enabled && (
         <div className="bg-primary text-primary-foreground text-center py-2.5 text-sm tracking-wide">{banner.message}</div>
       )}
@@ -241,8 +241,9 @@ const Index = () => {
           </div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 };
 
 export default Index;
+

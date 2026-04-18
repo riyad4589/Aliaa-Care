@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Package, ShoppingBag, ArrowLeft, MessageSquare, Heart } from "lucide-react";
-import { Layout } from "@/components/Layout";
+
 import { usePacks } from "@/hooks/usePacks";
 import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
@@ -32,20 +32,20 @@ const PackDetail = () => {
 
   if (isLoading) {
     return (
-      <Layout>
+      <>
         <div className="container-wide py-28 text-center">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-muted rounded w-1/3 mx-auto" />
             <div className="h-4 bg-muted rounded w-1/2 mx-auto" />
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   if (!pack) {
     return (
-      <Layout>
+      <>
         <div className="container-wide py-28 text-center">
           <h1 className="font-serif text-4xl mb-4">{t("pack.notFound")}</h1>
           <p className="text-muted-foreground mb-8">{t("pack.notFoundDesc")}</p>
@@ -53,7 +53,7 @@ const PackDetail = () => {
             <Link to="/products">{t("index.viewAllProducts")}</Link>
           </Button>
         </div>
-      </Layout>
+      </>
     );
   }
 
@@ -101,7 +101,7 @@ const PackDetail = () => {
   };
 
   return (
-    <Layout>
+    <>
       <div className="container-wide pt-6 pb-2">
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-4 h-4" />{t("pack.backHome")}
@@ -189,8 +189,9 @@ const PackDetail = () => {
           </motion.div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 };
 
 export default PackDetail;
+
