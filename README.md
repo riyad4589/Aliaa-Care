@@ -50,6 +50,7 @@ Aliaa-Care est une application e-commerce moderne et sophistiquée dédiée au b
 
 ## 📦 Installation et Configuration
 
+
 ### 1. Prérequis
 - Node.js (v18+) ou Bun
 - Un projet Supabase actif
