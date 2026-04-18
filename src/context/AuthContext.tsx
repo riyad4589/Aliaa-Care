@@ -37,35 +37,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let mounted = true;
 
-    // Single source of truth: onAuthStateChange handles everything
-    // including INITIAL_SESSION on page refresh
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // Step 1: Initialize from localStorage immediately (no network, no lock)
+    const initialize = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!mounted) return;
+
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setIsLoading(false);
+        }
+      } catch {
+        if (mounted) setIsLoading(false);
+      }
+    };
+
+    initialize();
+
+    // Step 2: Listen only for actual auth changes (login, logout, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
 
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        // Handles INITIAL_SESSION (refresh), SIGNED_IN, TOKEN_REFRESHED
-        await fetchProfile(session.user.id);
-      } else {
-        // No session: user is not logged in
+      if (event === 'SIGNED_IN') {
+        setSession(session);
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          fetchProfile(session.user.id);
+        }
+      } else if (event === 'SIGNED_OUT') {
         setProfile(null);
+        setUser(null);
+        setSession(null);
         setIsLoading(false);
+      } else if (event === 'TOKEN_REFRESHED') {
+        setSession(session);
       }
     });
 
-    // Fail-safe: if onAuthStateChange never fires (unlikely but possible)
-    const timeoutId = setTimeout(() => {
-      if (mounted && loadingRef.current) {
-        console.warn("Auth initialization timed out.");
-        setIsLoading(false);
-      }
-    }, 5000);
-
     return () => {
       mounted = false;
-      clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);
