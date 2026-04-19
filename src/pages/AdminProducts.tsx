@@ -433,11 +433,26 @@ const AdminProducts = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium mb-1.5 block">Prix (DH) *</label>
-                      <Input type="number" value={editingProduct.price} onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })} />
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        step="any"
+                        placeholder="0"
+                        value={editingProduct.price} 
+                        onChange={(e) => setEditingProduct({ ...editingProduct, price: Math.max(0, Number(e.target.value)) })}
+                        onKeyDown={(e) => ["e", "E", "+", "-"].includes(e.key) && e.preventDefault()}
+                      />
                     </div>
                     <div>
                       <label className="text-sm font-medium mb-1.5 block">Stock</label>
-                      <Input type="number" value={editingProduct.stock} onChange={(e) => setEditingProduct({ ...editingProduct, stock: Number(e.target.value) })} />
+                      <Input 
+                        type="number" 
+                        min="0"
+                        placeholder="0"
+                        value={editingProduct.stock} 
+                        onChange={(e) => setEditingProduct({ ...editingProduct, stock: Math.max(0, Math.floor(Number(e.target.value))) })}
+                        onKeyDown={(e) => ["e", "E", "+", "-", ".", ","].includes(e.key) && e.preventDefault()}
+                      />
                     </div>
                   </div>
 

@@ -210,8 +210,8 @@ const Checkout = () => {
                       <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} required className="rounded-none h-12" />
                     </div>
                     <div>
-                      <label htmlFor="phone" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.phone")}</label>
-                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} className="rounded-none h-12" />
+                      <label htmlFor="phone" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.phone")} *</label>
+                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} required className="rounded-none h-12" />
                     </div>
                   </div>
                 </div>

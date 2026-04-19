@@ -291,11 +291,26 @@ const AdminPackaging = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Coût (DH)</label>
-                    <Input type="number" min={0} step="0.01" value={form.cost_price} onChange={(e) => setForm({ ...form, cost_price: Number(e.target.value) })} />
+                    <Input 
+                      type="number" 
+                      min={0} 
+                      step="any" 
+                      placeholder="0"
+                      value={form.cost_price} 
+                      onChange={(e) => setForm({ ...form, cost_price: Math.max(0, Number(e.target.value)) })}
+                      onKeyDown={(e) => ["e", "E", "+", "-"].includes(e.key) && e.preventDefault()}
+                    />
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Stock actuel</label>
-                    <Input type="number" min={0} value={form.stock} onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })} />
+                    <Input 
+                      type="number" 
+                      min={0} 
+                      placeholder="0"
+                      value={form.stock} 
+                      onChange={(e) => setForm({ ...form, stock: Math.max(0, Math.floor(Number(e.target.value))) })}
+                      onKeyDown={(e) => ["e", "E", "+", "-", ".", ","].includes(e.key) && e.preventDefault()}
+                    />
                   </div>
                 </div>
 

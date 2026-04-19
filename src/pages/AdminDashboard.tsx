@@ -12,18 +12,7 @@ import {
   AlertTriangle,
   Clock
 } from "lucide-react";
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  Cell
-} from "recharts";
+
 import { Badge } from "@/components/ui/badge";
 
 const AdminDashboard = () => {
@@ -34,24 +23,7 @@ const AdminDashboard = () => {
   const totalRevenue = confirmedOrders.reduce((acc, o) => acc + o.total, 0);
   const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
   
-  // Calculate revenue by month (last 6 months)
-  const last6Months = Array.from({ length: 6 }, (_, i) => {
-    const d = new Date();
-    d.setMonth(d.getMonth() - (5 - i));
-    return d.toLocaleString('fr-FR', { month: 'short' });
-  });
 
-  const revenueData = last6Months.map(month => {
-    const monthOrders = confirmedOrders.filter(o => {
-      const orderDate = new Date(o.created_at);
-      return orderDate.toLocaleString('fr-FR', { month: 'short' }) === month;
-    });
-    return {
-      name: month,
-      revenue: monthOrders.reduce((acc, o) => acc + o.total, 0),
-      orders: monthOrders.length
-    };
-  });
 
   // Top products (most sold in confirmed orders)
   const productSales: Record<string, number> = {};
@@ -152,54 +124,11 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
-          {/* Main Chart */}
-          <Card className="lg:col-span-4 border-border/40 bg-card/50 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-primary" />
-                Performance des Ventes (6 derniers mois)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={revenueData}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                    <XAxis 
-                      dataKey="name" 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fontSize: 12, fill: '#64748B' }}
-                      dy={10}
-                    />
-                    <YAxis 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fontSize: 12, fill: '#64748B' }}
-                      tickFormatter={(value) => `${value} DH`}
-                    />
-                    <Tooltip 
-                      cursor={{ fill: 'rgba(var(--primary), 0.05)' }}
-                      contentStyle={{ 
-                        borderRadius: '12px', 
-                        border: '1px solid #E2E8F0',
-                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-                      }}
-                    />
-                    <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={40}>
-                      {revenueData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fillOpacity={0.8 + (index * 0.04)} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 gap-6">
+
 
           {/* Top Products */}
-          <Card className="lg:col-span-3 border-border/40 bg-card/50 backdrop-blur-sm">
+          <Card className="border-border/40 bg-card/50 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <Package className="h-4 w-4 text-primary" />
