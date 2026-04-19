@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/utils/imageCompression";
 
 export interface DbProduct {
   id: string;
@@ -165,9 +166,12 @@ export function useToggleProductActive() {
 }
 
 export async function uploadProductImage(file: File): Promise<string> {
-  const ext = file.name.split(".").pop();
-  const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const { error } = await supabase.storage.from("product-images").upload(path, file);
+  // Compress image before upload (max 300KB, 1200px, WebP format)
+  const compressed = await compressImage(file);
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+  const { error } = await supabase.storage.from("product-images").upload(path, compressed, {
+    contentType: "image/webp",
+  });
   if (error) throw error;
   const { data } = supabase.storage.from("product-images").getPublicUrl(path);
   return data.publicUrl;

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Plus, Pencil, Trash2, FolderOpen, Loader2, Search, X, AlertTriangle, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/utils/imageCompression";
 
 const AdminCategories = () => {
   const { data: categories = [], isLoading } = useCategories();
@@ -53,12 +54,17 @@ const AdminCategories = () => {
     if (!file || !editing) return;
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop();
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage.from("category-images").upload(path, file);
+      // Compress image before upload (max 300KB, 1200px, WebP)
+      const compressed = await compressImage(file);
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+      const { error } = await supabase.storage.from("category-images").upload(path, compressed, {
+        contentType: "image/webp",
+      });
       if (error) {
         // Fallback to product-images if category-images doesn't exist
-        const { error: err2 } = await supabase.storage.from("product-images").upload(path, file);
+        const { error: err2 } = await supabase.storage.from("product-images").upload(path, compressed, {
+          contentType: "image/webp",
+        });
         if (err2) throw err2;
         const { data } = supabase.storage.from("product-images").getPublicUrl(path);
         setEditing({ ...editing, image: data.publicUrl });

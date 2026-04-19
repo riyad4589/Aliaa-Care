@@ -25,8 +25,8 @@ serve(async (req) => {
 
     if (orderId && action) {
       const newStatus = action === "OUI" ? "confirmed" : "cancelled";
-      
-      const { data: order, error: updateError } = await supabase
+
+      await supabase
         .from("orders")
         .update({ status: newStatus })
         .eq("id", orderId)
@@ -34,8 +34,8 @@ serve(async (req) => {
         .single();
 
       const title = action === "OUI" ? "Commande Confirmée" : "Commande Annulée";
-      const message = action === "OUI" 
-        ? "Merci ! Votre commande est maintenant en cours de préparation." 
+      const message = action === "OUI"
+        ? "Merci ! Votre commande est maintenant en cours de préparation."
         : "Votre commande a bien été annulée. À bientôt !";
       const icon = action === "OUI" ? "✅" : "❌";
 
@@ -77,25 +77,18 @@ serve(async (req) => {
     console.log("UltraMsg Webhook received:", JSON.stringify(payload));
 
     // UltraMsg envoie souvent les données dans payload.data
-    // format: { event_type: "message_received", data: { from: "...", body: "...", ... } }
     const data = payload.data || payload;
     const body = (data.body || "").trim().toUpperCase();
     const from = data.from || ""; // Format: 212600000000@c.us
-    
-    // Extraire le numéro de téléphone sans le @c.us
-    const phone = from.split("@")[0]; 
 
-    // Pour correspondre au stockage (souvent 06... ou 2126...), on normalise
+    // Extraire le numéro de téléphone sans le @c.us
+    const phone = from.split("@")[0];
+
     // On va chercher les commandes qui finissent par ce numéro
     const last9Digits = phone.slice(-9);
 
     if (body === "OUI" || body === "NON" || body === "OUI." || body === "NON.") {
       const cleanBody = body.replace(".", "");
-      
-      const supabase = createClient(
-        Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-      );
 
       console.log(`Searching order for phone suffix: ${last9Digits}`);
 
@@ -108,8 +101,8 @@ serve(async (req) => {
 
       if (orderError) throw orderError;
 
-      // 2. Trouver la correspondance manuellement sur les 9 derniers chiffres (plus robuste que ilike)
-      const order = (allPendingOrders || []).find(o => {
+      // 2. Trouver la correspondance manuellement sur les 9 derniers chiffres
+      const order = (allPendingOrders || []).find((o) => {
         const cleanDbPhone = (o.customer_phone || "").replace(/\D/g, "");
         return cleanDbPhone.endsWith(last9Digits);
       });
@@ -127,7 +120,7 @@ serve(async (req) => {
         if (updateError) throw updateError;
 
         // 4. Envoyer une confirmation par WhatsApp
-        const responseMsg = cleanBody === "OUI" 
+        const responseMsg = cleanBody === "OUI"
           ? `Merci *${order.customer_name}* ! Votre commande *#${order.order_number}* est maintenant *confirmée* et en cours de préparation. ✨`
           : `Votre commande *#${order.order_number}* a bien été *annulée*. À bientôt chez ALIAA Natural Care. 🌿`;
 
@@ -136,13 +129,13 @@ serve(async (req) => {
         params.append("token", ULTRAMSG_TOKEN || "");
         params.append("to", from);
         params.append("body", responseMsg);
-        
-        await fetch(ultraMsgUrl, { 
-          method: "POST", 
+
+        await fetch(ultraMsgUrl, {
+          method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: params.toString() 
+          body: params.toString(),
         });
-        
+
         console.log(`Order ${order.order_number} updated to ${newStatus}`);
       } else {
         console.log(`No pending order found matching suffix ${last9Digits} among ${allPendingOrders?.length || 0} pending orders.`);
@@ -158,7 +151,7 @@ serve(async (req) => {
     console.error("Webhook Error:", message);
     return new Response(JSON.stringify({ error: message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200, // On retourne 200 pour que UltraMsg ne réessaie pas indéfiniment en cas d'erreur de logique
+      status: 200, // 200 pour que UltraMsg ne réessaie pas indéfiniment
     });
   }
 });

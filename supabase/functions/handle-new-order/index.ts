@@ -62,7 +62,7 @@ serve(async (req) => {
       `_L'équipe ALIAA vous remercie pour votre confiance !_`;
 
     // Formatage du numéro de téléphone
-    const phone = order.customer_phone || ""; 
+    const phone = order.customer_phone || "";
     let cleanedPhone = phone.replace(/\D/g, "");
     if (cleanedPhone.startsWith("0")) cleanedPhone = "212" + cleanedPhone.substring(1);
     if (cleanedPhone.length === 9) cleanedPhone = "212" + cleanedPhone;

@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Plus, Pencil, Trash2, Package, AlertTriangle, Loader2, Upload, AlertCircle, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/utils/imageCompression";
 
 const LOW_STOCK_THRESHOLD = 5;
 
@@ -50,9 +51,12 @@ const AdminPackaging = () => {
   const handleImageUpload = async (file: File) => {
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop();
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage.from("packaging-images").upload(path, file);
+      // Compress image before upload (max 300KB, 1200px, WebP)
+      const compressed = await compressImage(file);
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+      const { error } = await supabase.storage.from("packaging-images").upload(path, compressed, {
+        contentType: "image/webp",
+      });
       if (error) throw error;
       const { data } = supabase.storage.from("packaging-images").getPublicUrl(path);
       setForm(f => ({ ...f, image: data.publicUrl }));

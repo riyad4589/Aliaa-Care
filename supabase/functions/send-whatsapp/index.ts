@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-// Token is read server-side — never exposed to the client bundle
+// UltraMsg credentials — set via Supabase dashboard → Edge Function secrets
+// Never expose these in the client bundle (no VITE_ prefix)
 const ULTRAMSG_INSTANCE_ID = Deno.env.get("ULTRAMSG_INSTANCE_ID");
 const ULTRAMSG_TOKEN = Deno.env.get("ULTRAMSG_TOKEN");
 
@@ -24,8 +25,12 @@ interface OrderData {
   address: string;
 }
 
+/**
+ * Proxy Edge Function: called by the client (via supabase.functions.invoke)
+ * to send a WhatsApp button message via UltraMsg.
+ * The token stays server-side — never in the client JS bundle.
+ */
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
