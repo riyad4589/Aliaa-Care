@@ -3,7 +3,7 @@ import autoTable from "jspdf-autotable";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { DbOrder } from "@/hooks/useOrders";
-import logoImg from "@/assets/aaliacare-logo.jpeg";
+import logoImg from "@/assets/LOGOWEB.png";
 
 const formatCurrency = (amount: number) => {
   return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " DH";

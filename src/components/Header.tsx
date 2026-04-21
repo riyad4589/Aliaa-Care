@@ -8,7 +8,8 @@ import { CartIcon } from "@/components/CartIcon";
 import { useClientProducts } from "@/hooks/useClientProducts";
 import { useT } from "@/hooks/useT";
 import { useLanguage, Language } from "@/hooks/useLanguage";
-import logoImg from "@/assets/aaliacare-logo.jpeg";
+import logoImg from "@/assets/LOGOWEB.png";
+import typoImg from "@/assets/TYPO02 PNG.png";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -77,8 +78,8 @@ export const Header = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-300">
-            <img src={logoImg} alt="ALIAA Natural Care" className="h-10 md:h-12 w-auto rounded-full" />
-            <span className="font-serif text-xl md:text-2xl tracking-tight text-foreground">ALIAA CARE</span>
+            {/* <img src={logoImg} alt="ALIAA Natural Care" className="h-10 md:h-12 w-auto" /> */}
+            <img src={typoImg} alt="ALIAA CARE" className="h-12 md:h-40 w-auto" />
           </Link>
 
           {/* Desktop Navigation */}
