@@ -1,7 +1,5 @@
 /**
  * Service pour gérer l'envoi de messages WhatsApp via WAHA
- * NOTE: All WhatsApp API calls are proxied through the Supabase Edge Function
- *       `send-whatsapp`. The API key is NEVER exposed in the client bundle.
  */
 
 import { supabase } from "@/integrations/supabase/client";
@@ -21,45 +19,72 @@ export interface OrderData {
   address: string;
 }
 
-/**
- * Formate le numéro de téléphone pour le format international (ex: 2126...)
- */
-export const formatPhoneNumber = (phone: string): string => {
-  let cleaned = phone.replace(/\D/g, "");
-  // Si le numéro commence par 0, on le remplace par l'indicatif 212
-  if (cleaned.startsWith("0")) {
-    cleaned = "212" + cleaned.substring(1);
+const translations = {
+  fr: {
+    title: "*Nouvelle commande chez ALIAA Natural Care* 🌿",
+    greeting: "Bonjour",
+    thanks: "Merci pour votre commande",
+    details: "*Détails :*",
+    total: "Total :",
+    address: "Adresse :",
+    footer: "Votre commande est en cours de traitement. Nous vous contacterons bientôt pour la livraison.",
+    flavors: "Goûts :",
+  },
+  ar: {
+    title: "*طلب جديد من ALIAA Natural Care* 🌿",
+    greeting: "مرحباً",
+    thanks: "شكراً لطلبك",
+    details: "*التفاصيل:*",
+    total: "المجموع:",
+    address: "العنوان:",
+    footer: "طلبك قيد المعالجة. سنتصل بك قريباً بخصوص التوصيل.",
+    flavors: "النكهات:",
+  },
+  en: {
+    title: "*New order at ALIAA Natural Care* 🌿",
+    greeting: "Hello",
+    thanks: "Thank you for your order",
+    details: "*Details:*",
+    total: "Total:",
+    address: "Address:",
+    footer: "Your order is being processed. We will contact you soon for delivery.",
+    flavors: "Flavors:",
   }
-  // Si le numéro ne contient pas l'indicatif, on l'ajoute par défaut pour le Maroc
-  if (cleaned.length === 9) {
-    cleaned = "212" + cleaned;
-  }
-  return cleaned;
 };
 
-/**
- * Envoie un message de confirmation de commande.
- * Delegated to the `send-whatsapp` Supabase Edge Function so the WAHA
- * credentials stay server-side and are never embedded in the client JS bundle.
- */
 export const sendOrderWhatsAppNotification = async (
   order: OrderData,
   items: OrderItem[],
   language: string = "fr"
 ) => {
+  const t = translations[language as keyof typeof translations] || translations.fr;
+  
+  const itemsList = items
+    .map((item) => {
+      let text = `• ${item.quantity}x ${item.product_name} (${item.unit_price} DH)`;
+      if (item.selected_flavors && item.selected_flavors.length > 0) {
+        text += `\n  _${t.flavors} ${item.selected_flavors.join(", ")}_`;
+      }
+      return text;
+    })
+    .join("\n");
+
+  const message =
+    `${t.title}\n\n` +
+    `${t.greeting} ${order.customerName},\n` +
+    `${t.thanks} *#${order.order_number}*.\n\n` +
+    `${t.details}\n${itemsList}\n\n` +
+    `💰 *${t.total} ${order.total.toLocaleString()} DH*\n` +
+    `📍 *${t.address}* ${order.address}\n\n` +
+    `${t.footer}`;
+
   const { data, error } = await supabase.functions.invoke("send-whatsapp", {
-    body: { order, items, language },
+    body: { 
+      phone: order.phone,
+      message: message
+    },
   });
 
-  if (error) {
-    console.error("Error sending WhatsApp notification via Edge Function:", error);
-    throw error;
-  }
-
-  // WAHA returns the message object or success status
-  if (data) {
-    console.log("WhatsApp message sent successfully via WAHA");
-  }
-
+  if (error) throw error;
   return data;
 };
