@@ -19,15 +19,11 @@ const items = [
   { title: "Catégories", url: "/admin/categories", icon: FolderOpen },
   { title: "Produits", url: "/admin/products", icon: Package },
   { title: "Packs", url: "/admin/packs", icon: Gift },
-  // { title: "Codes Promo", url: "/admin/promo-codes", icon: Tag },
-  // { title: "Promotions", url: "/admin/promotions", icon: Megaphone },
   { title: "Commandes", url: "/admin/orders", icon: ShoppingCart },
-  // { title: "Emballages", url: "/admin/packaging", icon: BoxSelect },
-  // { title: "Finances", url: "/admin/finances", icon: TrendingUp },
 ];
 
 export function AdminSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
   const navigate = useNavigate();
@@ -49,7 +45,7 @@ export function AdminSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild onClick={() => setOpenMobile(false)}>
                     <Link
                       to={item.url}
                       className={cn(
@@ -66,7 +62,7 @@ export function AdminSidebar() {
                 </SidebarMenuItem>
               ))}
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild onClick={() => setOpenMobile(false)}>
                   <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-md text-muted-foreground hover:bg-muted/50 mt-4">
                     <ArrowLeft className="h-4 w-4 shrink-0" />
                     {!collapsed && <span>Retour au site</span>}
