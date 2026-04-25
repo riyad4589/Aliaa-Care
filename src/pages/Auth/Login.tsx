@@ -33,11 +33,6 @@ const Login = () => {
           description: error.message,
         });
       } else if (data.user) {
-        toast({
-          title: "Connexion réussie",
-          description: "Bienvenue sur votre espace ALIAA Care.",
-        });
-        
         // Fetch role to verify admin status
         const { data: profile, error: profileError } = await supabase
           .from("profiles")

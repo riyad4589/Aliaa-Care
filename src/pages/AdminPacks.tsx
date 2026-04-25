@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 import { usePacks, useAddPack, useUpdatePack, useDeletePack, useBulkDeletePacks, useTogglePackActive, DbPack } from "@/hooks/usePacks";
 import { useProducts } from "@/hooks/useProducts";
+import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/utils/imageCompression";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -19,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Package, Loader2, Search, X, AlertTriangle } from "lucide-react";
+import { Plus, Pencil, Trash2, Package, Loader2, Search, X, AlertTriangle, Upload, ImageIcon } from "lucide-react";
 
 interface EditingPack {
   id?: string;
@@ -55,6 +57,8 @@ const AdminPacks = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [packToDelete, setPackToDelete] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = packs.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -310,21 +314,79 @@ const AdminPacks = () => {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium mb-1.5 block">Image du pack (URL)</label>
-                    <Input 
-                      value={editing.image} 
-                      onChange={(e) => setEditing({ ...editing, image: e.target.value })} 
-                      placeholder="https://exemple.com/image.jpg" 
+                    <label className="text-sm font-medium mb-1.5 block">Image du pack</label>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setUploading(true);
+                        try {
+                          const compressed = await compressImage(file);
+                          const path = `packs/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+                          const { error } = await supabase.storage.from("product-images").upload(path, compressed, {
+                            contentType: "image/webp",
+                          });
+                          if (error) throw error;
+                          const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+                          setEditing({ ...editing, image: data.publicUrl });
+                          toast({ title: "Image uploadée" });
+                        } catch (err) {
+                          toast({ title: "Erreur", description: "Impossible d'uploader l'image", variant: "destructive" });
+                        } finally {
+                          setUploading(false);
+                          if (fileInputRef.current) fileInputRef.current.value = "";
+                        }
+                      }}
                     />
-                    {editing.image && editing.image !== "/placeholder.svg" && (
-                      <div className="mt-2 relative w-full h-40 rounded-lg overflow-hidden border border-border bg-muted/10">
+                    {editing.image && editing.image !== "/placeholder.svg" ? (
+                      <div className="relative w-full h-40 rounded-lg overflow-hidden border border-border bg-muted/10 group">
                         <img 
                           src={editing.image} 
                           alt="Aperçu" 
                           className="w-full h-full object-cover"
                           onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
                         />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            disabled={uploading}
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                            Changer
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => setEditing({ ...editing, image: "/placeholder.svg" })}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={uploading}
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full h-40 rounded-lg border-2 border-dashed border-border hover:border-primary/50 bg-muted/10 hover:bg-muted/20 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground"
+                      >
+                        {uploading ? (
+                          <Loader2 className="w-6 h-6 animate-spin" />
+                        ) : (
+                          <>
+                            <ImageIcon className="w-8 h-8" />
+                            <span className="text-sm">Cliquez pour ajouter une image</span>
+                          </>
+                        )}
+                      </button>
                     )}
                   </div>
 
