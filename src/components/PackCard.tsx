@@ -24,7 +24,8 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
 
   const totalValue = pack.items.reduce((sum, item) => sum + (item.product_price || 0) * item.quantity, 0);
   const savings = totalValue - pack.price;
-  const firstImage = pack.items[0]?.product_image || pack.image;
+  const hasPackImage = pack.image && pack.image !== "/placeholder.svg";
+  const firstProductImage = pack.items[0]?.product_image || "/placeholder.svg";
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -39,7 +40,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
       description: pack.description,
       longDescription: pack.long_description,
       materials: "",
-      images: [firstImage],
+      images: [hasPackImage ? pack.image : firstProductImage],
     });
     toast({ title: t("pack.addedToCart"), description: pack.name });
   };
@@ -60,7 +61,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
         description: pack.description,
         longDescription: pack.long_description,
         materials: "",
-        images: [firstImage],
+        images: [hasPackImage ? pack.image : firstProductImage],
       } as Product);
       toast({ title: t("productDetail.addedToFavorites"), description: pack.name });
     }
@@ -75,9 +76,15 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
       transition={{ duration: 0.7, delay: index * 0.1 }}
       className="group border border-border rounded-lg overflow-hidden bg-background hover:shadow-lg transition-shadow duration-500 cursor-pointer"
     >
-      {/* Product images grid */}
+      {/* Pack image */}
       <div className="relative aspect-video bg-muted/30 overflow-hidden">
-        {pack.items.length >= 3 ? (
+        {hasPackImage ? (
+          <img
+            src={pack.image}
+            alt={pack.name}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : pack.items.length >= 3 ? (
           <div className="grid grid-cols-2 grid-rows-2 h-full gap-0.5">
             {pack.items.slice(0, 4).map((item, i) => (
               <img
@@ -90,7 +97,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
           </div>
         ) : (
           <img
-            src={firstImage}
+            src={firstProductImage}
             alt={pack.name}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />

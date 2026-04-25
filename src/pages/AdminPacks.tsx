@@ -133,11 +133,14 @@ const AdminPacks = () => {
 
   const openNew = () => { setEditing({ ...emptyPack }); setDialogOpen(true); };
   const openEdit = (p: DbPack) => {
+    console.log("Opening pack for edit:", p.name, "items:", p.items);
+    const productIds = (p.items || []).map((i) => i.product_id).filter(Boolean);
+    console.log("Extracted product_ids:", productIds);
     setEditing({
       id: p.id, name: p.name, slug: p.slug, description: p.description,
       long_description: p.long_description, price: p.price, image: p.image,
       active: p.active, featured: p.featured,
-      product_ids: p.items.map((i) => i.product_id),
+      product_ids: productIds,
     });
     setDialogOpen(true);
   };
