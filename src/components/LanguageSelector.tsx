@@ -11,7 +11,7 @@ const languages: { code: Language; label: string; native: string; flag: string }
 export const LanguageSelector = () => {
   const { hasChosen, setLanguage } = useLanguage();
 
-  if (hasChosen) return null;
+  if (hasChosen || window.location.hostname === "admin.riyadmaj.online") return null;
 
   const handleSelect = (lang: Language) => {
     setLanguage(lang);
