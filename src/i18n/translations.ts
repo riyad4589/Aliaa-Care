@@ -34,6 +34,7 @@ const translations = {
   "common.trackOrder": { fr: "Suivre ma commande", en: "Track my order", ar: "تتبع طلبي" },
   "common.unavailable": { fr: "Indisponible", en: "Unavailable", ar: "غير متوفر" },
   "common.outOfStockShort": { fr: "Rupture", en: "OOS", ar: "نفذ" },
+  "common.help": { fr: "Aide", en: "Help", ar: "مساعدة" },
 
   // Header
   "header.wishlistEmpty": { fr: "Votre liste de souhaits est vide", en: "Your wishlist is empty", ar: "قائمة أمنياتك فارغة" },

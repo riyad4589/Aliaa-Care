@@ -16,14 +16,14 @@ import { cn } from "@/lib/utils";
 
 const items = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "Produits", url: "/admin/products", icon: Package },
   { title: "Catégories", url: "/admin/categories", icon: FolderOpen },
+  { title: "Produits", url: "/admin/products", icon: Package },
   { title: "Packs", url: "/admin/packs", icon: Gift },
-  { title: "Codes Promo", url: "/admin/promo-codes", icon: Tag },
-  { title: "Promotions", url: "/admin/promotions", icon: Megaphone },
+  // { title: "Codes Promo", url: "/admin/promo-codes", icon: Tag },
+  // { title: "Promotions", url: "/admin/promotions", icon: Megaphone },
   { title: "Commandes", url: "/admin/orders", icon: ShoppingCart },
-  { title: "Emballages", url: "/admin/packaging", icon: BoxSelect },
-  { title: "Finances", url: "/admin/finances", icon: TrendingUp },
+  // { title: "Emballages", url: "/admin/packaging", icon: BoxSelect },
+  // { title: "Finances", url: "/admin/finances", icon: TrendingUp },
 ];
 
 export function AdminSidebar() {
