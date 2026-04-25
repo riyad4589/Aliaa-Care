@@ -41,7 +41,13 @@ const AdminPackaging = lazy(() => import("./pages/AdminPackaging"));
 const AdminPromotions = lazy(() => import("./pages/AdminPromotions"));
 const AdminOrders = lazy(() => import("./pages/AdminOrders"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const HostnameRedirect = () => {
   const navigate = useNavigate();
