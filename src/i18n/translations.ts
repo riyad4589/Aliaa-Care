@@ -285,7 +285,6 @@ const translations = {
   "packs.noPacks": { fr: "Aucun pack", en: "No packs", ar: "لا توجد عروض" },
 
   // Footer
-  "footer.tagline": { fr: "Pure Plants, True Relief. Rituels naturels pour chaque femme.", en: "Pure Plants, True Relief. Natural rituals for every woman.", ar: "نباتات نقية، راحة حقيقية. طقوس طبيعية لكل امرأة." },
   "footer.explore": { fr: "Explorer", en: "Explore", ar: "استكشفي" },
   "footer.contact": { fr: "Contact", en: "Contact", ar: "اتصلي بنا" },
   "footer.schedule": { fr: "Lun–Ven, 9h–18h", en: "Mon–Fri, 9am–6pm", ar: "الإثنين–الجمعة، 9ص–6م" },

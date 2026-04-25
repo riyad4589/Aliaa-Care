@@ -18,9 +18,6 @@ export const Footer = () => {
           <Link to="/" className="mb-2 hover:opacity-80 transition-opacity">
             <img src={typoImg} alt="ALIAA" className="h-16 md:h-32 w-auto brightness-0 invert" />
           </Link>
-          <p className="text-[11px] text-white/50 max-w-sm mx-auto leading-relaxed italic">
-            {t("footer.tagline")}
-          </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 border-t border-white/5 pt-6">
