@@ -212,8 +212,15 @@ export const Header = () => {
                 <div className="space-y-1">
                   <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-muted-foreground/50 px-2 mb-3">{t("common.collections")}</p>
                   {collections.map((collection, i) => (
-                    <motion.div key={collection.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
-                      <Link to={`/products?collection=${collection.slug}`} className="block px-2 py-2.5 text-sm hover:bg-accent transition-colors duration-300" onClick={() => setMobileMenuOpen(false)}>
+                    <motion.div 
+                      key={collection.id} 
+                      initial={{ opacity: 0, x: -10 }} 
+                      animate={{ opacity: 1, x: 0 }} 
+                      transition={{ delay: i * 0.05 }}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="cursor-pointer"
+                    >
+                      <Link to={`/products?collection=${collection.slug}`} className="block px-2 py-2.5 text-sm hover:bg-accent transition-colors duration-300">
                         {collection.name}
                       </Link>
                     </motion.div>
@@ -227,8 +234,15 @@ export const Header = () => {
                     { to: "/about", label: t("common.ourStory") },
                     { to: "/cart", label: t("common.cart") },
                   ].map((link, i) => (
-                    <motion.div key={link.to} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.05 }}>
-                      <Link to={link.to} className="block px-2 py-2.5 text-sm font-medium hover:bg-accent transition-colors duration-300" onClick={() => setMobileMenuOpen(false)}>
+                    <motion.div 
+                      key={link.to} 
+                      initial={{ opacity: 0, x: -10 }} 
+                      animate={{ opacity: 1, x: 0 }} 
+                      transition={{ delay: 0.3 + i * 0.05 }}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="cursor-pointer"
+                    >
+                      <Link to={link.to} className="block px-2 py-2.5 text-sm font-medium hover:bg-accent transition-colors duration-300">
                         {link.label}
                       </Link>
                     </motion.div>
