@@ -213,57 +213,49 @@ export const Header = () => {
         </div>
 
         {/* Mobile Menu */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }} 
-              animate={{ opacity: 1, height: "auto" }} 
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const }} 
-              className="md:hidden border-t border-border overflow-hidden"
-            >
-              <div className="py-8 space-y-6">
-                <div className="space-y-1">
-                  <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-muted-foreground/50 px-2 mb-3">{t("common.collections")}</p>
-                  {collections.map((collection, i) => (
-                    <motion.div key={collection.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
-                      <button
-                        className="block w-full text-left px-2 py-2.5 text-sm hover:bg-accent transition-colors duration-300"
-                        onClick={() => {
-                          setMobileMenuOpen(false);
-                          navigate(`/products?collection=${collection.slug}`);
-                        }}
-                      >
-                        {collection.name}
-                      </button>
-                    </motion.div>
-                  ))}
-                </div>
-                <div className="pt-6 border-t border-border space-y-1">
-                  {[
-                    { to: "/products", label: t("common.shop") },
-                    { to: "/packs", label: t("common.ourPacks") },
-                    { to: "/track-order", label: t("common.trackOrder") },
-                    { to: "/about", label: t("common.ourStory") },
-                    { to: "/cart", label: t("common.cart") },
-                  ].map((link, i) => (
-                    <motion.div key={link.to} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.05 }}>
-                      <button
-                        className="block w-full text-left px-2 py-2.5 text-sm font-medium hover:bg-accent transition-colors duration-300"
-                        onClick={() => {
-                          setMobileMenuOpen(false);
-                          navigate(link.to);
-                        }}
-                      >
-                        {link.label}
-                      </button>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div 
+          className={`md:hidden border-t border-border overflow-hidden transition-all duration-300 ease-in-out ${
+            mobileMenuOpen ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="py-8 space-y-6">
+            <div className="space-y-1">
+              <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-muted-foreground/50 px-2 mb-3">{t("common.collections")}</p>
+              {collections.map((collection) => (
+                <button
+                  key={collection.id}
+                  className="block w-full text-left px-2 py-2.5 text-sm hover:bg-accent transition-colors duration-300"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate(`/products?collection=${collection.slug}`);
+                  }}
+                >
+                  {collection.name}
+                </button>
+              ))}
+            </div>
+            <div className="pt-6 border-t border-border space-y-1">
+              {[
+                { to: "/products", label: t("common.shop") },
+                { to: "/packs", label: t("common.ourPacks") },
+                { to: "/track-order", label: t("common.trackOrder") },
+                { to: "/about", label: t("common.ourStory") },
+                { to: "/cart", label: t("common.cart") },
+              ].map((link) => (
+                <button
+                  key={link.to}
+                  className="block w-full text-left px-2 py-2.5 text-sm font-medium hover:bg-accent transition-colors duration-300"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate(link.to);
+                  }}
+                >
+                  {link.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </nav>
     </header>
   );
