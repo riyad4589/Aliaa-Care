@@ -21,7 +21,7 @@ const Checkout = () => {
   const addOrder = useAddOrder();
   const validatePromo = useValidatePromoCode();
   const incrementUsage = useIncrementPromoUsage();
-  const { t } = useT();
+  const { t, lang } = useT();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
