@@ -111,7 +111,9 @@ export const generateInvoice = async (order: DbOrder) => {
 
     // Table
     const tableData = order.items.map(item => [
-      item.product_name,
+      item.selected_flavors && item.selected_flavors.length > 0 
+        ? `${item.product_name}\n(Goût(s): ${item.selected_flavors.join(", ")})` 
+        : item.product_name,
       formatCurrency(item.unit_price),
       item.quantity.toString(),
       formatCurrency(item.unit_price * item.quantity)

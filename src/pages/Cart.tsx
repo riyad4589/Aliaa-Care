@@ -62,14 +62,31 @@ const Cart = () => {
                     <Link to={`/product/${item.product.slug}`} className="w-28 h-32 md:w-36 md:h-44 flex-shrink-0 overflow-hidden bg-muted/30 group">
                       <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     </Link>
-                    <div className="flex-1 flex flex-col">
+                      <div className="flex-1 flex flex-col">
                       <div className="flex-1">
                         <Link to={`/product/${item.product.slug}`} className="font-serif text-lg md:text-xl hover:text-primary transition-colors">{item.product.name}</Link>
                         <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.product.description}</p>
+                        
+                        {item.selectedFlavors && item.selectedFlavors.length > 0 && (
+                          <div className="mt-2 space-y-1">
+                            <p className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground">Goût(s) sélectionné(s) :</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {item.selectedFlavors.map((flavor, i) => (
+                                <span key={i} className="text-[11px] px-2 py-0.5 bg-muted rounded-full">
+                                  {flavor}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
                         <p className="font-serif text-lg mt-3">{item.product.price.toLocaleString()} DH</p>
                       </div>
                       <div className="flex items-center justify-between mt-4">
-                        <QuantitySelector quantity={item.quantity} onQuantityChange={(qty) => updateQuantity(item.product.id, qty)} />
+                        <QuantitySelector 
+                          quantity={item.quantity} 
+                          onQuantityChange={(qty) => updateQuantity(item.product.id, qty)} 
+                        />
                         <button onClick={() => removeItem(item.product.id)} className="p-2 text-muted-foreground hover:text-destructive transition-colors">
                           <Trash2 className="w-5 h-5" />
                         </button>

@@ -37,6 +37,7 @@ export interface Product {
   images: string[];
   featured?: boolean;
   new?: boolean;
+  flavors?: string[];
 }
 
 export const collections: Collection[] = [

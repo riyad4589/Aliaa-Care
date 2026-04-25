@@ -12,6 +12,7 @@ import { useAddOrder } from "@/hooks/useOrders";
 import { useValidatePromoCode, useIncrementPromoUsage, PromoCode } from "@/hooks/usePromoCodes";
 import { useT } from "@/hooks/useT";
 import { sendOrderWhatsAppNotification } from "@/lib/whatsapp";
+import { cities, regions } from "@/data/maroc";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const Checkout = () => {
   const [promoError, setPromoError] = useState("");
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", email: "", phone: "",
-    address: "", city: "", postalCode: "", country: "Maroc", notes: "",
+    address: "", region: "", city: "", postalCode: "", country: "Maroc", notes: "",
   });
 
   const subtotal = getSubtotal();
@@ -66,7 +67,20 @@ const Checkout = () => {
 
   const discount = Math.round(getDiscount());
   const afterDiscount = Math.max(0, subtotal - discount);
-  const shipping = afterDiscount > 500 ? 0 : 25;
+  
+  // Calculate shipping based on selected region and city
+  const selectedRegion = regions.find(r => r.name === formData.region);
+  const selectedCity = cities.find(c => c.name === formData.city);
+  
+  let baseShipping = 45;
+  if (selectedCity && selectedCity.shippingFeeOverride) {
+    baseShipping = selectedCity.shippingFeeOverride;
+  } else if (selectedRegion) {
+    baseShipping = selectedRegion.baseShippingFee;
+  }
+  
+  const shipping = (afterDiscount > 500 || formData.region === "") ? 0 : baseShipping;
+  
   const total = afterDiscount + shipping;
 
   if (items.length === 0) {
@@ -85,9 +99,16 @@ const Checkout = () => {
     );
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const newData = { ...prev, [name]: value };
+      // Reset city if region changes
+      if (name === "region") {
+        newData.city = "";
+      }
+      return newData;
+    });
   };
 
   const handleApplyPromo = async () => {
@@ -140,6 +161,7 @@ const Checkout = () => {
         customer_phone: formData.phone,
         customer_address: formData.address,
         customer_city: formData.city,
+        customer_region: formData.region,
         notes: formData.notes,
         items: items.map((i) => ({
           product_id: i.product.id,
@@ -147,6 +169,7 @@ const Checkout = () => {
           quantity: i.quantity,
           unit_price: i.product.price,
           cost_price: 0,
+          selected_flavors: i.selectedFlavors || [],
         })),
       });
 
@@ -164,7 +187,9 @@ const Checkout = () => {
             product_name: i.product.name,
             quantity: i.quantity,
             unit_price: i.product.price,
-          }))
+            selected_flavors: i.selectedFlavors || [],
+          })),
+          lang // Pass the current language
         );
       } catch (waError) {
         console.error("Failed to send WhatsApp notification:", waError);
@@ -246,11 +271,48 @@ const Checkout = () => {
                       <label htmlFor="address" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.address")} *</label>
                       <Input id="address" name="address" value={formData.address} onChange={handleInputChange} required className="rounded-none h-12" />
                     </div>
-                    <div className="grid sm:grid-cols-3 gap-4">
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="region" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Région *</label>
+                        <select 
+                          id="region" 
+                          name="region" 
+                          value={formData.region} 
+                          onChange={handleInputChange} 
+                          required 
+                          className="w-full bg-background border border-border px-4 h-12 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
+                        >
+                          <option value="">Sélectionner une région</option>
+                          {regions.map((region) => (
+                            <option key={region.id} value={region.name}>{region.name}</option>
+                          ))}
+                        </select>
+                      </div>
                       <div>
                         <label htmlFor="city" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.city")} *</label>
-                        <Input id="city" name="city" value={formData.city} onChange={handleInputChange} required className="rounded-none h-12" />
+                        <select 
+                          id="city" 
+                          name="city" 
+                          value={formData.city} 
+                          onChange={handleInputChange} 
+                          required 
+                          disabled={!formData.region}
+                          className="w-full bg-background border border-border px-4 h-12 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <option value="">{formData.region ? "Sélectionner une ville" : "Choisir d'abord une région"}</option>
+                          {cities
+                            .filter(city => {
+                              const region = regions.find(r => r.name === formData.region);
+                              return region ? city.regionId === region.id : false;
+                            })
+                            .map((city) => (
+                              <option key={city.name} value={city.name}>{city.name}</option>
+                            ))
+                          }
+                        </select>
                       </div>
+                    </div>
+                    <div className="grid sm:grid-cols-2 gap-4">
                       <div>
                         <label htmlFor="postalCode" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.postalCode")} *</label>
                         <Input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleInputChange} required className="rounded-none h-12" />

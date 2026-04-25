@@ -1,0 +1,41 @@
+ville,region,tarif_dh
+Rabat,Rabat-Salé-Kénitra,25
+Salé,Rabat-Salé-Kénitra,25
+Témara,Rabat-Salé-Kénitra,25
+Kénitra,Rabat-Salé-Kénitra,25
+Casablanca,Casablanca-Settat,35
+Mohammedia,Casablanca-Settat,35
+Berrechid,Casablanca-Settat,35
+Settat,Casablanca-Settat,35
+Médiouna,Casablanca-Settat,35
+El Jadida,Casablanca-Settat,35
+Oualidia,Casablanca-Settat,35
+Meknès,Fès-Meknès,35
+Fès,Fès-Meknès,35
+Ifrane,Fès-Meknès,35
+Azrou,Fès-Meknès,35
+Taza,Fès-Meknès,45
+Tanger,Tanger-Tétouan-Al Hoceïma,45
+Tétouan,Tanger-Tétouan-Al Hoceïma,45
+Larache,Tanger-Tétouan-Al Hoceïma,45
+Chefchaouen,Tanger-Tétouan-Al Hoceïma,45
+Al Hoceïma,Tanger-Tétouan-Al Hoceïma,45
+Oujda,Oriental,45
+Nador,Oriental,45
+Béni Mellal,Béni Mellal-Khénifra,45
+Khouribga,Béni Mellal-Khénifra,45
+Khénifra,Béni Mellal-Khénifra,45
+Marrakech,Marrakech-Safi,45
+Safi,Marrakech-Safi,45
+Essaouira,Marrakech-Safi,45
+Agadir,Souss-Massa,60
+Tiznit,Souss-Massa,60
+Taroudant,Souss-Massa,60
+Errachidia,Drâa-Tafilalet,60
+Ouarzazate,Drâa-Tafilalet,60
+Zagora,Drâa-Tafilalet,60
+Midelt,Drâa-Tafilalet,60
+Guelmim,Guelmim-Oued Noun,60
+Tan-Tan,Guelmim-Oued Noun,60
+Laâyoune,Laâyoune-Sakia El Hamra,60
+Dakhla,Dakhla-Oued Ed-Dahab,60

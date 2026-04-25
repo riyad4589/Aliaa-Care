@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -38,12 +38,13 @@ interface EditingProduct {
   is_new: boolean;
   images: string[];
   category_ids: string[];
+  flavors: string[];
 }
 
 const emptyProduct: EditingProduct = {
   name: "", slug: "", price: 0, description: "", long_description: "",
   materials: "", weight: undefined, images: [], stock: 10, active: true, visible: true,
-  featured: false, is_new: false, category_ids: [],
+  featured: false, is_new: false, category_ids: [], flavors: [],
 };
 
 const AdminProducts = () => {
@@ -113,6 +114,11 @@ const AdminProducts = () => {
     }
     setSaving(true);
     const slug = editingProduct.slug || editingProduct.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    
+    // Clean up flavors array: trim and filter empty strings
+    const cleanedFlavors = editingProduct.flavors
+      .map(f => f.trim())
+      .filter(Boolean);
 
     try {
       if (editingProduct.id) {
@@ -131,6 +137,7 @@ const AdminProducts = () => {
             visible: editingProduct.visible,
             featured: editingProduct.featured,
             is_new: editingProduct.is_new,
+            flavors: cleanedFlavors,
           },
           images: editingProduct.images,
           category_ids: editingProduct.category_ids,
@@ -150,6 +157,7 @@ const AdminProducts = () => {
           visible: editingProduct.visible,
           featured: editingProduct.featured,
           is_new: editingProduct.is_new,
+          flavors: cleanedFlavors,
           images: editingProduct.images.length > 0 ? editingProduct.images : ["/placeholder.svg"],
           category_ids: editingProduct.category_ids,
         });
@@ -182,6 +190,7 @@ const AdminProducts = () => {
       is_new: p.is_new ?? false,
       images: p.images,
       category_ids: p.category_ids,
+      flavors: p.flavors || [],
     });
     setDialogOpen(true);
   };
@@ -405,6 +414,7 @@ const AdminProducts = () => {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-serif text-2xl">{editingProduct?.id ? "Modifier" : "Ajouter"} un Produit</DialogTitle>
+            <DialogDescription className="sr-only">Formulaire pour {editingProduct?.id ? "modifier" : "ajouter"} les détails du produit.</DialogDescription>
           </DialogHeader>
           {editingProduct && (
             <div className="space-y-6 pt-4">
@@ -435,11 +445,14 @@ const AdminProducts = () => {
                       <label className="text-sm font-medium mb-1.5 block">Prix (DH) *</label>
                       <Input 
                         type="number" 
-                        min="0" 
                         step="any"
+                        min="0"
                         placeholder="0"
-                        value={editingProduct.price} 
-                        onChange={(e) => setEditingProduct({ ...editingProduct, price: Math.max(0, Number(e.target.value)) })}
+                        value={editingProduct.price === 0 ? "" : editingProduct.price} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setEditingProduct({ ...editingProduct, price: val === "" ? 0 : Math.max(0, Number(val)) });
+                        }}
                         onKeyDown={(e) => ["e", "E", "+", "-"].includes(e.key) && e.preventDefault()}
                       />
                     </div>
@@ -449,8 +462,11 @@ const AdminProducts = () => {
                         type="number" 
                         min="0"
                         placeholder="0"
-                        value={editingProduct.stock} 
-                        onChange={(e) => setEditingProduct({ ...editingProduct, stock: Math.max(0, Math.floor(Number(e.target.value))) })}
+                        value={editingProduct.stock === 0 ? "" : editingProduct.stock} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setEditingProduct({ ...editingProduct, stock: val === "" ? 0 : Math.max(0, Math.floor(Number(val))) });
+                        }}
                         onKeyDown={(e) => ["e", "E", "+", "-", ".", ","].includes(e.key) && e.preventDefault()}
                       />
                     </div>
@@ -465,6 +481,21 @@ const AdminProducts = () => {
                       <label className="text-sm font-medium mb-1.5 block">Poids (g)</label>
                       <Input type="number" value={editingProduct.weight || ""} onChange={(e) => setEditingProduct({ ...editingProduct, weight: e.target.value ? Number(e.target.value) : undefined })} placeholder="Ex: 120" />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-1.5 block">Goûts / Variantes (séparés par des virgules)</label>
+                    <Input 
+                      value={editingProduct.flavors.join(", ")} 
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        // Don't filter Boolean here so trailing commas/spaces work during typing
+                        const flavorsArray = val.split(",").map(s => s.trimStart());
+                        setEditingProduct({ ...editingProduct, flavors: flavorsArray });
+                      }} 
+                      placeholder="Ex: Vanille, Chocolat, Fraise" 
+                    />
+                    <p className="text-[10px] text-muted-foreground mt-1">Laissez vide si le produit n'a pas de variantes de goût. Utilisez des virgules pour séparer.</p>
                   </div>
                 </div>
 

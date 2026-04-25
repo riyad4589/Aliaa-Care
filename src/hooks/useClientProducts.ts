@@ -18,6 +18,7 @@ export interface ClientProduct {
   images: string[];
   featured?: boolean;
   new?: boolean;
+  flavors?: string[];
 }
 
 export interface ClientCollection {
@@ -46,6 +47,7 @@ function toClientProduct(p: DbProduct): ClientProduct {
     images: p.images.length > 0 ? p.images : ["/placeholder.svg"],
     featured: p.featured ?? false,
     new: p.is_new ?? false,
+    flavors: p.flavors || [],
   };
 }
 

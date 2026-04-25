@@ -28,6 +28,7 @@ const ProductDetail = () => {
   const product = getProductBySlug(slug || "");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [selectedFlavors, setSelectedFlavors] = useState<string[]>([]);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const [isZooming, setIsZooming] = useState(false);
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
@@ -64,9 +65,10 @@ const ProductDetail = () => {
   };
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    addToCart(product, quantity, selectedFlavors.slice(0, quantity));
     toast({ title: t("productDetail.addedToCart"), description: `${quantity} × ${product.name}` });
     setQuantity(1);
+    setSelectedFlavors([]);
   };
 
   const nextImage = () => setCurrentImageIndex((prev) => prev === product.images.length - 1 ? 0 : prev + 1);
@@ -223,8 +225,54 @@ const ProductDetail = () => {
               </div>
               <div className="mb-6">
                 <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-3">{t("common.quantity")}</span>
-                <QuantitySelector quantity={quantity} onQuantityChange={setQuantity} />
+                <QuantitySelector 
+                  quantity={quantity} 
+                  onQuantityChange={(q) => {
+                    setQuantity(q);
+                    if (product.flavors && product.flavors.length > 0) {
+                      const newFlavors = [...selectedFlavors];
+                      if (newFlavors.length < q) {
+                        const defaultFlavor = product.flavors[0];
+                        while (newFlavors.length < q) newFlavors.push(defaultFlavor);
+                      } else if (newFlavors.length > q) {
+                        newFlavors.splice(q);
+                      }
+                      setSelectedFlavors(newFlavors);
+                    }
+                  }} 
+                />
               </div>
+
+              {product.flavors && product.flavors.length > 0 && (
+                <div className="mb-10 space-y-4">
+                  <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-3">
+                    Choisir {quantity > 1 ? "les goûts" : "le goût"}
+                  </span>
+                  <div className="grid gap-3">
+                    {Array.from({ length: quantity }).map((_, i) => (
+                      <div key={i} className="flex flex-col gap-1.5">
+                        {quantity > 1 && <span className="text-[10px] text-muted-foreground">Unité {i + 1}</span>}
+                        <select 
+                          className="w-full bg-background border border-border px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
+                          value={selectedFlavors[i] || product.flavors![0]}
+                          onChange={(e) => {
+                            const newFlavors = [...selectedFlavors];
+                            if (newFlavors.length <= i) {
+                              while (newFlavors.length <= i) newFlavors.push(product.flavors![0]);
+                            }
+                            newFlavors[i] = e.target.value;
+                            setSelectedFlavors(newFlavors);
+                          }}
+                        >
+                          {product.flavors?.map((f) => (
+                            <option key={f} value={f}>{f}</option>
+                          ))}
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="flex flex-col gap-3">
                 <Button 
                   size="lg" 

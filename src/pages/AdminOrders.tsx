@@ -50,6 +50,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -158,6 +159,7 @@ const AdminOrders = () => {
           customer_phone: editingOrder.customer_phone,
           customer_address: editingOrder.customer_address,
           customer_city: editingOrder.customer_city,
+          customer_region: editingOrder.customer_region,
           notes: editingOrder.notes,
           total,
           status: editingOrder.status,
@@ -486,6 +488,8 @@ const AdminOrders = () => {
       {/* Order Details Dialog */}
       <Dialog open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
         <DialogContent className="max-w-3xl max-h-[95vh] p-0 overflow-hidden rounded-xl border-none shadow-2xl">
+          <DialogTitle className="sr-only">Détails de la commande</DialogTitle>
+          <DialogDescription className="sr-only">Affichage des informations détaillées de la commande sélectionnée.</DialogDescription>
           {selectedOrder && (
             <div className="flex flex-col h-full max-h-[95vh]">
               {/* Premium Header */}
@@ -531,7 +535,10 @@ const AdminOrders = () => {
                           <div className="flex items-start gap-3 text-sm">
                             <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                             <div>
-                              <p className="font-medium">{selectedOrder.customer_city}</p>
+                              <p className="font-medium">
+                                {selectedOrder.customer_city}
+                                {selectedOrder.customer_region && <span className="text-muted-foreground font-normal ml-1">({selectedOrder.customer_region})</span>}
+                              </p>
                               <p className="text-muted-foreground leading-relaxed mt-0.5">{selectedOrder.customer_address}</p>
                             </div>
                           </div>
@@ -582,6 +589,15 @@ const AdminOrders = () => {
                                 <p className="text-xs text-muted-foreground mt-0.5">
                                   Qté: <span className="font-semibold">{item.quantity}</span> × {item.unit_price} DH
                                 </p>
+                                {item.selected_flavors && item.selected_flavors.length > 0 && (
+                                  <div className="mt-2 flex flex-wrap gap-1">
+                                    {item.selected_flavors.map((flavor, fIdx) => (
+                                      <Badge key={fIdx} variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-primary/5 text-primary border-primary/20">
+                                        {flavor}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
                               <div className="text-right shrink-0">
                                 <p className="font-bold text-sm">{(item.quantity * item.unit_price).toLocaleString()} DH</p>
@@ -660,6 +676,7 @@ const AdminOrders = () => {
         <DialogContent className="max-w-2xl h-[90vh] p-0 rounded-xl shadow-2xl flex flex-col overflow-hidden">
           <DialogHeader className="p-6 bg-primary text-primary-foreground shrink-0">
             <DialogTitle className="font-serif text-2xl font-bold">Modifier la Commande</DialogTitle>
+            <DialogDescription className="sr-only">Formulaire pour modifier les détails de la commande.</DialogDescription>
           </DialogHeader>
           {editingOrder && (
             <form onSubmit={handleUpdateOrder} className="flex-1 flex flex-col min-h-0 bg-background">
@@ -684,6 +701,14 @@ const AdminOrders = () => {
                       <Input
                         value={editingOrder.customer_phone}
                         onChange={(e) => setEditingOrder({ ...editingOrder, customer_phone: e.target.value })}
+                        className="h-11"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold uppercase text-muted-foreground">Région</Label>
+                      <Input
+                        value={editingOrder.customer_region || ""}
+                        onChange={(e) => setEditingOrder({ ...editingOrder, customer_region: e.target.value })}
                         className="h-11"
                       />
                     </div>
@@ -791,6 +816,15 @@ const AdminOrders = () => {
                             <div className="flex items-center gap-2">
                               <p className="text-sm font-bold truncate">{item.product_name}</p>
                             </div>
+                            {item.selected_flavors && item.selected_flavors.length > 0 && (
+                              <div className="mt-1 flex flex-wrap gap-1">
+                                {item.selected_flavors.map((flavor, fIdx) => (
+                                  <span key={fIdx} className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground border border-border/50">
+                                    {flavor}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                             <div className="flex items-center gap-2 mt-1.5">
                               <div className="flex items-center bg-muted/50 rounded-md px-2 py-0.5 border border-border/50">
                                 <Input

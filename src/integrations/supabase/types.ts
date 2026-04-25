@@ -70,6 +70,7 @@ export type Database = {
           product_id: string | null
           product_name: string
           quantity: number
+          selected_flavors: string[] | null
           unit_price: number
         }
         Insert: {
@@ -79,6 +80,7 @@ export type Database = {
           product_id?: string | null
           product_name: string
           quantity?: number
+          selected_flavors?: string[] | null
           unit_price?: number
         }
         Update: {
@@ -88,6 +90,7 @@ export type Database = {
           product_id?: string | null
           product_name?: string
           quantity?: number
+          selected_flavors?: string[] | null
           unit_price?: number
         }
         Relationships: [
@@ -322,6 +325,7 @@ export type Database = {
           created_at: string
           description: string | null
           featured: boolean | null
+          flavors: string[] | null
           id: string
           is_new: boolean | null
           long_description: string | null
@@ -341,6 +345,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           featured?: boolean | null
+          flavors?: string[] | null
           id?: string
           is_new?: boolean | null
           long_description?: string | null
@@ -360,6 +365,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           featured?: boolean | null
+          flavors?: string[] | null
           id?: string
           is_new?: boolean | null
           long_description?: string | null

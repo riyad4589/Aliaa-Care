@@ -10,6 +10,7 @@ export interface OrderItem {
   product_name: string;
   quantity: number;
   unit_price: number;
+  selected_flavors?: string[];
 }
 
 export interface OrderData {
@@ -43,10 +44,11 @@ export const formatPhoneNumber = (phone: string): string => {
  */
 export const sendOrderWhatsAppNotification = async (
   order: OrderData,
-  items: OrderItem[]
+  items: OrderItem[],
+  language: string = "fr"
 ) => {
   const { data, error } = await supabase.functions.invoke("send-whatsapp", {
-    body: { order, items },
+    body: { order, items, language },
   });
 
   if (error) {
