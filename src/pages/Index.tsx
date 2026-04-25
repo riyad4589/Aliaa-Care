@@ -12,6 +12,7 @@ import { PromoBanner } from "@/components/PromoBanner";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/hooks/useT";
 import coffretImg from "@/assets/coffret-aliaa.jpeg";
+import coffretImgMobile from "@/assets/coffret-aliaa-phone.jpeg.png";
 import gommageCorpsImg from "@/assets/gommage-corps.jpeg";
 import eauDeRoseImg from "@/assets/eau-de-rose.jpeg";
 
@@ -43,7 +44,11 @@ const Index = () => {
       {/* Hero */}
       <section ref={heroRef} className="relative h-[100svh] -mt-16 md:-mt-20 overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: heroImageY }}>
-          <img src={coffretImg} alt="ALIAA Natural Care" className="w-full h-[120%] object-cover animate-ken-burns" />
+          <picture>
+            <source media="(max-width: 767px)" srcSet={coffretImgMobile} />
+            <source media="(min-width: 768px)" srcSet={coffretImg} />
+            <img src={coffretImg} alt="ALIAA Natural Care" className="w-full h-[120%] object-cover animate-ken-burns" />
+          </picture>
           <div className="absolute inset-0 bg-gradient-to-b from-charcoal/40 via-charcoal/20 to-charcoal/60" />
         </motion.div>
         <motion.div className="relative container-full h-full flex flex-col justify-end pb-20 md:pb-28 pt-16 md:pt-20" style={{ opacity: heroOpacity }}>
