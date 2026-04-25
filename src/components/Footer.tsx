@@ -13,11 +13,11 @@ export const Footer = () => {
       {/* Decorative gradient blur */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
       
-      <div className="container-full pt-10 pb-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 border-t border-white/5 pt-10">
+      <div className="container-full pt-6 pb-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 border-t border-white/5 pt-6">
           <div className="col-span-2 md:col-span-1">
-            <Link to="/" className="inline-block mb-4 hover:opacity-80 transition-opacity">
-              <img src={typoImg} alt="ALIAA" className="h-12 md:h-16 w-auto brightness-0 invert" />
+            <Link to="/" className="inline-block mb-3 hover:opacity-80 transition-opacity">
+              <img src={typoImg} alt="ALIAA" className="h-10 md:h-12 w-auto brightness-0 invert" />
             </Link>
             <p className="text-[10px] text-white/40 leading-relaxed max-w-[200px]">
               Pure Plants, True Relief. Rituels naturels pour chaque femme.
