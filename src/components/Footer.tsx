@@ -67,14 +67,6 @@ export const Footer = () => {
                 {t("common.cart")}
                 <span className="block h-px w-0 bg-primary group-hover:w-full transition-all duration-300" />
               </Link></li>
-              <li><a href="#" className="text-sm text-white/40 hover:text-white transition-colors duration-300 group inline-block">
-                {t("common.privacyPolicy")}
-                <span className="block h-px w-0 bg-primary group-hover:w-full transition-all duration-300" />
-              </a></li>
-              <li><a href="#" className="text-sm text-white/40 hover:text-white transition-colors duration-300 group inline-block">
-                {t("common.terms")}
-                <span className="block h-px w-0 bg-primary group-hover:w-full transition-all duration-300" />
-              </a></li>
             </ul>
           </div>
 
