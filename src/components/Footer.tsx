@@ -13,17 +13,20 @@ export const Footer = () => {
       {/* Decorative gradient blur */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
       
-      <div className="container-full pt-6 pb-4">
-        <div className="flex flex-col items-center text-center mb-6">
-          <Link to="/" className="mb-2 hover:opacity-80 transition-opacity">
-            <img src={typoImg} alt="ALIAA" className="h-16 md:h-32 w-auto brightness-0 invert" />
-          </Link>
-        </div>
+      <div className="container-full pt-10 pb-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 border-t border-white/5 pt-10">
+          <div className="col-span-2 md:col-span-1">
+            <Link to="/" className="inline-block mb-4 hover:opacity-80 transition-opacity">
+              <img src={typoImg} alt="ALIAA" className="h-12 md:h-16 w-auto brightness-0 invert" />
+            </Link>
+            <p className="text-[10px] text-white/40 leading-relaxed max-w-[200px]">
+              Pure Plants, True Relief. Rituels naturels pour chaque femme.
+            </p>
+          </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 border-t border-white/5 pt-6">
           <div className="col-span-1">
-            <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60 mb-2">{t("common.collections")}</h4>
-            <ul className="space-y-1">
+            <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60 mb-3">{t("common.collections")}</h4>
+            <ul className="space-y-1.5">
               {collections.map((collection) => (
                 <li key={collection.id}>
                   <Link to={`/products?collection=${collection.slug}`} className="text-sm text-white/40 hover:text-white transition-colors duration-300 inline-block group">
@@ -35,9 +38,9 @@ export const Footer = () => {
             </ul>
           </div>
           
-          <div>
-            <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60 mb-2">{t("footer.explore")}</h4>
-            <ul className="space-y-1">
+          <div className="col-span-1">
+            <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60 mb-3">{t("footer.explore")}</h4>
+            <ul className="space-y-1.5">
               <li><Link to="/products" className="text-sm text-white/40 hover:text-white transition-colors duration-300 group inline-block">
                 {t("common.shop")}
                 <span className="block h-px w-0 bg-primary group-hover:w-full transition-all duration-300" />
@@ -50,25 +53,11 @@ export const Footer = () => {
                 {t("common.ourStory")}
                 <span className="block h-px w-0 bg-primary group-hover:w-full transition-all duration-300" />
               </Link></li>
-              <li><Link to="/track-order" className="text-sm text-white/40 hover:text-white transition-colors duration-300 group inline-block">
-                {t("common.trackOrder")}
-                <span className="block h-px w-0 bg-primary group-hover:w-full transition-all duration-300" />
-              </Link></li>
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60 mb-2">{t("common.help")}</h4>
-            <ul className="space-y-1">
-              <li><Link to="/cart" className="text-sm text-white/40 hover:text-white transition-colors duration-300 group inline-block">
-                {t("common.cart")}
-                <span className="block h-px w-0 bg-primary group-hover:w-full transition-all duration-300" />
-              </Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60 mb-2">{t("footer.contact")}</h4>
+          <div className="col-span-2 md:col-span-1">
+            <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60 mb-3">{t("footer.contact")}</h4>
             <div className="space-y-2">
               <a href="mailto:contact@aliaacare.com" className="text-sm text-white/40 hover:text-white transition-colors block italic underline underline-offset-4 decoration-white/10 hover:decoration-white/40">
                 contact@aliaacare.com
