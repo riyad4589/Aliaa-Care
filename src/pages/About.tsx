@@ -87,8 +87,8 @@ const About = () => {
               <p className="text-muted-foreground leading-[1.8]">{t("about.originsText2")}</p>
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-              transition={{ duration: 0.9, delay: 0.15 }} className="md:col-span-7 relative">
-              <div className="aspect-[4/5] overflow-hidden group rounded-lg">
+              transition={{ duration: 0.9, delay: 0.15 }} className="md:col-span-7 relative flex justify-center">
+              <div className="aspect-square w-full max-w-md overflow-hidden group rounded-lg shadow-2xl">
                 <img src={chayNifasImg} alt="Chay Nifas" className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105" />
               </div>
               {/* Floating accent card */}
@@ -107,7 +107,7 @@ const About = () => {
 
           {/* ─── QUOTE BANNER ─── */}
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1 }} className="mb-24 md:mb-36">
-            <div className="relative h-[50vh] md:h-[70vh] overflow-hidden rounded-xl group">
+            <div className="relative h-[40vh] md:h-[55vh] overflow-hidden rounded-xl group">
               <img src={guideImg} alt="Guide ALIAA" className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-charcoal/40 to-charcoal/20" />
               <div className="absolute inset-0 flex items-center justify-center">
@@ -125,8 +125,8 @@ const About = () => {
           {/* ─── APPROACH ─── */}
           <div className="grid md:grid-cols-12 gap-12 lg:gap-20 items-center">
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-              transition={{ duration: 0.9 }} className="md:col-span-7 md:order-first relative">
-              <div className="aspect-[4/5] overflow-hidden group rounded-lg">
+              transition={{ duration: 0.9 }} className="md:col-span-7 md:order-first relative flex justify-center">
+              <div className="aspect-square w-full max-w-md overflow-hidden group rounded-lg shadow-2xl">
                 <img src={coffretArganImg} alt="Coffret ALIAA" className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105" />
               </div>
               {/* Floating accent card */}
@@ -225,7 +225,7 @@ const About = () => {
 
       {/* ─── IMAGE STRIP ─── */}
       <section className="py-0">
-        <div className="grid grid-cols-3 h-[30vh] md:h-[40vh]">
+        <div className="grid grid-cols-3 h-[20vh] md:h-[30vh]">
           {[coffretImg, selsBainImg, chayNifasImg].map((img, i) => (
             <motion.div
               key={i}
