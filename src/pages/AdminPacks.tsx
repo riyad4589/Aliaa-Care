@@ -309,6 +309,25 @@ const AdminPacks = () => {
                     <Textarea value={editing.long_description} onChange={(e) => setEditing({ ...editing, long_description: e.target.value })} rows={4} />
                   </div>
 
+                  <div>
+                    <label className="text-sm font-medium mb-1.5 block">Image du pack (URL)</label>
+                    <Input 
+                      value={editing.image} 
+                      onChange={(e) => setEditing({ ...editing, image: e.target.value })} 
+                      placeholder="https://exemple.com/image.jpg" 
+                    />
+                    {editing.image && editing.image !== "/placeholder.svg" && (
+                      <div className="mt-2 relative w-full h-40 rounded-lg overflow-hidden border border-border bg-muted/10">
+                        <img 
+                          src={editing.image} 
+                          alt="Aperçu" 
+                          className="w-full h-full object-cover"
+                          onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
+                        />
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex items-center gap-6 p-3 bg-muted/30 rounded-lg border border-border">
                     <label className="flex items-center gap-2 text-sm cursor-pointer">
                       <Checkbox checked={editing.featured} onCheckedChange={(v) => setEditing({ ...editing, featured: !!v })} />
