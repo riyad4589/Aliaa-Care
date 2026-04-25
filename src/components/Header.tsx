@@ -273,7 +273,11 @@ export const Header = () => {
                       onClick={() => setMobileMenuOpen(false)}
                       className="cursor-pointer"
                     >
-                      <Link to={link.to} className="block px-2 py-2.5 text-sm font-medium hover:bg-accent transition-colors duration-300">
+                      <Link 
+                        to={link.to} 
+                        className="block px-2 py-2.5 text-sm font-medium hover:bg-accent transition-colors duration-300"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
                         {link.label}
                       </Link>
                     </motion.div>
