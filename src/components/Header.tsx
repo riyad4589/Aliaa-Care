@@ -64,19 +64,6 @@ export const Header = () => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
-  // Sécurité supplémentaire : fermer au clic global si le menu est ouvert
-  useEffect(() => {
-    if (!mobileMenuOpen) return;
-    
-    const handleGlobalClick = () => {
-      // Un petit délai pour laisser le temps au lien de s'activer
-      setTimeout(() => setMobileMenuOpen(false), 50);
-    };
-
-    window.addEventListener("click", handleGlobalClick);
-    return () => window.removeEventListener("click", handleGlobalClick);
-  }, [mobileMenuOpen]);
-
   return (
     <header
       className={cn(
@@ -208,10 +195,7 @@ export const Header = () => {
 
             <button 
               className="md:hidden p-2 hover:bg-accent transition-colors duration-300" 
-              onClick={(e) => {
-                e.stopPropagation();
-                setMobileMenuOpen(!mobileMenuOpen);
-              }}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <AnimatePresence mode="wait">
                 {mobileMenuOpen ? (
@@ -237,23 +221,21 @@ export const Header = () => {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const }} 
               className="md:hidden border-t border-border overflow-hidden"
-              onClick={(e) => e.stopPropagation()} // Empêche la fermeture immédiate lors du clic interne
             >
               <div className="py-8 space-y-6">
                 <div className="space-y-1">
                   <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-muted-foreground/50 px-2 mb-3">{t("common.collections")}</p>
                   {collections.map((collection, i) => (
-                    <motion.div 
-                      key={collection.id} 
-                      initial={{ opacity: 0, x: -10 }} 
-                      animate={{ opacity: 1, x: 0 }} 
-                      transition={{ delay: i * 0.05 }}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="cursor-pointer"
-                    >
-                      <Link to={`/products?collection=${collection.slug}`} className="block px-2 py-2.5 text-sm hover:bg-accent transition-colors duration-300">
+                    <motion.div key={collection.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
+                      <button
+                        className="block w-full text-left px-2 py-2.5 text-sm hover:bg-accent transition-colors duration-300"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          navigate(`/products?collection=${collection.slug}`);
+                        }}
+                      >
                         {collection.name}
-                      </Link>
+                      </button>
                     </motion.div>
                   ))}
                 </div>
@@ -265,21 +247,16 @@ export const Header = () => {
                     { to: "/about", label: t("common.ourStory") },
                     { to: "/cart", label: t("common.cart") },
                   ].map((link, i) => (
-                    <motion.div 
-                      key={link.to} 
-                      initial={{ opacity: 0, x: -10 }} 
-                      animate={{ opacity: 1, x: 0 }} 
-                      transition={{ delay: 0.3 + i * 0.05 }}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="cursor-pointer"
-                    >
-                      <Link 
-                        to={link.to} 
-                        className="block px-2 py-2.5 text-sm font-medium hover:bg-accent transition-colors duration-300"
-                        onClick={() => setMobileMenuOpen(false)}
+                    <motion.div key={link.to} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.05 }}>
+                      <button
+                        className="block w-full text-left px-2 py-2.5 text-sm font-medium hover:bg-accent transition-colors duration-300"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          navigate(link.to);
+                        }}
                       >
                         {link.label}
-                      </Link>
+                      </button>
                     </motion.div>
                   ))}
                 </div>
