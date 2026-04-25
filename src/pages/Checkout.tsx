@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAddOrder } from "@/hooks/useOrders";
 import { useValidatePromoCode, useIncrementPromoUsage, PromoCode } from "@/hooks/usePromoCodes";
 import { useT } from "@/hooks/useT";
+import { sendOrderWhatsAppNotification } from "@/lib/whatsapp";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -130,11 +131,12 @@ const Checkout = () => {
     setIsSubmitting(true);
     try {
       const orderNumber = `CMD-${Date.now().toString(36).toUpperCase()}`;
+      const customerName = `${formData.firstName} ${formData.lastName}`;
       await addOrder.mutateAsync({
         order_number: orderNumber,
         total,
         total_cost: 0,
-        customer_name: `${formData.firstName} ${formData.lastName}`,
+        customer_name: customerName,
         customer_phone: formData.phone,
         customer_address: formData.address,
         customer_city: formData.city,
@@ -147,6 +149,27 @@ const Checkout = () => {
           cost_price: 0,
         })),
       });
+
+      // Send WhatsApp notification
+      try {
+        await sendOrderWhatsAppNotification(
+          {
+            order_number: orderNumber,
+            total,
+            customerName,
+            phone: formData.phone,
+            address: formData.address,
+          },
+          items.map((i) => ({
+            product_name: i.product.name,
+            quantity: i.quantity,
+            unit_price: i.product.price,
+          }))
+        );
+      } catch (waError) {
+        console.error("Failed to send WhatsApp notification:", waError);
+      }
+
       if (appliedPromo) {
         await incrementUsage.mutateAsync(appliedPromo.id);
       }
