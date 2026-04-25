@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { LanguageSelector } from "./components/LanguageSelector";
 import { AuthProvider } from "./context/AuthContext";
@@ -42,6 +43,20 @@ const AdminOrders = lazy(() => import("./pages/AdminOrders"));
 
 const queryClient = new QueryClient();
 
+const HostnameRedirect = () => {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const hostname = window.location.hostname;
+    if (hostname === "admin.riyadmaj.online" && pathname === "/") {
+      navigate("/admin", { replace: true });
+    }
+  }, [navigate, pathname]);
+
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -50,6 +65,7 @@ const App = () => (
         <Sonner />
         <LanguageSelector />
         <BrowserRouter>
+          <HostnameRedirect />
           <ScrollToTop />
           <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>}>
             <Routes>

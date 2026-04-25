@@ -199,7 +199,7 @@ export const Header = () => {
                       <p className="text-sm font-medium">{profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}` : user.email}</p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
-                    {isAdmin && (
+                    {isAdmin && window.location.hostname === "admin.riyadmaj.online" && (
                       <DropdownMenuItem onClick={() => navigate("/admin")}>
                         <LayoutDashboard className="mr-2 h-4 w-4" />
                         <span>Administration</span>
