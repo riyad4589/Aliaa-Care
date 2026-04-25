@@ -187,8 +187,6 @@ export const Header = () => {
 
             <CartIcon />
 
-            <CartIcon />
-
             <button className="md:hidden p-2 hover:bg-accent transition-colors duration-300" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               <AnimatePresence mode="wait">
                 {mobileMenuOpen ? (
