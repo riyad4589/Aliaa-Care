@@ -187,37 +187,7 @@ export const Header = () => {
 
             <CartIcon />
 
-            {/* User Profile / Login */}
-            <DropdownMenu>
-              <DropdownMenuTrigger className="p-2 hover:bg-accent transition-colors duration-300 group">
-                <User className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 p-2">
-                {user ? (
-                  <>
-                    <div className="px-2 py-1.5 mb-1">
-                      <p className="text-sm font-medium">{profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}` : user.email}</p>
-                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                    </div>
-                    {isAdmin && window.location.hostname === "admin.riyadmaj.online" && (
-                      <DropdownMenuItem onClick={() => navigate("/admin")}>
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        <span>Administration</span>
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Déconnexion</span>
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <DropdownMenuItem onClick={() => navigate("/auth/login")}>
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Se connecter</span>
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <CartIcon />
 
             <button className="md:hidden p-2 hover:bg-accent transition-colors duration-300" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               <AnimatePresence mode="wait">
