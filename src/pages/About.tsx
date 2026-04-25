@@ -19,9 +19,9 @@ const About = () => {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   const stats = [
-    { value: "100%", label: t("index.natural") || "100% Naturel" },
-    { value: "0", label: t("about.purity") || "Conservateurs" },
-    { value: "4+", label: t("about.tradition") || "Recettes" },
+    { value: "100%", label: "Naturel" },
+    { value: "0%", label: "Additifs" },
+    { value: "4+", label: "Rituels" },
   ];
 
   return (
