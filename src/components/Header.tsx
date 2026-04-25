@@ -64,6 +64,19 @@ export const Header = () => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
+  // Sécurité supplémentaire : fermer au clic global si le menu est ouvert
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    
+    const handleGlobalClick = () => {
+      // Un petit délai pour laisser le temps au lien de s'activer
+      setTimeout(() => setMobileMenuOpen(false), 50);
+    };
+
+    window.addEventListener("click", handleGlobalClick);
+    return () => window.removeEventListener("click", handleGlobalClick);
+  }, [mobileMenuOpen]);
+
   return (
     <header
       className={cn(
