@@ -11,8 +11,8 @@ import { PackCard } from "@/components/PackCard";
 import { PromoBanner } from "@/components/PromoBanner";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/hooks/useT";
-import coffretImg from "@/assets/coffret-aliaa.jpeg";
-import coffretImgMobile from "@/assets/coffret-aliaa-phone.jpeg.png";
+import coffretImg from "@/assets/coffret-aliaa.webp";
+import coffretImgMobile from "@/assets/coffret-aliaa-phone.webp";
 import gommageCorpsImg from "@/assets/gommage-corps.jpeg";
 import eauDeRoseImg from "@/assets/eau-de-rose.jpeg";
 

@@ -1,5 +1,5 @@
 import chayNifasImg from "@/assets/chay-nifas.jpeg";
-import coffretImg from "@/assets/coffret-aliaa.jpeg";
+import coffretImg from "@/assets/coffret-aliaa.webp";
 import guideImg from "@/assets/guide-utilisation.jpeg";
 import coffretTisanesImg from "@/assets/coffret-tisanes.png";
 import gommageCorpsImg from "@/assets/gommage-corps.jpeg";
