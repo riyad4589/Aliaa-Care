@@ -206,7 +206,13 @@ export const Header = () => {
 
             <CartIcon />
 
-            <button className="md:hidden p-2 hover:bg-accent transition-colors duration-300" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <button 
+              className="md:hidden p-2 hover:bg-accent transition-colors duration-300" 
+              onClick={(e) => {
+                e.stopPropagation();
+                setMobileMenuOpen(!mobileMenuOpen);
+              }}
+            >
               <AnimatePresence mode="wait">
                 {mobileMenuOpen ? (
                   <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
@@ -231,7 +237,7 @@ export const Header = () => {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const }} 
               className="md:hidden border-t border-border overflow-hidden"
-              onClick={() => setMobileMenuOpen(false)} // Fermeture forcée au clic n'importe où dans le menu
+              onClick={(e) => e.stopPropagation()} // Empêche la fermeture immédiate lors du clic interne
             >
               <div className="py-8 space-y-6">
                 <div className="space-y-1">
