@@ -212,8 +212,14 @@ export const Header = () => {
         {/* Mobile Menu */}
         <AnimatePresence>
           {mobileMenuOpen && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const }} className="md:hidden border-t border-border overflow-hidden">
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }} 
+              animate={{ opacity: 1, height: "auto" }} 
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const }} 
+              className="md:hidden border-t border-border overflow-hidden"
+              onClick={() => setMobileMenuOpen(false)} // Fermeture forcée au clic n'importe où dans le menu
+            >
               <div className="py-8 space-y-6">
                 <div className="space-y-1">
                   <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-muted-foreground/50 px-2 mb-3">{t("common.collections")}</p>
