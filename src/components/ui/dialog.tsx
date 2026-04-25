@@ -4,7 +4,21 @@ import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-const Dialog = DialogPrimitive.Root;
+// Custom Dialog wrapper that prevents closing when switching browser tabs
+const Dialog = ({ onOpenChange, ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) => {
+  const handleOpenChange = React.useCallback(
+    (open: boolean) => {
+      // If trying to close, only allow it when the document has focus (user is on this tab)
+      if (!open && !document.hasFocus()) {
+        return; // Block close when tab is not focused
+      }
+      onOpenChange?.(open);
+    },
+    [onOpenChange]
+  );
+
+  return <DialogPrimitive.Root onOpenChange={handleOpenChange} {...props} />;
+};
 
 const DialogTrigger = DialogPrimitive.Trigger;
 
