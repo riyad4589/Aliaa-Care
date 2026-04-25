@@ -1,9 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-// UltraMsg credentials — set via Supabase dashboard → Edge Function secrets
-// Never expose these in the client bundle (no VITE_ prefix)
-const ULTRAMSG_INSTANCE_ID = Deno.env.get("ULTRAMSG_INSTANCE_ID");
-const ULTRAMSG_TOKEN = Deno.env.get("ULTRAMSG_TOKEN");
+// WAHA credentials — set via Supabase secrets
+const WAHA_URL = Deno.env.get("WAHA_URL");
+const WAHA_API_KEY = Deno.env.get("WAHA_API_KEY");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,8 +26,7 @@ interface OrderData {
 
 /**
  * Proxy Edge Function: called by the client (via supabase.functions.invoke)
- * to send a WhatsApp button message via UltraMsg.
- * The token stays server-side — never in the client JS bundle.
+ * to send a WhatsApp message via WAHA.
  */
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -43,9 +41,9 @@ serve(async (req) => {
   }
 
   try {
-    if (!ULTRAMSG_INSTANCE_ID || !ULTRAMSG_TOKEN) {
+    if (!WAHA_URL || !WAHA_API_KEY) {
       throw new Error(
-        "UltraMsg credentials not configured as Edge Function secrets"
+        "WAHA credentials not configured as Edge Function secrets"
       );
     }
 
@@ -76,37 +74,25 @@ serve(async (req) => {
       `*Détails :*\n${itemsList}\n\n` +
       `💰 *Total : ${order.total.toLocaleString()} DH*\n` +
       `📍 *Adresse :* ${order.address}\n\n` +
-      `Veuillez confirmer la validité de cette commande :`;
+      `Votre commande est en cours de traitement. Nous vous contacterons bientôt pour la livraison.`;
 
-    const buttons = [
-      {
-        buttonId: "confirm_order",
-        buttonText: { displayText: "✅ Valider la commande" },
-        type: 1,
-      },
-      {
-        buttonId: "cancel_order",
-        buttonText: { displayText: "❌ Rejeter la commande" },
-        type: 1,
-      },
-    ];
-
-    const apiUrl = `https://api.ultramsg.com/${ULTRAMSG_INSTANCE_ID}/messages/buttons`;
-    const params = new URLSearchParams();
-    params.append("token", ULTRAMSG_TOKEN);
-    params.append("to", cleanedPhone);
-    params.append("body", body);
-    params.append("footer", "ALIAA Natural Care - Qualité & Nature");
-    params.append("buttons", JSON.stringify(buttons));
-
+    const apiUrl = `${WAHA_URL}/api/sendText`;
+    
     const response = await fetch(apiUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: params.toString(),
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Api-Key": WAHA_API_KEY
+      },
+      body: JSON.stringify({
+        chatId: `${cleanedPhone}@c.us`,
+        text: body,
+        session: "default"
+      }),
     });
 
     const result = await response.json();
-    console.log("UltraMsg response:", result);
+    console.log("WAHA response:", result);
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
