@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useT } from "@/hooks/useT";
-import coffretImg from "@/assets/coffret-aliaa.jpeg";
+import coffretImg from "@/assets/coffret-aliaa.webp";
 import guideImg from "@/assets/guide-utilisation.jpeg";
 import chayNifasImg from "@/assets/chay-nifas.jpeg";
 
