@@ -78,10 +78,16 @@ export const sendOrderWhatsAppNotification = async (
     `📍 *${t.address}* ${order.address}\n\n` +
     `${t.footer}`;
 
+  const buttons = [
+    { id: "oui", text: language === "ar" ? "تأكيد الطلب ✅" : "Confirmer ✅" },
+    { id: "non", text: language === "ar" ? "إلغاء الطلب ❌" : "Annuler ❌" }
+  ];
+
   const { data, error } = await supabase.functions.invoke("send-whatsapp", {
     body: { 
       phone: order.phone,
-      message: message
+      message: message,
+      buttons: buttons
     },
   });
 

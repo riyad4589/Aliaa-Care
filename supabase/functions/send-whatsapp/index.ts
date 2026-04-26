@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { phone, message } = await req.json();
+    const { phone, message, buttons } = await req.json();
 
     if (!phone || !message) {
       throw new Error("Missing phone or message");
@@ -26,14 +26,27 @@ serve(async (req) => {
     if (cleanedPhone.startsWith("0")) cleanedPhone = "212" + cleanedPhone.substring(1);
     if (cleanedPhone.length === 9) cleanedPhone = "212" + cleanedPhone;
 
-    const response = await fetch(`${WAHA_URL}/api/sendText`, {
+    const hasButtons = buttons && Array.isArray(buttons) && buttons.length > 0;
+    const endpoint = hasButtons ? "sendButtons" : "sendText";
+    
+    const payload: any = {
+      chatId: `${cleanedPhone}@c.us`,
+      session: "default"
+    };
+
+    if (hasButtons) {
+      payload.text = message;
+      payload.buttons = buttons;
+    } else {
+      payload.text = message;
+    }
+
+    console.log(`Sending WhatsApp via WAHA endpoint: ${endpoint}`);
+
+    const response = await fetch(`${WAHA_URL}/api/${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Api-Key": WAHA_API_KEY },
-      body: JSON.stringify({
-        chatId: `${cleanedPhone}@c.us`,
-        text: message,
-        session: "default"
-      }),
+      body: JSON.stringify(payload),
     });
 
     const result = await response.json();
@@ -42,6 +55,7 @@ serve(async (req) => {
       status: 200,
     });
   } catch (error) {
+    console.error("WAHA Error:", error.message);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,

@@ -87,8 +87,11 @@ serve(async (req) => {
     // On va chercher les commandes qui finissent par ce numéro
     const last9Digits = phone.slice(-9);
 
-    if (body === "OUI" || body === "NON" || body === "OUI." || body === "NON.") {
-      const cleanBody = body.replace(".", "");
+    const isYes = body.includes("OUI") || body.includes("CONFIRMER") || body.includes("تأكيد");
+    const isNo = body.includes("NON") || body.includes("ANNULER") || body.includes("إلغاء");
+
+    if (isYes || isNo) {
+      const cleanBody = isYes ? "OUI" : "NON";
 
       console.log(`Searching order for phone suffix: ${last9Digits}`);
 
