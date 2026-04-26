@@ -27,10 +27,12 @@ serve(async (req) => {
     if (cleanedPhone.length === 9) cleanedPhone = "212" + cleanedPhone;
 
     const hasButtons = buttons && Array.isArray(buttons) && buttons.length > 0;
-    const endpoint = hasButtons ? "sendButtons" : "sendText";
     
     // Clean URL to avoid double slashes
     const baseUrl = WAHA_URL?.endsWith("/") ? WAHA_URL.slice(0, -1) : WAHA_URL;
+    
+    // On utilise sendPoll car c'est beaucoup plus compatible que les boutons classiques
+    const endpoint = hasButtons ? "sendPoll" : "sendText";
     const fullUrl = `${baseUrl}/api/${endpoint}`;
 
     const payload: any = {
@@ -39,9 +41,9 @@ serve(async (req) => {
     };
 
     if (hasButtons) {
-      payload.text = message;
-      payload.footer = "ALIAA Natural Care 🌿";
-      payload.buttons = buttons;
+      payload.name = message; // Dans un sondage, le texte principal est le 'name'
+      payload.options = buttons.map((b: any) => b.text);
+      payload.multipleAnswers = false;
     } else {
       payload.text = message;
     }
