@@ -40,6 +40,7 @@ serve(async (req) => {
 
     if (hasButtons) {
       payload.text = message;
+      payload.footer = "ALIAA Natural Care 🌿";
       payload.buttons = buttons;
     } else {
       payload.text = message;
