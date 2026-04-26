@@ -29,6 +29,10 @@ serve(async (req) => {
     const hasButtons = buttons && Array.isArray(buttons) && buttons.length > 0;
     const endpoint = hasButtons ? "sendButtons" : "sendText";
     
+    // Clean URL to avoid double slashes
+    const baseUrl = WAHA_URL?.endsWith("/") ? WAHA_URL.slice(0, -1) : WAHA_URL;
+    const fullUrl = `${baseUrl}/api/${endpoint}`;
+
     const payload: any = {
       chatId: `${cleanedPhone}@c.us`,
       session: "default"
@@ -41,18 +45,25 @@ serve(async (req) => {
       payload.text = message;
     }
 
-    console.log(`Sending WhatsApp via WAHA endpoint: ${endpoint}`);
+    console.log(`[WAHA] Sending to: ${fullUrl}`);
+    console.log(`[WAHA] Payload: ${JSON.stringify(payload)}`);
 
-    const response = await fetch(`${WAHA_URL}/api/${endpoint}`, {
+    const response = await fetch(fullUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Api-Key": WAHA_API_KEY },
+      headers: { 
+        "Content-Type": "application/json", 
+        "X-Api-Key": WAHA_API_KEY || "" 
+      },
       body: JSON.stringify(payload),
     });
 
     const result = await response.json();
+    console.log(`[WAHA] Response status: ${response.status}`);
+    console.log(`[WAHA] Response data: ${JSON.stringify(result)}`);
+
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
+      status: response.status,
     });
   } catch (error) {
     console.error("WAHA Error:", error.message);
