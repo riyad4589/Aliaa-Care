@@ -133,18 +133,26 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
             <div className="flex flex-col">
               {promoDiscount > 0 ? (
                 <div className="flex items-baseline gap-2">
-                  <p className="text-xl font-bold text-destructive tracking-tight">
-                    {Math.round(product.price * (1 - promoDiscount / 100)).toLocaleString()} DH
+                  <p className="text-xl font-sans font-bold text-destructive tracking-tight">
+                    {Math.round(product.price * (1 - promoDiscount / 100)).toLocaleString()}<span className="text-sm font-medium text-muted-foreground/70 ml-1">DH</span>
                   </p>
-                  <p className="text-xs text-muted-foreground line-through opacity-60">{product.price.toLocaleString()} DH</p>
+                  <p className="text-xs font-sans text-muted-foreground line-through opacity-70">
+                    {product.price.toLocaleString()}<span className="text-[10px] ml-0.5">DH</span>
+                  </p>
                 </div>
               ) : hasOriginalPrice ? (
                 <div className="flex items-baseline gap-2">
-                  <p className="text-xl font-bold text-foreground tracking-tight">{product.price.toLocaleString()} DH</p>
-                  <p className="text-xs text-muted-foreground line-through opacity-60">{originalPrice.toLocaleString()} DH</p>
+                  <p className="text-xl font-sans font-bold text-foreground tracking-tight">
+                    {product.price.toLocaleString()}<span className="text-sm font-medium text-muted-foreground/70 ml-1">DH</span>
+                  </p>
+                  <p className="text-xs font-sans text-muted-foreground line-through opacity-70">
+                    {originalPrice.toLocaleString()}<span className="text-[10px] ml-0.5">DH</span>
+                  </p>
                 </div>
               ) : (
-                <p className="text-xl font-bold text-foreground tracking-tight">{product.price.toLocaleString()} DH</p>
+                <p className="text-xl font-sans font-bold text-foreground tracking-tight">
+                  {product.price.toLocaleString()}<span className="text-sm font-medium text-muted-foreground/70 ml-1">DH</span>
+                </p>
               )}
               {product.weight && (
                 <p className="text-[10px] text-muted-foreground/50 tracking-wider uppercase font-medium">{product.weight}g</p>

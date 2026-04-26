@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
-
+import type { Product } from "@/data/products";
 interface PackCardProps {
   pack: DbPack;
   index?: number;
@@ -140,9 +140,13 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
 
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-baseline gap-2">
-            <span className="text-lg font-medium text-foreground">{pack.price.toLocaleString()} DH</span>
+            <span className="text-[19px] font-sans font-bold text-foreground tracking-tight">
+              {pack.price.toLocaleString()}<span className="text-sm font-medium text-muted-foreground/70 ml-1">DH</span>
+            </span>
             {savings > 0 && (
-              <span className="text-sm text-muted-foreground line-through">{totalValue.toLocaleString()} DH</span>
+              <span className="text-xs font-sans text-muted-foreground line-through opacity-70">
+                {totalValue.toLocaleString()}<span className="text-[10px] ml-0.5">DH</span>
+              </span>
             )}
           </div>
           <Button

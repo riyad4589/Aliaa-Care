@@ -138,9 +138,15 @@ const PackDetail = () => {
             </div>
             <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-4">{pack.name}</h1>
             <p className="text-muted-foreground leading-relaxed mb-6">{pack.long_description || pack.description}</p>
-            <div className="flex items-baseline gap-3 mb-8">
-              <span className="text-3xl font-medium text-foreground">{pack.price.toLocaleString()} DH</span>
-              {savings > 0 && <span className="text-lg text-muted-foreground line-through">{totalValue.toLocaleString()} DH</span>}
+            <div className="flex items-baseline gap-4 mb-8">
+              <span className="text-3xl font-sans font-bold text-foreground tracking-tight">
+                {pack.price.toLocaleString()}<span className="text-lg font-medium text-muted-foreground/70 ml-1.5">DH</span>
+              </span>
+              {savings > 0 && (
+                <span className="text-lg font-sans text-muted-foreground line-through opacity-60">
+                  {totalValue.toLocaleString()}<span className="text-sm ml-1">DH</span>
+                </span>
+              )}
             </div>
             <div className="mb-8">
               <h3 className="text-sm font-semibold tracking-[0.1em] uppercase text-foreground mb-4">

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
-import coffretImg from "@/assets/coffret-aliaa.webp";
+import coffretImg from "@/assets/coffret-aliaa-phone.webp";
 
 const Login = () => {
   const [email, setEmail] = useState("");

@@ -152,16 +152,24 @@ const Products = () => {
         </div>
       </section>
 
-      <section className="relative py-24 md:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-primary" />
-        <div className="relative flex items-center justify-center text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
-            <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-primary-foreground/50 mb-4">{t("products.needAdvice")}</p>
-            <h2 className="font-serif text-3xl md:text-5xl text-primary-foreground mb-6">{t("products.hereForYou")}</h2>
-            <Button asChild size="lg" className="rounded-none px-10 py-6 text-sm tracking-[0.15em] uppercase bg-primary-foreground text-primary hover:bg-primary-foreground/90">
-              <a href="mailto:contact@aliaacare.com">{t("common.contactUs")}<ArrowRight className="ltr:ml-3 rtl:mr-3 w-4 h-4" /></a>
-            </Button>
-          </motion.div>
+      <section className="py-24 md:py-32 bg-accent/30 border-t border-border">
+        <div className="container-full">
+          <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
+            <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
+              <span className="inline-block text-[11px] font-medium tracking-[0.2em] uppercase text-primary/60 mb-6">
+                {t("products.needAdvice")}
+              </span>
+              <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-primary mb-10 leading-[1.1]">
+                {t("products.hereForYou")}
+              </h2>
+              <Button asChild size="lg" className="rounded-none px-12 py-7 text-sm tracking-[0.15em] uppercase bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                <a href="mailto:contact@aliaacare.com">
+                  {t("common.contactUs")}
+                  <ArrowRight className="ltr:ml-4 rtl:mr-4 w-4 h-4" />
+                </a>
+              </Button>
+            </motion.div>
+          </div>
         </div>
       </section>
     </>

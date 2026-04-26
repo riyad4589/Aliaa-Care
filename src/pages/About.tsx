@@ -27,7 +27,7 @@ const About = () => {
   return (
     <>
       {/* ─── HERO ─── */}
-      <section ref={heroRef} className="relative h-[85vh] md:h-screen overflow-hidden">
+      <section ref={heroRef} className="relative h-[calc(100dvh-6rem)] md:h-[calc(100vh-7rem)] overflow-hidden">
         <motion.div className="absolute inset-0" style={{ y: heroImageY }}>
           <img src={coffretImg} alt="ALIAA Natural Care" className="w-full h-[130%] object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-charcoal/30 via-charcoal/20 to-charcoal/70" />
@@ -59,8 +59,8 @@ const About = () => {
       </section>
 
       {/* ─── PHILOSOPHY ─── */}
-      <section className="py-24 md:py-36">
-        <div className="container-narrow">
+      <section className="py-20 md:py-24 md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
+        <div className="container-narrow w-full">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8 }} className="max-w-3xl mx-auto text-center">
             <div className="divider-ornament mb-12">
@@ -74,9 +74,9 @@ const About = () => {
       </section>
 
       {/* ─── ORIGINS ─── */}
-      <section className="pb-20 md:pb-32">
-        <div className="container-full">
-          <div className="grid md:grid-cols-12 gap-12 lg:gap-20 items-center mb-24 md:mb-36">
+      <section className="py-20 md:py-24 md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
+        <div className="container-full w-full">
+          <div className="grid md:grid-cols-12 gap-12 lg:gap-20 items-center">
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
               transition={{ duration: 0.8 }} className="md:col-span-5">
               <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-5">{t("about.origins")}</p>
@@ -104,25 +104,30 @@ const About = () => {
               </motion.div>
             </motion.div>
           </div>
+        </div>
+      </section>
 
-          {/* ─── QUOTE BANNER ─── */}
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1 }} className="mb-24 md:mb-36">
-            <div className="relative h-[40vh] md:h-[55vh] overflow-hidden rounded-xl group">
-              <img src={guideImg} alt="Guide ALIAA" className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-charcoal/40 to-charcoal/20" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.3 }} className="text-center px-6">
-                  <Sparkles className="w-8 h-8 text-white/50 mx-auto mb-6" />
-                  <p className="font-serif text-3xl md:text-5xl lg:text-6xl text-white max-w-3xl leading-tight">
-                    {t("about.quote")}
-                  </p>
-                </motion.div>
-              </div>
+      {/* ─── QUOTE BANNER ─── */}
+      <section className="py-20 md:py-24 md:min-h-[calc(100vh-7rem)] md:flex md:items-center px-4 md:px-8">
+        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1 }} className="w-full">
+          <div className="relative h-[60vh] md:h-[calc(100vh-12rem)] overflow-hidden rounded-[2rem] group w-full max-w-7xl mx-auto shadow-2xl">
+            <img src={guideImg} alt="Guide ALIAA" className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/40 to-charcoal/30 flex items-center justify-center p-8">
+              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.3 }} className="text-center max-w-4xl mx-auto">
+                <Sparkles className="w-10 h-10 text-white/50 mx-auto mb-8" />
+                <p className="font-serif text-4xl md:text-5xl lg:text-7xl text-white max-w-4xl leading-[1.15]">
+                  {t("about.quote")}
+                </p>
+              </motion.div>
             </div>
-          </motion.div>
+          </div>
+        </motion.div>
+      </section>
 
-          {/* ─── APPROACH ─── */}
+      {/* ─── APPROACH ─── */}
+      <section className="py-20 md:py-24 md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
+        <div className="container-full w-full">
           <div className="grid md:grid-cols-12 gap-12 lg:gap-20 items-center">
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
               transition={{ duration: 0.9 }} className="md:col-span-7 md:order-first relative flex justify-center">
@@ -155,8 +160,8 @@ const About = () => {
       </section>
 
       {/* ─── PROCESS STEPS ─── */}
-      <section className="py-20 md:py-32 bg-muted/30 border-y border-border">
-        <div className="container-full">
+      <section className="py-20 md:py-24 bg-muted/30 border-y border-border md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
+        <div className="container-full w-full">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.6 }} className="text-center mb-16 md:mb-20">
             <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">Notre Processus</p>
@@ -193,8 +198,8 @@ const About = () => {
       </section>
 
       {/* ─── VALUES ─── */}
-      <section className="py-24 md:py-36 bg-linen">
-        <div className="container-full">
+      <section className="py-20 md:py-24 bg-linen md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
+        <div className="container-full w-full">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.6 }} className="text-center mb-20">
             <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("about.whatGuidesUs")}</p>
@@ -223,21 +228,26 @@ const About = () => {
         </div>
       </section>
 
-      {/* ─── IMAGE STRIP ─── */}
-      <section className="py-0">
-        <div className="grid grid-cols-3 h-[20vh] md:h-[30vh]">
-          {[coffretImg, selsBainImg, chayNifasImg].map((img, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: i * 0.15 }}
-              className="overflow-hidden group"
-            >
-              <img src={img} alt="" className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-110" />
+
+      {/* ─── CTA SECTION ─── */}
+      <section className="py-20 md:py-24 bg-accent/30 border-t border-border md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
+        <div className="container-full w-full">
+          <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
+            <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
+              <span className="inline-block text-[11px] font-medium tracking-[0.2em] uppercase text-primary/60 mb-6">
+                {t("products.needAdvice")}
+              </span>
+              <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-primary mb-10 leading-[1.1]">
+                {t("products.hereForYou")}
+              </h2>
+              <Button asChild size="lg" className="rounded-none px-12 py-7 text-sm tracking-[0.15em] uppercase bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                <a href="mailto:contact@aliaacare.com">
+                  {t("common.contactUs")}
+                  <ArrowRight className="ltr:ml-4 rtl:mr-4 w-4 h-4" />
+                </a>
+              </Button>
             </motion.div>
-          ))}
+          </div>
         </div>
       </section>
 

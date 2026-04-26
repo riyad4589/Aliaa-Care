@@ -16,10 +16,10 @@ export const Footer = () => {
       <div className="container-full pt-6 pb-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 border-t border-white/5 pt-6">
           <div className="col-span-2 md:col-span-1">
-            <Link to="/" className="inline-block mb-3 hover:opacity-80 transition-opacity">
-              <img src={typoImg} alt="ALIAA" className="h-14 md:h-20 w-auto brightness-0 invert" />
+            <Link to="/" className="inline-block hover:opacity-80 transition-opacity">
+              <img src={typoImg} alt="ALIAA" className="h-20 md:h-28 w-auto brightness-0 invert" />
             </Link>
-            <p className="text-[10px] text-white/40 leading-relaxed max-w-[200px]">
+            <p className="text-[10px] text-white/40 leading-relaxed max-w-[200px] -mt-2 md:-mt-4 relative z-10">
               Pure Plants, True Relief. Rituels naturels pour chaque femme.
             </p>
           </div>

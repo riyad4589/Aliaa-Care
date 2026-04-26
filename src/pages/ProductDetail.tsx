@@ -181,20 +181,28 @@ const ProductDetail = () => {
                 return (
                   <div className="mb-8">
                     {promoDiscount > 0 ? (
-                      <div className="flex items-center gap-4">
-                        <p className="text-2xl font-serif text-destructive">
-                          {Math.round(product.price * (1 - promoDiscount / 100)).toLocaleString()} DH
+                      <div className="flex items-baseline gap-4">
+                        <p className="text-3xl font-sans font-bold text-destructive tracking-tight">
+                          {Math.round(product.price * (1 - promoDiscount / 100)).toLocaleString()}<span className="text-lg font-medium text-muted-foreground/70 ml-1.5">DH</span>
                         </p>
-                        <p className="text-lg text-muted-foreground line-through">{product.price.toLocaleString()} DH</p>
-                        <span className="px-2 py-1 text-xs font-semibold bg-destructive text-destructive-foreground rounded-sm">-{promoDiscount}%</span>
+                        <p className="text-lg font-sans text-muted-foreground line-through opacity-60">
+                          {product.price.toLocaleString()}<span className="text-sm ml-1">DH</span>
+                        </p>
+                        <span className="px-2 py-1 text-xs font-semibold bg-destructive text-destructive-foreground rounded-sm self-center">-{promoDiscount}%</span>
                       </div>
                     ) : hasOriginal ? (
-                      <div className="flex items-center gap-4">
-                        <p className="text-2xl font-serif text-foreground">{product.price.toLocaleString()} DH</p>
-                        <p className="text-lg text-muted-foreground line-through">{originalPrice.toLocaleString()} DH</p>
+                      <div className="flex items-baseline gap-4">
+                        <p className="text-3xl font-sans font-bold text-foreground tracking-tight">
+                          {product.price.toLocaleString()}<span className="text-lg font-medium text-muted-foreground/70 ml-1.5">DH</span>
+                        </p>
+                        <p className="text-lg font-sans text-muted-foreground line-through opacity-60">
+                          {originalPrice.toLocaleString()}<span className="text-sm ml-1">DH</span>
+                        </p>
                       </div>
                     ) : (
-                      <p className="text-2xl font-serif text-foreground">{product.price.toLocaleString()} DH</p>
+                      <p className="text-3xl font-sans font-bold text-foreground tracking-tight">
+                        {product.price.toLocaleString()}<span className="text-lg font-medium text-muted-foreground/70 ml-1.5">DH</span>
+                      </p>
                     )}
                     {flashPromo && (
                       <div className="mt-3">
