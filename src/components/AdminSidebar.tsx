@@ -63,10 +63,13 @@ export function AdminSidebar() {
               ))}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild onClick={() => setOpenMobile(false)}>
-                  <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-md text-muted-foreground hover:bg-muted/50 mt-4">
+                  <a 
+                    href={window.location.hostname.startsWith('admin.') ? "https://aliaacare.com" : "/"} 
+                    className="flex items-center gap-2 px-3 py-2 rounded-md text-muted-foreground hover:bg-muted/50 mt-4"
+                  >
                     <ArrowLeft className="h-4 w-4 shrink-0" />
                     {!collapsed && <span>Retour au site</span>}
-                  </Link>
+                  </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>

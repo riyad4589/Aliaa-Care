@@ -149,7 +149,13 @@ const Login = () => {
 
           <div className="mt-8 text-center">
             <button
-              onClick={() => navigate("/")}
+              onClick={() => {
+                if (window.location.hostname.startsWith('admin.')) {
+                  window.location.href = "https://aliaacare.com";
+                } else {
+                  navigate("/");
+                }
+              }}
               className="text-sm text-muted-foreground hover:text-primary transition-colors underline decoration-dotted underline-offset-4"
             >
               Retour à la boutique
