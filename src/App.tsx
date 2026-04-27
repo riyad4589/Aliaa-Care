@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from
 import { useEffect } from "react";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { LanguageSelector } from "./components/LanguageSelector";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { AdminGuard } from "./components/auth/AdminGuard";
 import { GuestGuard } from "./components/auth/GuestGuard";
 import { ClientLayout } from "./components/layout/ClientLayout";
@@ -52,13 +52,31 @@ const queryClient = new QueryClient({
 const HostnameRedirect = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { isAdmin, isLoading } = useAuth();
 
   useEffect(() => {
+    if (isLoading) return;
+
     const hostname = window.location.hostname;
-    if (hostname === "admin.riyadmaj.online" && pathname === "/") {
-      navigate("/admin", { replace: true });
+    const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+    const isAdminDomain = hostname.startsWith('admin.');
+
+    if (isAdminDomain) {
+      // Redirect from root to admin or login on admin subdomain
+      if (pathname === '/') {
+        if (isAdmin) {
+          navigate("/admin", { replace: true });
+        } else {
+          navigate("/auth/login", { replace: true });
+        }
+      }
+    } else if (!isLocalhost) {
+      // Block admin access on non-admin domains (except localhost)
+      if (pathname.startsWith('/admin')) {
+        navigate("/", { replace: true });
+      }
     }
-  }, [navigate, pathname]);
+  }, [navigate, pathname, isAdmin, isLoading]);
 
   return null;
 };

@@ -12,8 +12,14 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoading && !isAdmin) {
-      navigate("/auth/login");
+    if (!isLoading) {
+      const hostname = window.location.hostname;
+      const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+      const isAdminDomain = hostname.startsWith('admin.');
+
+      if (!isAdmin || (!isAdminDomain && !isLocalhost)) {
+        navigate(isAdminDomain ? "/auth/login" : "/");
+      }
     }
   }, [isAdmin, isLoading, navigate]);
 
