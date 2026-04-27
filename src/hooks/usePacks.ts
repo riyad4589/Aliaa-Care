@@ -59,7 +59,11 @@ async function fetchPacks(): Promise<DbPack[]> {
 }
 
 export function usePacks() {
-  return useQuery({ queryKey: ["packs"], queryFn: fetchPacks });
+  return useQuery({ 
+    queryKey: ["packs"], 
+    queryFn: fetchPacks,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 }
 
 export function useAddPack() {

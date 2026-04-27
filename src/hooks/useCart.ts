@@ -18,12 +18,21 @@ interface CartState {
   getItemCount: () => number;
 }
 
+const lastAddedTime: Record<string, number> = {};
+
 export const useCart = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
 
       addItem: (product: Product, quantity = 1, selectedFlavors = []) => {
+        const now = Date.now();
+        // Prevent double adds within 500ms
+        if (lastAddedTime[product.id] && now - lastAddedTime[product.id] < 500) {
+          return;
+        }
+        lastAddedTime[product.id] = now;
+
         set((state) => {
           const existingItem = state.items.find(
             (item) => item.product.id === product.id
@@ -115,3 +124,12 @@ export const useCart = create<CartState>()(
     }
   )
 );
+
+// Sync across multiple tabs
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === "maison-cart") {
+      useCart.persist.rehydrate();
+    }
+  });
+}

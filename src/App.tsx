@@ -49,6 +49,28 @@ const queryClient = new QueryClient({
   },
 });
 
+const URLNormalizer = () => {
+  const navigate = useNavigate();
+  const { pathname, search } = useLocation();
+
+  useEffect(() => {
+    const lowerPath = pathname.toLowerCase();
+    
+    // Handle specific aliases
+    if (lowerPath === '/boutique' || lowerPath === '/shop') {
+      navigate('/products' + search, { replace: true });
+      return;
+    }
+
+    // General case normalization (redirect to lowercase)
+    if (pathname !== lowerPath) {
+      navigate(lowerPath + search, { replace: true });
+    }
+  }, [pathname, search, navigate]);
+
+  return null;
+};
+
 const HostnameRedirect = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -89,6 +111,7 @@ const App = () => (
         <Sonner />
         <LanguageSelector />
         <BrowserRouter>
+          <URLNormalizer />
           <HostnameRedirect />
           <ScrollToTop />
           <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>}>
@@ -124,8 +147,8 @@ const App = () => (
                 <Route path="finances" element={<AdminFinances />} />
                 <Route path="categories" element={<AdminCategories />} />
                 <Route path="packs" element={<AdminPacks />} />
-                <Route path="promo-codes" element={<AdminPromoCodes />} />
-                <Route path="packaging" element={<AdminPackaging />} />
+                {/* <Route path="promo-codes" element={<AdminPromoCodes />} /> */}
+                {/* <Route path="packaging" element={<AdminPackaging />} /> */}
                 <Route path="promotions" element={<AdminPromotions />} />
                 <Route path="orders" element={<AdminOrders />} />
               </Route>

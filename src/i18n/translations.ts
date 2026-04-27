@@ -184,6 +184,8 @@ const translations = {
   "checkout.orderError": { fr: "Erreur", en: "Error", ar: "خطأ" },
   "checkout.orderErrorDesc": { fr: "Impossible d'enregistrer la commande.", en: "Failed to submit order.", ar: "فشل في تسجيل الطلب." },
   "checkout.promoNotApplicable": { fr: "Ce code ne s'applique pas aux articles de votre panier", en: "This code does not apply to items in your cart", ar: "هذا الرمز لا ينطبق على العناصر الموجودة في سلتك" },
+  "checkout.emailInvalid": { fr: "Veuillez entrer une adresse email valide.", en: "Please enter a valid email address.", ar: "يرجى إدخال عنوان بريد إلكتروني صالح." },
+  "checkout.requiredFields": { fr: "Veuillez remplir tous les champs obligatoires (*).", en: "Please fill in all required fields (*).", ar: "يرجى ملء جميع الحقول المطلوبة (*)." },
 
   // Wishlist
   "wishlist.title": { fr: "Mes Favoris", en: "My Favorites", ar: "مفضلاتي" },

@@ -163,7 +163,7 @@ const Products = () => {
                 {t("products.hereForYou")}
               </h2>
               <Button asChild size="lg" className="rounded-none px-12 py-7 text-sm tracking-[0.15em] uppercase bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-                <a href="mailto:contact@aliaacare.com">
+                <a href="mailto:Aliaacare.ac@gmail.com">
                   {t("common.contactUs")}
                   <ArrowRight className="ltr:ml-4 rtl:mr-4 w-4 h-4" />
                 </a>

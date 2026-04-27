@@ -45,6 +45,7 @@ export function usePromotions() {
         tier_rules: d.tier_rules as unknown as TierRule[] | null 
       })) as Promotion[];
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 

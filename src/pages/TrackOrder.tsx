@@ -74,6 +74,7 @@ const TrackOrder = () => {
                   value={orderNumber}
                   onChange={(e) => setOrderNumber(e.target.value)}
                   placeholder="Ex: #CMD-X123"
+                  maxLength={50}
                   className="pl-12 h-14 bg-transparent border-none focus-visible:ring-0 text-lg font-medium"
                 />
               </div>
@@ -226,7 +227,7 @@ const TrackOrder = () => {
                 </div>
                 <h3 className="font-serif text-2xl mb-2">Commande introuvable</h3>
                 <p className="text-muted-foreground max-w-xs mx-auto mb-8">
-                  Nous n'avons trouvé aucune commande avec le numéro <span className="font-mono font-bold text-foreground">#{searchQuery}</span>.
+                  Nous n'avons trouvé aucune commande avec le numéro <span className="font-mono font-bold text-foreground">#{searchQuery.length > 50 ? `${searchQuery.substring(0, 50)}...` : searchQuery}</span>.
                 </p>
                 <Button variant="outline" onClick={() => setSearchQuery(null)}>
                   Réessayer

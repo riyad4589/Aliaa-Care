@@ -59,8 +59,8 @@ export const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60 mb-3">{t("footer.contact")}</h4>
             <div className="space-y-2">
-              <a href="mailto:contact@aliaacare.com" className="text-sm text-white/40 hover:text-white transition-colors block italic underline underline-offset-4 decoration-white/10 hover:decoration-white/40">
-                contact@aliaacare.com
+              <a href="mailto:Aliaacare.ac@gmail.com" className="text-sm text-white/40 hover:text-white transition-colors block italic underline underline-offset-4 decoration-white/10 hover:decoration-white/40">
+                Aliaacare.ac@gmail.com
               </a>
               <p className="text-xs text-white/30 leading-relaxed max-w-[200px]">
                 {t("footer.schedule")}

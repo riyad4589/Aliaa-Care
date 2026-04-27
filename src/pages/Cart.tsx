@@ -17,8 +17,7 @@ const Cart = () => {
   const tieredDiscount = getTieredDiscount(totalItems);
   const tieredPromos = getTieredPromos();
   const discountAmount = Math.round(subtotal * tieredDiscount / 100);
-  const shipping = (subtotal - discountAmount) > 500 ? 0 : 25;
-  const total = subtotal - discountAmount + shipping;
+  const total = subtotal - discountAmount;
 
   if (items.length === 0) {
     return (
@@ -108,10 +107,6 @@ const Cart = () => {
                     <span className="text-muted-foreground">{t("cart.subtotal")}</span>
                     <span>{subtotal.toLocaleString()} DH</span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t("cart.shipping")}</span>
-                    <span>{shipping === 0 ? t("cart.free") : `${shipping} DH`}</span>
-                  </div>
                   {tieredDiscount > 0 && (
                     <div className="flex justify-between text-sm text-destructive">
                       <span>{t("cart.tieredDiscount")} (-{tieredDiscount}%)</span>
@@ -123,7 +118,6 @@ const Cart = () => {
                       💡 {tieredPromos[0].tier_rules?.[0] && t("cart.addMoreToGetDiscount").replace("{qty}", (tieredPromos[0].tier_rules[0].min_qty - totalItems).toString()).replace("{percent}", tieredPromos[0].tier_rules[0].discount_percent.toString())}
                     </div>
                   )}
-                  {subtotal < 500 && <p className="text-xs text-muted-foreground">{t("cart.freeShippingFrom")}</p>}
                 </div>
                 <div className="border-t border-border pt-4 mb-8">
                   <div className="flex justify-between font-serif text-xl">

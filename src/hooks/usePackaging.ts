@@ -23,6 +23,7 @@ export const usePackaging = () =>
       if (error) throw error;
       return data as Packaging[];
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
 export const useCreatePackaging = () => {

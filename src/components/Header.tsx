@@ -83,9 +83,9 @@ export const Header = () => {
       <nav className="container-full">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-300">
+          <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center h-16 md:h-20 shrink-0 hover:opacity-80 transition-opacity duration-300">
             {/* <img src={logoImg} alt="ALIAA Natural Care" className="h-14 md:h-12 w-auto" /> */}
-            <img src={typoImg} alt="ALIAA CARE" className="h-20 md:h-40 w-auto" />
+            <img src={typoImg} alt="ALIAA CARE" className="h-24 md:h-40 w-auto max-w-none pointer-events-none" />
           </Link>
 
           {/* Desktop Navigation */}

@@ -13,6 +13,7 @@ import { useValidatePromoCode, useIncrementPromoUsage, PromoCode } from "@/hooks
 import { useT } from "@/hooks/useT";
 import { sendOrderWhatsAppNotification } from "@/lib/whatsapp";
 import { cities, regions } from "@/data/maroc";
+import { cn } from "@/lib/utils";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const Checkout = () => {
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
   const [promoError, setPromoError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", email: "", phone: "",
     address: "", region: "", city: "", postalCode: "", country: "Maroc", notes: "",
@@ -36,9 +38,9 @@ const Checkout = () => {
   // Calculate discount
   const getDiscount = () => {
     if (!appliedPromo) return 0;
-    
+
     const discountFactor = (Number(appliedPromo.discount_percent) || 0) / 100;
-    
+
     if (appliedPromo.applies_to === "all") {
       return subtotal * discountFactor;
     }
@@ -51,36 +53,36 @@ const Checkout = () => {
     for (const item of items) {
       // Determine if item is a pack or a product
       // Packs usually have a specific collection or flag, but here we can check if it's in pack_ids or product_ids
-      const isProductEligible = (appliedPromo.applies_to === "products" || appliedPromo.applies_to === "custom") && 
-                               promoProductIds.includes(item.product.id);
-      
-      const isPackEligible = (appliedPromo.applies_to === "packs" || appliedPromo.applies_to === "custom") && 
-                            promoPackIds.includes(item.product.id);
+      const isProductEligible = (appliedPromo.applies_to === "products" || appliedPromo.applies_to === "custom") &&
+        promoProductIds.includes(item.product.id);
+
+      const isPackEligible = (appliedPromo.applies_to === "packs" || appliedPromo.applies_to === "custom") &&
+        promoPackIds.includes(item.product.id);
 
       if (isProductEligible || isPackEligible) {
         eligibleTotal += item.product.price * item.quantity;
       }
     }
-    
+
     return eligibleTotal * discountFactor;
   };
 
   const discount = Math.round(getDiscount());
   const afterDiscount = Math.max(0, subtotal - discount);
-  
+
   // Calculate shipping based on selected region and city
   const selectedRegion = regions.find(r => r.name === formData.region);
   const selectedCity = cities.find(c => c.name === formData.city);
-  
+
   let baseShipping = 45;
   if (selectedCity && selectedCity.shippingFeeOverride) {
     baseShipping = selectedCity.shippingFeeOverride;
   } else if (selectedRegion) {
     baseShipping = selectedRegion.baseShippingFee;
   }
-  
+
   const shipping = (afterDiscount > 500 || formData.region === "") ? 0 : baseShipping;
-  
+
   const total = afterDiscount + shipping;
 
   if (items.length === 0) {
@@ -100,7 +102,13 @@ const Checkout = () => {
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+
+    // Filter phone number to only accept digits
+    if (name === "phone") {
+      value = value.replace(/\D/g, "");
+    }
+
     setFormData((prev) => {
       const newData = { ...prev, [name]: value };
       // Reset city if region changes
@@ -109,6 +117,10 @@ const Checkout = () => {
       }
       return newData;
     });
+
+    if (name === "email") {
+      setEmailError("");
+    }
   };
 
   const handleApplyPromo = async () => {
@@ -116,13 +128,13 @@ const Checkout = () => {
     setPromoError("");
     try {
       const promo = await validatePromo.mutateAsync(promoInput);
-      
+
       // Temporary check for eligible items
       let isEligible = promo.applies_to === "all";
       if (!isEligible) {
         const promoProductIds = promo.product_ids || [];
         const promoPackIds = promo.pack_ids || [];
-        isEligible = items.some(item => 
+        isEligible = items.some(item =>
           (promo.applies_to === "products" || promo.applies_to === "custom") && promoProductIds.includes(item.product.id) ||
           (promo.applies_to === "packs" || promo.applies_to === "custom") && promoPackIds.includes(item.product.id)
         );
@@ -149,6 +161,30 @@ const Checkout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Basic validation for required fields
+    if (!formData.firstName || !formData.lastName || !formData.phone || !formData.address || !formData.city || !formData.region) {
+       toast({ 
+        title: t("checkout.orderError"), 
+        description: t("checkout.requiredFields"), 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setEmailError(t("checkout.emailInvalid"));
+      toast({ 
+        title: t("checkout.orderError"), 
+        description: t("checkout.emailInvalid"), 
+        variant: "destructive" 
+      });
+      return;
+    }
+    setEmailError("");
+
     setIsSubmitting(true);
     try {
       const orderNumber = `CMD-${Date.now().toString(36).toUpperCase()}`;
@@ -199,7 +235,7 @@ const Checkout = () => {
         await incrementUsage.mutateAsync(appliedPromo.id);
       }
       toast({ title: t("checkout.orderSuccess"), description: t("checkout.orderSuccessDesc") });
-      
+
       clearCart();
       navigate("/");
     } catch {
@@ -239,27 +275,28 @@ const Checkout = () => {
 
           <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }} className="lg:col-span-7">
-              <form onSubmit={handleSubmit} className="space-y-8">
+              <form onSubmit={handleSubmit} noValidate className="space-y-8">
                 <div>
                   <h2 className="font-serif text-xl mb-6">{t("checkout.contactInfo")}</h2>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="firstName" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.firstName")} *</label>
-                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required className="rounded-none h-12" />
+                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required maxLength={50} className="rounded-none h-12" />
                     </div>
                     <div>
                       <label htmlFor="lastName" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.lastName")} *</label>
-                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} required className="rounded-none h-12" />
+                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} required maxLength={50} className="rounded-none h-12" />
                     </div>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4 mt-4">
                     <div>
                       <label htmlFor="email" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.email")} *</label>
-                      <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} required className="rounded-none h-12" />
+                      <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} required maxLength={100} className={cn("rounded-none h-12", emailError && "border-destructive focus-visible:ring-destructive")} />
+                      {emailError && <p className="text-xs text-destructive mt-1.5">{emailError}</p>}
                     </div>
                     <div>
                       <label htmlFor="phone" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.phone")} *</label>
-                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} required className="rounded-none h-12" />
+                      <Input id="phone" name="phone" type="tel" inputMode="numeric" value={formData.phone} onChange={handleInputChange} required maxLength={20} className="rounded-none h-12" />
                     </div>
                   </div>
                 </div>
@@ -269,17 +306,17 @@ const Checkout = () => {
                   <div className="space-y-4">
                     <div>
                       <label htmlFor="address" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.address")} *</label>
-                      <Input id="address" name="address" value={formData.address} onChange={handleInputChange} required className="rounded-none h-12" />
+                      <Input id="address" name="address" value={formData.address} onChange={handleInputChange} required maxLength={200} className="rounded-none h-12" />
                     </div>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
                         <label htmlFor="region" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Région *</label>
-                        <select 
-                          id="region" 
-                          name="region" 
-                          value={formData.region} 
-                          onChange={handleInputChange} 
-                          required 
+                        <select
+                          id="region"
+                          name="region"
+                          value={formData.region}
+                          onChange={handleInputChange}
+                          required
                           className="w-full bg-background border border-border px-4 h-12 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
                         >
                           <option value="">Sélectionner une région</option>
@@ -290,12 +327,12 @@ const Checkout = () => {
                       </div>
                       <div>
                         <label htmlFor="city" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.city")} *</label>
-                        <select 
-                          id="city" 
-                          name="city" 
-                          value={formData.city} 
-                          onChange={handleInputChange} 
-                          required 
+                        <select
+                          id="city"
+                          name="city"
+                          value={formData.city}
+                          onChange={handleInputChange}
+                          required
                           disabled={!formData.region}
                           className="w-full bg-background border border-border px-4 h-12 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -315,11 +352,11 @@ const Checkout = () => {
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
                         <label htmlFor="postalCode" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.postalCode")} *</label>
-                        <Input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleInputChange} required className="rounded-none h-12" />
+                        <Input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleInputChange} required maxLength={10} className="rounded-none h-12" />
                       </div>
                       <div>
                         <label htmlFor="country" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.country")} *</label>
-                        <Input id="country" name="country" value={formData.country} onChange={handleInputChange} required className="rounded-none h-12" />
+                        <Input id="country" name="country" value={formData.country} onChange={handleInputChange} required maxLength={50} className="rounded-none h-12" />
                       </div>
                     </div>
                   </div>
@@ -327,7 +364,7 @@ const Checkout = () => {
 
                 <div>
                   <h2 className="font-serif text-xl mb-6">{t("checkout.notes")}</h2>
-                  <Textarea name="notes" value={formData.notes} onChange={handleInputChange} placeholder={t("checkout.notesPlaceholder")} className="rounded-none min-h-[120px]" />
+                  <Textarea name="notes" value={formData.notes} onChange={handleInputChange} placeholder={t("checkout.notesPlaceholder")} maxLength={500} className="rounded-none min-h-[120px]" />
                 </div>
 
                 <Button type="submit" size="lg" disabled={isSubmitting} className="w-full rounded-none py-6 text-sm tracking-[0.15em] uppercase btn-premium">
@@ -355,7 +392,7 @@ const Checkout = () => {
                 </div>
 
                 {/* Promo Code Section */}
-                <div className="border-t border-border pt-4 mb-4">
+                {/* <div className="border-t border-border pt-4 mb-4">
                   <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground mb-3 flex items-center gap-1.5">
                     <Tag className="w-3 h-3" />{t("checkout.promoCode")}
                   </p>
@@ -377,6 +414,7 @@ const Checkout = () => {
                           value={promoInput}
                           onChange={(e) => { setPromoInput(e.target.value.toUpperCase()); setPromoError(""); }}
                           placeholder={t("checkout.promoPlaceholder")}
+                          maxLength={20}
                           className="rounded-none h-10 font-mono tracking-wider text-sm"
                         />
                         <Button
@@ -393,7 +431,7 @@ const Checkout = () => {
                       {promoError && <p className="text-xs text-destructive mt-1.5">{promoError}</p>}
                     </div>
                   )}
-                </div>
+                </div> */}
 
                 <div className="border-t border-border pt-4 space-y-3 mb-6">
                   <div className="flex justify-between text-sm">
@@ -419,7 +457,7 @@ const Checkout = () => {
                 </div>
                 <div className="mt-8 pt-6 border-t border-border">
                   <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground/60 mb-3">{t("checkout.questions")}</p>
-                  <p className="text-sm text-muted-foreground">{t("checkout.contactEmail")} <a href="mailto:contact@aliaacare.com" className="text-foreground underline">contact@aliaacare.com</a></p>
+                  <p className="text-sm text-muted-foreground">{t("checkout.contactEmail")} <a href="mailto:Aliaacare.ac@gmail.com" className="text-foreground underline">Aliaacare.ac@gmail.com</a></p>
                 </div>
               </div>
             </motion.div>

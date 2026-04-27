@@ -84,9 +84,9 @@ const About = () => {
                 <img src={chayNifasImg} alt="Chay Nifas" className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105" />
               </div>
               <div className={cn(
-                  "absolute -bottom-8 bg-primary text-primary-foreground p-6 md:p-8 rounded-lg shadow-xl max-w-[220px]",
-                  isRtl ? "-right-6 md:-right-12" : "-left-6 md:-left-12"
-                )}
+                "absolute -bottom-8 bg-primary text-primary-foreground p-6 md:p-8 rounded-lg shadow-xl max-w-[220px]",
+                isRtl ? "-right-6 md:-right-12" : "-left-6 md:-left-12"
+              )}
               >
                 <Leaf className="w-6 h-6 mb-3 opacity-70" />
                 <p className="font-serif text-lg leading-snug">{t("about.naturalNoPreservatives")}</p>
@@ -122,9 +122,9 @@ const About = () => {
                 <img src={coffretArganImg} alt="Coffret ALIAA" className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105" />
               </div>
               <div className={cn(
-                  "absolute -bottom-8 bg-background border border-border p-6 md:p-8 rounded-lg shadow-xl max-w-[220px]",
-                  isRtl ? "-left-6 md:-left-12" : "-right-6 md:-right-12"
-                )}
+                "absolute -bottom-8 bg-background border border-border p-6 md:p-8 rounded-lg shadow-xl max-w-[220px]",
+                isRtl ? "-left-6 md:-left-12" : "-right-6 md:-right-12"
+              )}
               >
                 <Heart className="w-6 h-6 mb-3 text-primary" />
                 <p className="font-serif text-lg leading-snug text-foreground">{t("about.preparedWithLove")}</p>
@@ -220,7 +220,7 @@ const About = () => {
                 {t("products.hereForYou")}
               </h2>
               <Button asChild size="lg" className="rounded-none px-12 py-7 text-sm tracking-[0.15em] uppercase bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-                <a href="mailto:contact@aliaacare.com">
+                <a href="mailto:Aliaacare.ac@gmail.com">
                   {t("common.contactUs")}
                   <ArrowRight className="ltr:ml-4 rtl:mr-4 w-4 h-4" />
                 </a>

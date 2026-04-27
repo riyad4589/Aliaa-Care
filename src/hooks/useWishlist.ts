@@ -33,3 +33,12 @@ export const useWishlist = create<WishlistState>()(
     }
   )
 );
+
+// Sync across multiple tabs
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === "wishlist-storage") {
+      useWishlist.persist.rehydrate();
+    }
+  });
+}
