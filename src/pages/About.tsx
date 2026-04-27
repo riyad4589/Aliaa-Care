@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ArrowRight, Leaf, Heart, Sparkles, Shield, Star, Droplets } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,9 +17,6 @@ const About = () => {
   const { language } = useLanguage();
   const isRtl = language === "ar";
   const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroImageY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   const stats = [
     { value: "100%", label: t("about.statNatural") },
@@ -32,48 +28,42 @@ const About = () => {
     <>
       {/* ─── HERO ─── */}
       <section ref={heroRef} className="relative h-[calc(100dvh-6rem)] md:h-[calc(100vh-7rem)] overflow-hidden">
-        <motion.div className="absolute inset-0" style={{ y: heroImageY }}>
-          <img src={coffretImg} alt="ALIAA Natural Care" className="w-full h-[130%] object-cover" />
+        <div className="absolute inset-0">
+          <img src={coffretImg} alt="ALIAA Natural Care" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-charcoal/30 via-charcoal/20 to-charcoal/70" />
-        </motion.div>
-        <motion.div style={{ opacity: heroOpacity }} className="relative container-full h-full flex flex-col justify-end pb-16 md:pb-28">
-          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}>
+        </div>
+        <div className="relative container-full h-full flex flex-col justify-end pb-16 md:pb-28">
+          <div>
             <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-white/60 mb-5">{t("about.heroTag")}</p>
             <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-6 leading-[0.9]">
               {t("about.heroTitle1")}<br /><span className="italic font-normal">{t("about.heroTitle2")}</span>
             </h1>
             <p className="text-base md:text-lg text-white/70 max-w-lg leading-relaxed">{t("about.heroDesc")}</p>
-          </motion.div>
+          </div>
 
           {/* Stats bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex gap-8 md:gap-16 mt-12 pt-8 border-t border-white/20"
-          >
+          <div className="flex gap-8 md:gap-16 mt-12 pt-8 border-t border-white/20">
             {stats.map((stat, i) => (
               <div key={i}>
                 <p className="font-serif text-3xl md:text-4xl text-white">{stat.value}</p>
                 <p className="text-[10px] md:text-xs tracking-[0.2em] uppercase text-white/50 mt-1">{stat.label}</p>
               </div>
             ))}
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </section>
 
       {/* ─── PHILOSOPHY ─── */}
       <section className="py-20 md:py-24 md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
         <div className="container-narrow w-full">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }} className="max-w-3xl mx-auto text-center">
+          <div className="max-w-3xl mx-auto text-center">
             <div className="divider-ornament mb-12">
               <span className="text-[10px] font-semibold tracking-[0.3em] uppercase text-primary whitespace-nowrap">{t("about.philosophy")}</span>
             </div>
             <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground leading-[1.25] tracking-tight">
               {t("about.philosophyText")} <span className="italic text-primary">{t("about.philosophyItalic")}</span> {t("about.philosophyText2")}
             </h2>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -81,90 +71,73 @@ const About = () => {
       <section className="py-20 md:py-24 md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
         <div className="container-full w-full">
           <div className="grid md:grid-cols-12 gap-12 lg:gap-20 items-center">
-            <motion.div initial={{ opacity: 0, x: isRtl ? 30 : -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-              transition={{ duration: 0.8 }} className="md:col-span-5">
+            <div className="md:col-span-5">
               <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-5">{t("about.origins")}</p>
               <h3 className="font-serif text-3xl md:text-4xl text-foreground mb-8 leading-tight">
                 {t("about.originsTitle1")}<br /><span className="italic">{t("about.originsTitle2")}</span>
               </h3>
               <p className="text-muted-foreground leading-[1.8] mb-5">{t("about.originsText1")}</p>
               <p className="text-muted-foreground leading-[1.8]">{t("about.originsText2")}</p>
-            </motion.div>
-            <motion.div initial={{ opacity: 0, x: isRtl ? -30 : 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-              transition={{ duration: 0.9, delay: 0.15 }} className="md:col-span-7 relative flex justify-center">
+            </div>
+            <div className="md:col-span-7 relative flex justify-center">
               <div className="aspect-square w-full max-w-md overflow-hidden group rounded-lg shadow-2xl">
-                <img src={chayNifasImg} alt="Chay Nifas" className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105" />
+                <img src={chayNifasImg} alt="Chay Nifas" className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105" />
               </div>
-              {/* Floating accent card */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className={cn(
+              <div className={cn(
                   "absolute -bottom-8 bg-primary text-primary-foreground p-6 md:p-8 rounded-lg shadow-xl max-w-[220px]",
                   isRtl ? "-right-6 md:-right-12" : "-left-6 md:-left-12"
                 )}
               >
                 <Leaf className="w-6 h-6 mb-3 opacity-70" />
                 <p className="font-serif text-lg leading-snug">{t("about.naturalNoPreservatives")}</p>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ─── QUOTE BANNER ─── */}
       <section className="py-20 md:py-24 md:min-h-[calc(100vh-7rem)] md:flex md:items-center px-4 md:px-8">
-        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1 }} className="w-full">
+        <div className="w-full">
           <div className="relative h-[60vh] md:h-[calc(100vh-12rem)] overflow-hidden rounded-[2rem] group w-full max-w-7xl mx-auto shadow-2xl">
-            <img src={guideImg} alt="Guide ALIAA" className="w-full h-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-105" />
+            <img src={guideImg} alt="Guide ALIAA" className="w-full h-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/40 to-charcoal/30 flex items-center justify-center p-8">
-              <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.3 }} className="text-center max-w-4xl mx-auto">
+              <div className="text-center max-w-4xl mx-auto">
                 <Sparkles className="w-10 h-10 text-white/50 mx-auto mb-8" />
                 <p className="font-serif text-4xl md:text-5xl lg:text-7xl text-white max-w-4xl leading-[1.15]">
                   {t("about.quote")}
                 </p>
-              </motion.div>
+              </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* ─── APPROACH ─── */}
       <section className="py-20 md:py-24 md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
         <div className="container-full w-full">
           <div className="grid md:grid-cols-12 gap-12 lg:gap-20 items-center">
-            <motion.div initial={{ opacity: 0, x: isRtl ? 30 : -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-              transition={{ duration: 0.9 }} className="md:col-span-7 md:order-first relative flex justify-center">
+            <div className="md:col-span-7 md:order-first relative flex justify-center">
               <div className="aspect-square w-full max-w-md overflow-hidden group rounded-lg shadow-2xl">
-                <img src={coffretArganImg} alt="Coffret ALIAA" className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105" />
+                <img src={coffretArganImg} alt="Coffret ALIAA" className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105" />
               </div>
-              {/* Floating accent card */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className={cn(
+              <div className={cn(
                   "absolute -bottom-8 bg-background border border-border p-6 md:p-8 rounded-lg shadow-xl max-w-[220px]",
                   isRtl ? "-left-6 md:-left-12" : "-right-6 md:-right-12"
                 )}
               >
                 <Heart className="w-6 h-6 mb-3 text-primary" />
                 <p className="font-serif text-lg leading-snug text-foreground">{t("about.preparedWithLove")}</p>
-              </motion.div>
-            </motion.div>
-            <motion.div initial={{ opacity: 0, x: isRtl ? -30 : 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.15 }} className="md:col-span-5">
+              </div>
+            </div>
+            <div className="md:col-span-5">
               <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-5">{t("about.approach")}</p>
               <h3 className="font-serif text-3xl md:text-4xl text-foreground mb-8 leading-tight">
                 {t("about.approachTitle1")}<br /><span className="italic">{t("about.approachTitle2")}</span>
               </h3>
               <p className="text-muted-foreground leading-[1.8] mb-5">{t("about.approachText1")}</p>
               <p className="text-muted-foreground leading-[1.8]">{t("about.approachText2")}</p>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -172,11 +145,10 @@ const About = () => {
       {/* ─── PROCESS STEPS ─── */}
       <section className="py-20 md:py-24 bg-muted/30 border-y border-border md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
         <div className="container-full w-full">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            transition={{ duration: 0.6 }} className="text-center mb-16 md:mb-20">
+          <div className="text-center mb-16 md:mb-20">
             <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("about.ourProcess")}</p>
             <h2 className="font-serif text-4xl md:text-5xl text-foreground">{t("about.fromFieldToCup")}</h2>
-          </motion.div>
+          </div>
           <div className="grid md:grid-cols-4 gap-8 md:gap-6 lg:gap-10">
             {[
               { icon: Leaf, step: "01", title: t("about.step1Title"), desc: t("about.step1Desc") },
@@ -184,12 +156,8 @@ const About = () => {
               { icon: Shield, step: "03", title: t("about.step3Title"), desc: t("about.step3Desc") },
               { icon: Star, step: "04", title: t("about.step4Title"), desc: t("about.step4Desc") },
             ].map((item, i) => (
-              <motion.div
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.7, delay: i * 0.12 }}
                 className="relative text-center group"
               >
                 {i < 3 && (
@@ -204,7 +172,7 @@ const About = () => {
                 <span className="text-[10px] font-bold tracking-[0.3em] text-primary/40 mb-2 block">{item.step}</span>
                 <h3 className="font-serif text-xl text-foreground mb-3">{item.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-[250px] mx-auto">{item.desc}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -213,19 +181,17 @@ const About = () => {
       {/* ─── VALUES ─── */}
       <section className="py-20 md:py-24 bg-linen md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
         <div className="container-full w-full">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            transition={{ duration: 0.6 }} className="text-center mb-20">
+          <div className="text-center mb-20">
             <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("about.whatGuidesUs")}</p>
             <h2 className="font-serif text-4xl md:text-5xl text-foreground">{t("about.ourValues")}</h2>
-          </motion.div>
+          </div>
           <div className="grid md:grid-cols-3 gap-10 md:gap-8 lg:gap-16">
             {[
               { title: t("about.purity"), number: "01", description: t("about.purityDesc"), icon: Leaf },
               { title: t("about.tradition"), number: "02", description: t("about.traditionDesc"), icon: Star },
               { title: t("about.kindness"), number: "03", description: t("about.kindnessDesc"), icon: Heart },
             ].map((value, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                transition={{ duration: 0.7, delay: i * 0.15 }}
+              <div key={i}
                 className="text-center p-8 md:p-10 rounded-xl bg-background border border-border hover:shadow-lg transition-shadow duration-500 group"
               >
                 <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
@@ -235,7 +201,7 @@ const About = () => {
                 <h3 className="font-serif text-2xl text-foreground mb-4">{value.title}</h3>
                 <div className="w-8 h-px bg-primary/30 mx-auto mb-5" />
                 <p className="text-muted-foreground leading-[1.8] text-sm">{value.description}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -246,7 +212,7 @@ const About = () => {
       <section className="py-20 md:py-24 bg-accent/30 border-t border-border md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
         <div className="container-full w-full">
           <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
-            <motion.div initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}>
+            <div>
               <span className="inline-block text-[11px] font-medium tracking-[0.2em] uppercase text-primary/60 mb-6">
                 {t("products.needAdvice")}
               </span>
@@ -259,7 +225,7 @@ const About = () => {
                   <ArrowRight className="ltr:ml-4 rtl:mr-4 w-4 h-4" />
                 </a>
               </Button>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>

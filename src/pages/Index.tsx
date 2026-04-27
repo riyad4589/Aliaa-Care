@@ -107,7 +107,7 @@ const Index = () => {
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                 transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const }} className="relative aspect-square overflow-hidden group">
                 <img src={featuredCollection.heroImage || featuredCollection.image} alt={featuredCollection.name}
-                  className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105" />
+                  className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 via-transparent to-transparent" />
               </motion.div>
               <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
