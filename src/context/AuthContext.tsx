@@ -63,9 +63,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!mounted) return;
 
       if (event === 'SIGNED_IN') {
+        const isNewUser = !user || user.id !== session?.user.id;
         setSession(session);
         setUser(session?.user ?? null);
-        if (session?.user) {
+        if (session?.user && isNewUser) {
           setIsLoading(true);
           fetchProfile(session.user.id);
         }

@@ -487,7 +487,11 @@ const AdminOrders = () => {
 
       {/* Order Details Dialog */}
       <Dialog open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
-        <DialogContent className="max-w-3xl max-h-[95vh] p-0 overflow-hidden rounded-xl border-none shadow-2xl">
+        <DialogContent 
+          className="max-w-3xl max-h-[95vh] p-0 overflow-hidden rounded-xl border-none shadow-2xl"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogTitle className="sr-only">Détails de la commande</DialogTitle>
           <DialogDescription className="sr-only">Affichage des informations détaillées de la commande sélectionnée.</DialogDescription>
           {selectedOrder && (
@@ -673,7 +677,11 @@ const AdminOrders = () => {
       </Dialog>
 
       <Dialog open={!!editingOrder} onOpenChange={(open) => !open && setEditingOrder(null)}>
-        <DialogContent className="max-w-2xl h-[90vh] p-0 rounded-xl shadow-2xl flex flex-col overflow-hidden">
+        <DialogContent 
+          className="max-w-2xl h-[90vh] p-0 rounded-xl shadow-2xl flex flex-col overflow-hidden"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader className="p-6 bg-primary text-primary-foreground shrink-0">
             <DialogTitle className="font-serif text-2xl font-bold">Modifier la Commande</DialogTitle>
             <DialogDescription className="sr-only">Formulaire pour modifier les détails de la commande.</DialogDescription>
@@ -937,7 +945,11 @@ const AdminOrders = () => {
           }
         }}
       >
-        <AlertDialogContent className="rounded-2xl border-destructive/20">
+        <AlertDialogContent 
+          className="rounded-2xl border-destructive/20"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <AlertDialogHeader>
             <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive mb-4">
               <AlertTriangle className="w-6 h-6" />

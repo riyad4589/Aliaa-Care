@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { useCategories, useAddCategory, useUpdateCategory, useDeleteCategory, useBulkDeleteCategories, DbCategory } from "@/hooks/useCategories";
 import { useProducts } from "@/hooks/useProducts";
@@ -23,6 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/utils/imageCompression";
 
 const AdminCategories = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: categories = [], isLoading } = useCategories();
   const { data: products = [] } = useProducts();
   const addCategory = useAddCategory();
@@ -30,7 +32,6 @@ const AdminCategories = () => {
   const deleteCategory = useDeleteCategory();
   const bulkDeleteCategories = useBulkDeleteCategories();
   const { toast } = useToast();
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<{ id?: string; name: string; description: string; slug: string; image: string } | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -39,14 +40,62 @@ const AdminCategories = () => {
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
+  // Sync dialog state with URL
+  const dialogOpen = searchParams.get("action") === "edit" || searchParams.get("action") === "new";
+
+  useEffect(() => {
+    const action = searchParams.get("action");
+    const id = searchParams.get("id");
+    
+    const draftKey = `category_draft_${action}_${id || 'new'}`;
+    const savedDraft = localStorage.getItem(draftKey);
+
+    if (savedDraft) {
+      setEditing(JSON.parse(savedDraft));
+      return;
+    }
+
+    if (action === "new") {
+      setEditing({ name: "", description: "", slug: "", image: "" });
+    } else if (action === "edit" && id && categories.length > 0) {
+      const c = categories.find(cat => cat.id === id);
+      if (c) {
+        setEditing({ id: c.id, name: c.name, description: c.description || "", slug: c.slug, image: c.image || "" });
+      }
+    } else if (!action) {
+      setEditing(null);
+    }
+  }, [searchParams, categories]);
+
+  // Save draft whenever editing changes
+  useEffect(() => {
+    if (editing && dialogOpen) {
+      const action = searchParams.get("action");
+      const id = searchParams.get("id");
+      const draftKey = `category_draft_${action}_${id || 'new'}`;
+      localStorage.setItem(draftKey, JSON.stringify(editing));
+    }
+  }, [editing, dialogOpen, searchParams]);
+
+  const clearDraft = () => {
+    const action = searchParams.get("action");
+    const id = searchParams.get("id");
+    localStorage.removeItem(`category_draft_${action}_${id || 'new'}`);
+  };
+
+  const setDialogOpen = (open: boolean) => {
+    if (!open) {
+      clearDraft();
+      setSearchParams({});
+    }
+  };
+
   const openNew = () => {
-    setEditing({ name: "", description: "", slug: "", image: "" });
-    setDialogOpen(true);
+    setSearchParams({ action: "new" });
   };
 
   const openEdit = (c: DbCategory) => {
-    setEditing({ id: c.id, name: c.name, description: c.description || "", slug: c.slug, image: c.image || "" });
-    setDialogOpen(true);
+    setSearchParams({ action: "edit", id: c.id });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,6 +144,7 @@ const AdminCategories = () => {
         await addCategory.mutateAsync({ name: editing.name, slug, description: editing.description, image: editing.image });
         toast({ title: "Catégorie ajoutée" });
       }
+      clearDraft();
       setDialogOpen(false);
       setEditing(null);
     } catch {
@@ -301,7 +351,11 @@ const AdminCategories = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent 
+          className="max-w-2xl max-h-[90vh] overflow-y-auto"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle className="font-serif text-2xl">{editing?.id ? "Modifier" : "Ajouter"} une Catégorie</DialogTitle>
           </DialogHeader>
@@ -314,7 +368,11 @@ const AdminCategories = () => {
                     <label className="text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-1.5 block">Nom de la Catégorie *</label>
                     <Input 
                       value={editing.name} 
-                      onChange={(e) => setEditing({ ...editing, name: e.target.value })} 
+                      onChange={(e) => {
+                        const name = e.target.value;
+                        const slug = name.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+                        setEditing({ ...editing, name, slug });
+                      }} 
                       placeholder="Ex: Soins du Visage" 
                       className="h-11"
                     />
@@ -397,7 +455,11 @@ const AdminCategories = () => {
         open={!!categoryToDelete || isBulkDeleting}
         onOpenChange={(open) => { if (!open) { setCategoryToDelete(null); setIsBulkDeleting(false); } }}
       >
-        <AlertDialogContent className="rounded-2xl">
+        <AlertDialogContent 
+          className="rounded-2xl"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <AlertDialogHeader>
             <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive mb-4">
               <AlertTriangle className="w-6 h-6" />

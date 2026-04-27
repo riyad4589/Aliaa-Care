@@ -287,7 +287,11 @@ const AdminPacks = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent 
+          className="max-w-3xl max-h-[90vh] overflow-y-auto"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle className="font-serif text-2xl">{editing?.id ? "Modifier" : "Ajouter"} un Pack</DialogTitle>
           </DialogHeader>
@@ -467,7 +471,11 @@ const AdminPacks = () => {
         open={!!packToDelete || isBulkDeleting}
         onOpenChange={(open) => { if (!open) { setPackToDelete(null); setIsBulkDeleting(false); } }}
       >
-        <AlertDialogContent className="rounded-2xl">
+        <AlertDialogContent 
+          className="rounded-2xl"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <AlertDialogHeader>
             <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive mb-4">
               <AlertTriangle className="w-6 h-6" />

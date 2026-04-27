@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { useProducts, useAddProduct, useUpdateProduct, useDeleteProduct, useBulkDeleteProducts, useToggleProductActive, uploadProductImage, DbProduct } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
@@ -48,6 +49,7 @@ const emptyProduct: EditingProduct = {
 };
 
 const AdminProducts = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: products = [], isLoading } = useProducts();
   const { data: categories = [] } = useCategories();
   const addProduct = useAddProduct();
@@ -55,12 +57,79 @@ const AdminProducts = () => {
   const deleteProduct = useDeleteProduct();
   const toggleActive = useToggleProductActive();
   const { toast } = useToast();
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<EditingProduct | null>(null);
   const [search, setSearch] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Sync dialog state with URL
+  const dialogOpen = searchParams.get("action") === "edit" || searchParams.get("action") === "new";
+
+  useEffect(() => {
+    const action = searchParams.get("action");
+    const id = searchParams.get("id");
+    
+    // Check for draft first
+    const draftKey = `product_draft_${action}_${id || 'new'}`;
+    const savedDraft = localStorage.getItem(draftKey);
+
+    if (savedDraft) {
+      setEditingProduct(JSON.parse(savedDraft));
+      return;
+    }
+
+    if (action === "new") {
+      setEditingProduct({ ...emptyProduct });
+    } else if (action === "edit" && id && products.length > 0) {
+      const p = products.find(p => p.id === id);
+      if (p) {
+        setEditingProduct({
+          id: p.id,
+          name: p.name,
+          slug: p.slug,
+          price: p.price,
+          description: p.description || "",
+          long_description: p.long_description || "",
+          materials: p.materials || "",
+          weight: p.weight ?? undefined,
+          stock: p.stock,
+          active: p.active,
+          visible: p.visible,
+          featured: p.featured ?? false,
+          is_new: p.is_new ?? false,
+          images: p.images,
+          category_ids: p.category_ids,
+          flavors: p.flavors || [],
+        });
+      }
+    } else if (!action) {
+      setEditingProduct(null);
+    }
+  }, [searchParams, products]);
+
+  // Save draft whenever editingProduct changes
+  useEffect(() => {
+    if (editingProduct && dialogOpen) {
+      const action = searchParams.get("action");
+      const id = searchParams.get("id");
+      const draftKey = `product_draft_${action}_${id || 'new'}`;
+      localStorage.setItem(draftKey, JSON.stringify(editingProduct));
+    }
+  }, [editingProduct, dialogOpen, searchParams]);
+
+  const clearDraft = () => {
+    const action = searchParams.get("action");
+    const id = searchParams.get("id");
+    localStorage.removeItem(`product_draft_${action}_${id || 'new'}`);
+  };
+
+  const setDialogOpen = (open: boolean) => {
+    if (!open) {
+      clearDraft();
+      setSearchParams({});
+    }
+  };
   const bulkDeleteProducts = useBulkDeleteProducts();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
@@ -163,6 +232,7 @@ const AdminProducts = () => {
         });
         toast({ title: "Produit ajouté" });
       }
+      clearDraft();
       setDialogOpen(false);
       setEditingProduct(null);
     } catch (err) {
@@ -172,27 +242,9 @@ const AdminProducts = () => {
     }
   };
 
-  const openNew = () => { setEditingProduct({ ...emptyProduct }); setDialogOpen(true); };
+  const openNew = () => { setSearchParams({ action: "new" }); };
   const openEdit = (p: DbProduct) => {
-    setEditingProduct({
-      id: p.id,
-      name: p.name,
-      slug: p.slug,
-      price: p.price,
-      description: p.description || "",
-      long_description: p.long_description || "",
-      materials: p.materials || "",
-      weight: p.weight ?? undefined,
-      stock: p.stock,
-      active: p.active,
-      visible: p.visible,
-      featured: p.featured ?? false,
-      is_new: p.is_new ?? false,
-      images: p.images,
-      category_ids: p.category_ids,
-      flavors: p.flavors || [],
-    });
-    setDialogOpen(true);
+    setSearchParams({ action: "edit", id: p.id });
   };
 
   const handleDelete = async () => {
@@ -411,7 +463,11 @@ const AdminProducts = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent 
+          className="max-w-3xl max-h-[90vh] overflow-y-auto"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle className="font-serif text-2xl">{editingProduct?.id ? "Modifier" : "Ajouter"} un Produit</DialogTitle>
             <DialogDescription className="sr-only">Formulaire pour {editingProduct?.id ? "modifier" : "ajouter"} les détails du produit.</DialogDescription>
@@ -422,7 +478,14 @@ const AdminProducts = () => {
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Nom du produit *</label>
-                    <Input value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} />
+                    <Input 
+                      value={editingProduct.name} 
+                      onChange={(e) => {
+                        const name = e.target.value;
+                        const slug = name.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+                        setEditingProduct({ ...editingProduct, name, slug });
+                      }} 
+                    />
                   </div>
                   
                   <div>
@@ -550,7 +613,11 @@ const AdminProducts = () => {
         open={!!productToDelete || isBulkDeleting} 
         onOpenChange={(open) => { if (!open) { setProductToDelete(null); setIsBulkDeleting(false); }}}
       >
-        <AlertDialogContent className="rounded-2xl">
+        <AlertDialogContent 
+          className="rounded-2xl"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <AlertDialogHeader>
             <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center text-destructive mb-4">
               <AlertTriangle className="w-6 h-6" />
