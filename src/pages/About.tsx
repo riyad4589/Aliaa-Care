@@ -2,26 +2,30 @@ import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { ArrowRight, Leaf, Heart, Sparkles, Shield, Star, Droplets } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { useT } from "@/hooks/useT";
+import { useLanguage } from "@/hooks/useLanguage";
 import coffretImg from "@/assets/coffret-aliaa.webp";
-import guideImg from "@/assets/guide-utilisation.jpeg";
-import chayNifasImg from "@/assets/chay-nifas.jpeg";
-import coffretArganImg from "@/assets/coffret-argan.jpeg";
-import selsBainImg from "@/assets/sels-de-bain.jpeg";
+import guideImg from "@/assets/about-pic.png";
+import chayNifasImg from "@/assets/about-pic2.png";
+import coffretArganImg from "@/assets/about-pic3.png";
+import selsBainImg from "@/assets/about-pic4.png";
 
 const About = () => {
   const { t } = useT();
+  const { language } = useLanguage();
+  const isRtl = language === "ar";
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroImageY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   const stats = [
-    { value: "100%", label: "Naturel" },
-    { value: "0%", label: "Additifs" },
-    { value: "4+", label: "Rituels" },
+    { value: "100%", label: t("about.statNatural") },
+    { value: "0%", label: t("about.statAdditives") },
+    { value: "4+", label: t("about.statRituals") },
   ];
 
   return (
@@ -77,7 +81,7 @@ const About = () => {
       <section className="py-20 md:py-24 md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
         <div className="container-full w-full">
           <div className="grid md:grid-cols-12 gap-12 lg:gap-20 items-center">
-            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+            <motion.div initial={{ opacity: 0, x: isRtl ? 30 : -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
               transition={{ duration: 0.8 }} className="md:col-span-5">
               <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-5">{t("about.origins")}</p>
               <h3 className="font-serif text-3xl md:text-4xl text-foreground mb-8 leading-tight">
@@ -86,7 +90,7 @@ const About = () => {
               <p className="text-muted-foreground leading-[1.8] mb-5">{t("about.originsText1")}</p>
               <p className="text-muted-foreground leading-[1.8]">{t("about.originsText2")}</p>
             </motion.div>
-            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+            <motion.div initial={{ opacity: 0, x: isRtl ? -30 : 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
               transition={{ duration: 0.9, delay: 0.15 }} className="md:col-span-7 relative flex justify-center">
               <div className="aspect-square w-full max-w-md overflow-hidden group rounded-lg shadow-2xl">
                 <img src={chayNifasImg} alt="Chay Nifas" className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105" />
@@ -97,10 +101,13 @@ const About = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="absolute -bottom-8 -left-6 md:-left-12 bg-primary text-primary-foreground p-6 md:p-8 rounded-lg shadow-xl max-w-[220px]"
+                className={cn(
+                  "absolute -bottom-8 bg-primary text-primary-foreground p-6 md:p-8 rounded-lg shadow-xl max-w-[220px]",
+                  isRtl ? "-right-6 md:-right-12" : "-left-6 md:-left-12"
+                )}
               >
                 <Leaf className="w-6 h-6 mb-3 opacity-70" />
-                <p className="font-serif text-lg leading-snug">100% naturel, sans conservateurs</p>
+                <p className="font-serif text-lg leading-snug">{t("about.naturalNoPreservatives")}</p>
               </motion.div>
             </motion.div>
           </div>
@@ -129,7 +136,7 @@ const About = () => {
       <section className="py-20 md:py-24 md:min-h-[calc(100vh-7rem)] md:flex md:items-center">
         <div className="container-full w-full">
           <div className="grid md:grid-cols-12 gap-12 lg:gap-20 items-center">
-            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+            <motion.div initial={{ opacity: 0, x: isRtl ? 30 : -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
               transition={{ duration: 0.9 }} className="md:col-span-7 md:order-first relative flex justify-center">
               <div className="aspect-square w-full max-w-md overflow-hidden group rounded-lg shadow-2xl">
                 <img src={coffretArganImg} alt="Coffret ALIAA" className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105" />
@@ -140,13 +147,16 @@ const About = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="absolute -bottom-8 -right-6 md:-right-12 bg-background border border-border p-6 md:p-8 rounded-lg shadow-xl max-w-[220px]"
+                className={cn(
+                  "absolute -bottom-8 bg-background border border-border p-6 md:p-8 rounded-lg shadow-xl max-w-[220px]",
+                  isRtl ? "-left-6 md:-left-12" : "-right-6 md:-right-12"
+                )}
               >
                 <Heart className="w-6 h-6 mb-3 text-primary" />
-                <p className="font-serif text-lg leading-snug text-foreground">Préparé avec amour & intention</p>
+                <p className="font-serif text-lg leading-snug text-foreground">{t("about.preparedWithLove")}</p>
               </motion.div>
             </motion.div>
-            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+            <motion.div initial={{ opacity: 0, x: isRtl ? -30 : 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.15 }} className="md:col-span-5">
               <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-5">{t("about.approach")}</p>
               <h3 className="font-serif text-3xl md:text-4xl text-foreground mb-8 leading-tight">
@@ -164,15 +174,15 @@ const About = () => {
         <div className="container-full w-full">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.6 }} className="text-center mb-16 md:mb-20">
-            <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">Notre Processus</p>
-            <h2 className="font-serif text-4xl md:text-5xl text-foreground">Du Champ à Votre Tasse</h2>
+            <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("about.ourProcess")}</p>
+            <h2 className="font-serif text-4xl md:text-5xl text-foreground">{t("about.fromFieldToCup")}</h2>
           </motion.div>
           <div className="grid md:grid-cols-4 gap-8 md:gap-6 lg:gap-10">
             {[
-              { icon: Leaf, step: "01", title: "Sélection", desc: "Plantes soigneusement choisies auprès de producteurs locaux de confiance." },
-              { icon: Droplets, step: "02", title: "Préparation", desc: "Mélanges artisanaux en petits lots pour une qualité optimale." },
-              { icon: Shield, step: "03", title: "Contrôle", desc: "Chaque lot est vérifié pour garantir pureté et fraîcheur." },
-              { icon: Star, step: "04", title: "Livraison", desc: "Emballé avec soin et livré partout au Maroc." },
+              { icon: Leaf, step: "01", title: t("about.step1Title"), desc: t("about.step1Desc") },
+              { icon: Droplets, step: "02", title: t("about.step2Title"), desc: t("about.step2Desc") },
+              { icon: Shield, step: "03", title: t("about.step3Title"), desc: t("about.step3Desc") },
+              { icon: Star, step: "04", title: t("about.step4Title"), desc: t("about.step4Desc") },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -183,7 +193,10 @@ const About = () => {
                 className="relative text-center group"
               >
                 {i < 3 && (
-                  <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-px bg-border" />
+                  <div className={cn(
+                    "hidden md:block absolute top-8 w-[80%] h-px bg-border",
+                    isRtl ? "right-[60%]" : "left-[60%]"
+                  )} />
                 )}
                 <div className="relative z-10 w-16 h-16 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-500">
                   <item.icon className="w-7 h-7 text-primary" />

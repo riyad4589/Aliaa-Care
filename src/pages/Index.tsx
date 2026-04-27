@@ -102,10 +102,10 @@ const Index = () => {
       {/* Featured Collection - MOVED DOWN */}
       {featuredCollection && (
         <section className="py-20 md:py-28">
-          <div className="container-full">
+          <div className="container-narrow">
             <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-center">
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-                transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const }} className="relative aspect-[4/5] overflow-hidden group">
+                transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const }} className="relative aspect-square overflow-hidden group">
                 <img src={featuredCollection.heroImage || featuredCollection.image} alt={featuredCollection.name}
                   className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 via-transparent to-transparent" />
@@ -134,12 +134,23 @@ const Index = () => {
               <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("index.specialOffers")}</p>
               <h2 className="font-serif text-4xl md:text-5xl text-foreground">{t("index.ourPacks")}</h2>
             </motion.div>
+            <Link to="/packs"
+              className="hidden md:flex items-center gap-3 text-sm font-medium tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground transition-colors group">
+              {t("common.viewAll")}<ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
+            </Link>
           </div>
           
           {activePacks.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {activePacks.map((pack, index) => <PackCard key={pack.id} pack={pack} index={index} />)}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {activePacks.slice(0, 3).map((pack, index) => <PackCard key={pack.id} pack={pack} index={index} />)}
+              </div>
+              <div className="mt-14 text-center md:hidden">
+                <Button asChild variant="outline" className="rounded-none px-8 py-5 text-sm tracking-[0.15em] uppercase">
+                  <Link to="/packs">{t("common.viewAll")}</Link>
+                </Button>
+              </div>
+            </>
           ) : (
             <div className="text-center py-10">
               <p className="font-serif text-xl text-muted-foreground italic">
@@ -158,7 +169,7 @@ const Index = () => {
             <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("index.browseBy")}</p>
             <h2 className="font-serif text-4xl md:text-5xl text-foreground">{t("common.collections")}</h2>
           </motion.div>
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
               {displayedCollections[0] && <div className="md:col-span-7"><CollectionCard collection={displayedCollections[0]} index={0} /></div>}
               {displayedCollections[1] && <div className="md:col-span-5"><CollectionCard collection={displayedCollections[1]} index={1} /></div>}

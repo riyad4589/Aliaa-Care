@@ -69,13 +69,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
 
   return (
     <Link to={`/pack/${pack.slug}`}>
-    <motion.article
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.7, delay: index * 0.1 }}
-      className="group border border-border rounded-lg overflow-hidden bg-background hover:shadow-lg transition-shadow duration-500 cursor-pointer"
-    >
+    <div className="group border border-border rounded-lg overflow-hidden bg-background hover:shadow-lg transition-shadow duration-500 cursor-pointer">
       {/* Pack image */}
       <div className="relative aspect-video bg-muted/30 overflow-hidden">
         {hasPackImage ? (
@@ -158,7 +152,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
           </Button>
         </div>
       </div>
-    </motion.article>
+    </div>
     </Link>
   );
 };
