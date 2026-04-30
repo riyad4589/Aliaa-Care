@@ -1,7 +1,7 @@
 <div id="top"></div>
 
 <p align="center">
-  <img src="src/assets/Care.png" alt="ALIAA Care Logo" width="300">
+  <img src="src/assets/Care.png" alt="ALIAA Care Logo" width="200">
 </p>
 
 # 🌿 Aliaa-Care - E-commerce de Soins Naturels & Bien-être
