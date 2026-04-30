@@ -11,17 +11,39 @@ Aliaa-Care est une plateforme e-commerce haut de gamme dédiée aux rituels de s
 
 ### 🛍️ Expérience Client (Storefront)
 - **Design de Luxe** : Interface épurée, animations fluides (Framer Motion) et typographie soignée.
-- **Multilingue Intégral** : Support dynamique du **Français**, **Anglais** et **Arabe**.
+- **Multilingue Intégral** : Support dynamique du **Français**, **Anglais** et **Arabe** (avec support RTL).
 - **Gestion de Panier Avancée** : Calcul des paliers de livraison gratuite, gestion des stocks en temps réel.
 - **Packs Personnalisés** : Système d'offres groupées avec calcul automatique des économies pour le client.
 - **Suivi & Fidélité** : Wishlist persistante, suivi de commande intuitif et espace client sécurisé.
 
 ### 🛠️ Gestion Administrative (Admin Dashboard)
 - **Contrôle Total** : Gestion granulaire des produits, catégories, packs et stocks.
-- **Automatisation WhatsApp** : Intégration **UltraMsg** pour l'envoi automatique de confirmations et suivis directement par message.
 - **Business Intelligence** : Visualisation des performances financières et statistiques de ventes via Recharts.
-- **Facturation Automatique** : Génération de factures PDF professionnelles (jsPDF).
-- **Gestion Logistique** : Suivi des statuts de commande et optimisation du packaging.
+- **Facturation Automatique** : Génération de factures PDF professionnelles (jsPDF) incluant le détail des produits et taxes.
+- **Marketing Dynamique** : Gestion des codes promos et bannières d'annonces modifiables en temps réel.
+
+---
+
+## 🛠️ Détails Techniques Approfondis
+
+### 🗄️ Architecture de la Base de Données (Supabase)
+Le projet utilise une base de données PostgreSQL structurée pour l'évolutivité :
+- **`products` & `categories`** : Gestion des produits avec support multi-images et slugs uniques.
+- **`orders` & `order_items`** : Stockage des transactions avec historique des statuts.
+- **`packs`** : Table dédiée aux offres groupées reliant plusieurs produits.
+- **`promo_codes`** : Système de réduction avec dates d'expiration et limites d'utilisation.
+- **RLS (Row Level Security)** : Politiques de sécurité strictes isolant les données publiques des données administratives.
+
+### 💬 Intégration WhatsApp (WAHA / UltraMsg)
+Le système de notification est automatisé via un service dédié (`src/lib/whatsapp.ts`) :
+- **Notifications de Commande** : Envoi automatique d'un récapitulatif structuré au client après validation.
+- **Templates Multilingues** : Messages adaptés selon la langue choisie par le client (FR/EN/AR).
+- **Boutons Interactifs** : Possibilité d'inclure des boutons de confirmation/annulation directement dans WhatsApp.
+
+### 🌍 Système Internationalisation (i18n)
+Contrairement aux bibliothèques lourdes, Aliaa-Care utilise un système i18n léger et performant basé sur un dictionnaire centralisé (`src/i18n/translations.ts`) :
+- **Support RTL** : Inversion automatique de l'interface pour la langue Arabe.
+- **Détection Automatique** : Mémorisation de la préférence linguistique du visiteur.
 
 ---
 
@@ -31,82 +53,39 @@ Aliaa-Care est une plateforme e-commerce haut de gamme dédiée aux rituels de s
 | :--- | :--- |
 | **React + Vite** | Framework Frontend ultra-rapide |
 | **TypeScript** | Typage statique pour une robustesse maximale |
-| **Supabase** | Backend-as-a-Service (Auth, Database, Storage) |
+| **Supabase** | Backend (Auth, Database, Storage pour les photos produits) |
 | **Tailwind CSS** | Design system utilitaire et responsive |
-| **Shadcn/UI** | Bibliothèque de composants UI premium |
 | **TanStack Query** | Gestion d'état serveur et cache |
-| **UltraMsg API** | Intégration de la passerelle WhatsApp |
+| **jsPDF** | Moteur de génération de factures clients |
 
 ---
 
-## 📦 Installation en Local
+## 📦 Installation et Lancement
 
-1. **Cloner le projet**
+1. **Clonage et Dépendances**
    ```bash
    git clone https://github.com/riyad4589/Aliaa-Care.git
    cd Aliaa-Care
+   npm install
    ```
 
-2. **Installer les dépendances**
-   ```bash
-   npm install # ou bun install
-   ```
+2. **Configuration**
+   Remplissez le fichier `.env` avec vos clés Supabase et vos identifiants WhatsApp (Instance ID & Token).
 
-3. **Configuration de l'environnement**
-   Créez un fichier `.env` à la racine :
-   ```env
-   VITE_SUPABASE_URL=votre_url_supabase
-   VITE_SUPABASE_ANON_KEY=votre_cle_anon
-   VITE_ULTRAMSG_INSTANCE_ID=votre_id_instance
-   VITE_ULTRAMSG_TOKEN=votre_token
-   ```
-
-4. **Lancer le serveur de développement**
+3. **Lancement**
    ```bash
    npm run dev
    ```
 
 ---
 
-## 🌐 Déploiement en Production
+## 🌐 Déploiement
 
-Le projet est configuré pour un déploiement professionnel sur VPS (OVH/Contabo) :
-
-### Via Docker (Recommandé)
-Le projet peut être conteneurisé avec les configurations Supabase self-hosted :
-```bash
-docker-compose up -d
-```
-
-### Via PM2 & Vite
-Pour un déploiement standard sous Linux :
-```bash
-npm run build
-pm2 start npm --name "aliaa-care" -- run preview -- --port 3000 --host
-```
+Le projet est prêt pour un déploiement sur **VPS** (Ubuntu/Debian) :
+- **Serveur Web** : Nginx configuré comme reverse-proxy.
+- **Gestionnaire de Processus** : PM2 pour garantir la disponibilité 24/7.
+- **CI/CD** : Déploiement automatisé via GitHub Actions recommandé.
 
 ---
 
-## 🏗️ Architecture du Projet
-
-```text
-src/
-├── components/     # Composants UI réutilisables (shadcn, custom)
-├── context/        # Contextes React (Auth, Panier, etc.)
-├── hooks/          # Hooks personnalisés (API, Logique métier)
-├── i18n/           # Système de traduction multilingue
-├── integrations/   # Clients API (Supabase, WhatsApp)
-├── pages/          # Vues principales (E-shop & Administration)
-└── utils/          # Formateurs, calculs et constantes
-```
-
----
-
-## 🤝 Contribution et Maintenance
-
-- **Linting** : `npm run lint`
-- **Tests** : `npm run test`
-- **Optimisation Images** : `npm run optimize` (script personnalisé pour le web)
-
-Développé avec passion pour **Aliaa Natural Care**. 🌿 
-"Pure Plants, True Relief."
+Développé pour offrir le meilleur du naturel à travers le meilleur de la technologie. 🌿 **Aliaa-Care**
