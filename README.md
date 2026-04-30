@@ -27,10 +27,12 @@ Aliaa-Care est une plateforme e-commerce haut de gamme dédiée aux rituels de s
 
 ## 🔗 Liens Officiels
 
-| Plateforme | URL |
+| Plateforme | Détails / URL |
 | :--- | :--- |
 | 🌐 **Site Public** | [https://aliaacare.com/](https://aliaacare.com/) |
 | 🔐 **Interface Admin** | [https://admin.aliaacare.com/](https://admin.aliaacare.com/) |
+| 👤 **Compte Admin** | `aliaacare@gmail.com` |
+| 🔑 **Mot de passe** | `Aliaacare2026!` |
 
 ---
 
