@@ -28,7 +28,7 @@ Aliaa-Care est une plateforme e-commerce haut de gamme dédiée aux rituels de s
 - [🚀 Stack Technique](#-stack-technique)
 - [📦 Installation et Lancement](#-installation-et-lancement)
 - [🌐 Déploiement](#-déploiement)
-- [🤝 Contributing](#-contributing)
+- [🤝 Contributeurs](#-contributeurs)
 
 ---
 
@@ -165,7 +165,7 @@ Le projet est prêt pour un déploiement sur **VPS** (Ubuntu/Debian) :
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contributeurs
 
 <p align="center">
 <table align="center">
