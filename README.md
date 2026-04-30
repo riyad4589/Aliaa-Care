@@ -90,6 +90,22 @@ Contrairement aux bibliothèques lourdes, Aliaa-Care utilise un système i18n l�
 ![PM2](https://img.shields.io/badge/PM2-2B037A?style=for-the-badge&logo=pm2&logoColor=white)
 ![Bun](https://img.shields.io/badge/Bun-000000?style=for-the-badge&logo=bun&logoColor=white)
 
+### 📋 Détail de l'utilisation
+
+| Technologie | Utilisation |
+| :--- | :--- |
+| **React + Vite** | Framework Frontend ultra-rapide et moderne |
+| **TypeScript** | Typage statique pour une robustesse et maintenabilité accrues |
+| **Supabase** | Backend-as-a-Service (Auth, PostgreSQL, Storage, Edge Functions) |
+| **Tailwind CSS** | Design system utilitaire pour un stylage rapide et responsive |
+| **Shadcn/UI** | Bibliothèque de composants UI premium basée sur Radix UI |
+| **TanStack Query** | Gestion puissante de l'état asynchrone et du cache serveur |
+| **Framer Motion** | Bibliothèque d'animations fluides et interactives |
+| **jsPDF** | Moteur de génération dynamique de factures clients en PDF |
+| **Recharts** | Visualisation de données pour les statistiques financières admin |
+| **WhatsApp API** | Automatisation des notifications de commande via UltraMsg/WAHA |
+
+
 
 ---
 
