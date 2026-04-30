@@ -1,4 +1,6 @@
+<div id="top"></div>
 # 🌿 Aliaa-Care - E-commerce de Soins Naturels & Bien-être
+
 
 [![Production](https://img.shields.io/badge/Status-Production--Ready-success?style=for-the-badge)](https://github.com/riyad4589/Aliaa-Care)
 [![Tech Stack](https://img.shields.io/badge/Stack-React%20%7C%20Supabase%20%7C%20Tailwind-blue?style=for-the-badge)](https://github.com/riyad4589/Aliaa-Care)
@@ -181,3 +183,7 @@ Le projet est prêt pour un déploiement sur **VPS** (Ubuntu/Debian) :
 ---
 
 Développé pour offrir le meilleur du naturel à travers le meilleur de la technologie. 🌿 **Aliaa-Care**
+
+<p align="center">
+  <a href="#top">⬆️ Retour en haut</a>
+</p>
