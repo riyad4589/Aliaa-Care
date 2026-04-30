@@ -1,5 +1,6 @@
-<div id="top"></div>
 🌿 Aliaa-Care - E-commerce de Soins Naturels & Bien-être
+
+<div id="top"></div>
 
 [![Production](https://img.shields.io/badge/Status-Production--Ready-success?style=for-the-badge)](https://github.com/riyad4589/Aliaa-Care)
 [![Tech Stack](https://img.shields.io/badge/Stack-React%20%7C%20Supabase%20%7C%20Tailwind-blue?style=for-the-badge)](https://github.com/riyad4589/Aliaa-Care)
