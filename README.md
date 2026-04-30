@@ -88,4 +88,33 @@ Le projet est prêt pour un déploiement sur **VPS** (Ubuntu/Debian) :
 
 ---
 
+## 🤝 Contributing
+
+<p align="center">
+<table align="center">
+<tr>
+<td align="center" width="300">
+<a href="https://github.com/riyad4589">
+<img src="https://github.com/riyad4589.png" width="150px;" style="border-radius: 50%;" alt="Mohamed Riyad MAJGHIROU"/><br /><br />
+<b style="font-size: 18px;">Mohamed Riyad MAJGHIROU</b>
+</a><br /><br />
+<a href="mailto:riyadmaj10@gmail.com">📧 Email</a> •
+<a href="https://www.linkedin.com/in/mohamed-riyad-majghirou-5b62aa388/">💼 LinkedIn</a> •
+<a href="https://www.riyadmaj.com/">🌐 Portfolio</a>
+</td>
+<td align="center" width="300">
+<a href="https://github.com/Azzammoo10">
+<img src="https://github.com/Azzammoo10.png" width="150px;" style="border-radius: 50%;" alt="Mohamed AZZAM"/><br /><br />
+<b style="font-size: 18px;">Mohamed AZZAM</b>
+</a><br /><br />
+<a href="mailto:azzam.moo10@gmail.com">📧 Email</a> •
+<a href="https://www.linkedin.com/in/mohamed-azzam-93115823a/">💼 LinkedIn</a> •
+<a href="https://azzammo.com">🌐 Portfolio</a>
+</td>
+</tr>
+</table>
+</p>
+
+---
+
 Développé pour offrir le meilleur du naturel à travers le meilleur de la technologie. 🌿 **Aliaa-Care**
