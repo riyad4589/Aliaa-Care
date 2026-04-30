@@ -9,7 +9,9 @@ Aliaa-Care est une plateforme e-commerce haut de gamme dédiée aux rituels de s
 
 ## 📌 Sommaire
 
+- [🔗 Liens Officiels](#-liens-officiels)
 - [✨ Points Forts du Projet](#-points-forts-du-projet)
+
   - [🛍️ Expérience Client](#-expérience-client-storefront)
   - [🛠️ Gestion Administrative](#-gestion-administrative-admin-dashboard)
 - [🛠️ Détails Techniques Approfondis](#-détails-techniques-approfondis)
@@ -22,6 +24,16 @@ Aliaa-Care est une plateforme e-commerce haut de gamme dédiée aux rituels de s
 - [🤝 Contributing](#-contributing)
 
 ---
+
+## 🔗 Liens Officiels
+
+| Plateforme | URL |
+| :--- | :--- |
+| 🌐 **Site Public** | [https://aliaacare.com/](https://aliaacare.com/) |
+| 🔐 **Interface Admin** | [https://admin.aliaacare.com/](https://admin.aliaacare.com/) |
+
+---
+
 
 
 ## ✨ Points Forts du Projet
