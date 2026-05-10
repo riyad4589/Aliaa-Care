@@ -123,8 +123,7 @@ const translations = {
   "productDetail.addToFavorites": { fr: "Ajouter aux Favoris", en: "Add to Favorites", ar: "أضيفي إلى المفضلة" },
   "productDetail.freeShipping": { fr: "Livraison offerte dès 500 DH", en: "Free shipping from 500 DH", ar: "شحن مجاني ابتداءً من 500 درهم" },
   "productDetail.shipping": { fr: "Livraison", en: "Shipping", ar: "التوصيل" },
-  "productDetail.returns": { fr: "Retours", en: "Returns", ar: "الإرجاع" },
-  "productDetail.returnsPolicy": { fr: "Retour sous 14 jours", en: "14-day returns", ar: "إرجاع خلال 14 يومًا" },
+
   "productDetail.youMayAlsoLike": { fr: "Vous Aimerez Aussi", en: "You May Also Like", ar: "قد يعجبك أيضًا" },
   "productDetail.moreFrom": { fr: "Plus de", en: "More from", ar: "المزيد من" },
   "productDetail.whatsappQuestion": { fr: "Question sur WhatsApp", en: "Question on WhatsApp", ar: "سؤال عبر الواتساب" },

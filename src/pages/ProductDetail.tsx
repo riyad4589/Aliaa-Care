@@ -310,14 +310,10 @@ const ProductDetail = () => {
                   {t("productDetail.whatsappQuestion")}
                 </Button>
               </div>
-              <div className="mt-10 pt-8 border-t border-border grid grid-cols-2 gap-6">
+              <div className="mt-10 pt-8 border-t border-border">
                 <div>
                   <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">{t("productDetail.shipping")}</p>
                   <p className="text-xs text-muted-foreground">{t("productDetail.freeShipping")}</p>
-                </div>
-                <div>
-                  <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">{t("productDetail.returns")}</p>
-                  <p className="text-xs text-muted-foreground">{t("productDetail.returnsPolicy")}</p>
                 </div>
               </div>
             </motion.div>
