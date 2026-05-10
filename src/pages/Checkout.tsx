@@ -172,16 +172,18 @@ const Checkout = () => {
       return;
     }
     
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setEmailError(t("checkout.emailInvalid"));
-      toast({ 
-        title: t("checkout.orderError"), 
-        description: t("checkout.emailInvalid"), 
-        variant: "destructive" 
-      });
-      return;
+    // Email validation (only if provided)
+    if (formData.email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setEmailError(t("checkout.emailInvalid"));
+        toast({ 
+          title: t("checkout.orderError"), 
+          description: t("checkout.emailInvalid"), 
+          variant: "destructive" 
+        });
+        return;
+      }
     }
     setEmailError("");
 
@@ -255,17 +257,7 @@ const Checkout = () => {
         </div>
       </div>
 
-      <div className="bg-primary/5 border-b border-primary/10">
-        <div className="container-full py-4">
-          <div className="flex items-center gap-3 text-sm">
-            <AlertCircle className="w-5 h-5 text-primary" />
-            <p>
-              <span className="font-medium">{t("checkout.paymentSoon")}</span>{" "}
-              <span className="text-muted-foreground">{t("checkout.paymentDesc")}</span>
-            </p>
-          </div>
-        </div>
-      </div>
+
 
       <section className="py-10 md:py-16">
         <div className="container-full">
@@ -290,8 +282,10 @@ const Checkout = () => {
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4 mt-4">
                     <div>
-                      <label htmlFor="email" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.email")} *</label>
-                      <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} required maxLength={100} className={cn("rounded-none h-12", emailError && "border-destructive focus-visible:ring-destructive")} />
+                      <label htmlFor="email" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">
+                        {t("checkout.email")} <span className="text-muted-foreground/50 lowercase tracking-normal">({t("common.optional", "optionnel")})</span>
+                      </label>
+                      <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} maxLength={100} className={cn("rounded-none h-12", emailError && "border-destructive focus-visible:ring-destructive")} />
                       {emailError && <p className="text-xs text-destructive mt-1.5">{emailError}</p>}
                     </div>
                     <div>
@@ -457,7 +451,7 @@ const Checkout = () => {
                 </div>
                 <div className="mt-8 pt-6 border-t border-border">
                   <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground/60 mb-3">{t("checkout.questions")}</p>
-                  <p className="text-sm text-muted-foreground">{t("checkout.contactEmail")} <a href="mailto:Aliaacare.ac@gmail.com" className="text-foreground underline">Aliaacare.ac@gmail.com</a></p>
+                  <p className="text-sm text-muted-foreground">{t("checkout.contactPhone")} <a href="tel:0699928463" className="text-foreground underline" dir="ltr">06 99 92 84 63</a></p>
                 </div>
               </div>
             </motion.div>
