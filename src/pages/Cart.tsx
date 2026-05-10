@@ -128,14 +128,10 @@ const Cart = () => {
                 <Button asChild size="lg" className="w-full rounded-none py-6 text-sm tracking-[0.15em] uppercase btn-premium">
                   <Link to="/checkout">{t("cart.checkout")}<ArrowRight className="ltr:ml-3 rtl:mr-3 w-4 h-4" /></Link>
                 </Button>
-                <div className="mt-8 pt-6 border-t border-border grid grid-cols-2 gap-4">
+                <div className="mt-8 pt-6 border-t border-border grid grid-cols-1 gap-4">
                   <div>
                     <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">{t("cart.shipping")}</p>
                     <p className="text-xs text-muted-foreground">{t("cart.deliveryMorocco")}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">{t("cart.returns")}</p>
-                    <p className="text-xs text-muted-foreground">{t("cart.returnsPolicy")}</p>
                   </div>
                 </div>
               </div>
