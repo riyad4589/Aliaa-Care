@@ -193,8 +193,8 @@ export const Header = () => {
 
             <CartIcon />
 
-            <button 
-              className="md:hidden p-2 hover:bg-accent transition-colors duration-300" 
+            <button
+              className="md:hidden p-2 hover:bg-accent transition-colors duration-300"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <AnimatePresence mode="wait">
@@ -213,10 +213,9 @@ export const Header = () => {
         </div>
 
         {/* Mobile Menu */}
-        <div 
-          className={`md:hidden border-t border-border overflow-hidden transition-all duration-300 ease-in-out ${
-            mobileMenuOpen ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"
-          }`}
+        <div
+          className={`md:hidden border-t border-border overflow-hidden transition-all duration-300 ease-in-out ${mobileMenuOpen ? "max-h-[80vh] opacity-100" : "max-h-0 opacity-0"
+            }`}
         >
           <div className="py-8 space-y-6">
             <div className="space-y-1">
