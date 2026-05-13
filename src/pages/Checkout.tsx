@@ -102,7 +102,8 @@ const Checkout = () => {
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    let { name, value } = e.target;
+    const name = e.target.name;
+    let value = e.target.value;
 
     // Filter phone number to only accept digits
     if (name === "phone") {
@@ -283,7 +284,7 @@ const Checkout = () => {
                   <div className="grid sm:grid-cols-2 gap-4 mt-4">
                     <div>
                       <label htmlFor="email" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">
-                        {t("checkout.email")} <span className="text-muted-foreground/50 lowercase tracking-normal">({t("common.optional", "optionnel")})</span>
+                        {t("checkout.email")} <span className="text-muted-foreground/50 lowercase tracking-normal">({t("common.optional")})</span>
                       </label>
                       <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} maxLength={100} className={cn("rounded-none h-12", emailError && "border-destructive focus-visible:ring-destructive")} />
                       {emailError && <p className="text-xs text-destructive mt-1.5">{emailError}</p>}
