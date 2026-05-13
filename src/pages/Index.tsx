@@ -53,8 +53,6 @@ const Index = () => {
         </motion.div>
         <motion.div className="relative container-full h-full flex flex-col justify-end pb-20 md:pb-28 pt-16 md:pt-20" style={{ opacity: heroOpacity }}>
           <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as const }} className="max-w-3xl">
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-[11px] font-semibold tracking-[0.3em] uppercase text-white/70 mb-6">{t("hero.tagline")}</motion.p>
             <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl xl:text-9xl text-white mb-8 leading-[0.9] tracking-tight">
               {t("hero.title1")}<br /><span className="italic font-normal">{t("hero.title2")}</span>
             </h1>

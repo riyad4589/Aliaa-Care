@@ -97,7 +97,7 @@ const Products = () => {
         </div>
       </section>
 
-      <section className="py-5 border-b border-border sticky top-16 md:top-20 bg-background/95 backdrop-blur-md z-40">
+      <section className="py-5 border-b border-border sticky top-16 md:top-20 bg-background z-40">
         <div className="container-full">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 -mb-2 md:mb-0 scrollbar-hide">

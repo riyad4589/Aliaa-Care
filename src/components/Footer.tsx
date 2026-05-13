@@ -20,7 +20,7 @@ export const Footer = () => {
               <img src={typoImg} alt="ALIAA" className="h-20 md:h-28 w-auto brightness-0 invert" />
             </Link>
             <p className="text-[10px] text-white/40 leading-relaxed max-w-[200px] -mt-2 md:-mt-4 relative z-10">
-              Pure Plants, True Relief. Rituels naturels pour chaque femme.
+              {t("footer.tagline")}
             </p>
           </div>
 
@@ -59,9 +59,11 @@ export const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/60 mb-3">{t("footer.contact")}</h4>
             <div className="space-y-2">
-              <a href="tel:0699928463" className="text-sm text-white/40 hover:text-white transition-colors block italic underline underline-offset-4 decoration-white/10 hover:decoration-white/40">
-                06 99 92 84 63
-              </a>
+              <div className="text-start">
+                <a href="tel:+212699928463" dir="ltr" className="text-sm text-white/40 hover:text-white transition-colors inline-block italic underline underline-offset-4 decoration-white/10 hover:decoration-white/40">
+                  +212 6 99 92 84 63
+                </a>
+              </div>
               <p className="text-xs text-white/30 leading-relaxed max-w-[200px]">
                 {t("footer.schedule")}
               </p>

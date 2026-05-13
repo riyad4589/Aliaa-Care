@@ -44,13 +44,13 @@ const translations = {
   "header.deliveryMaroc": { fr: "Livraison partout au Maroc 🚚", en: "Delivery everywhere in Morocco 🚚", ar: "التوصيل في جميع أنحاء المغرب 🚚" },
 
   // Hero
-  "hero.tagline": { fr: "Pure Plants, True Relief", en: "Pure Plants, True Relief", ar: "نباتات نقية، راحة حقيقية" },
+  // "hero.tagline": { fr: "Pure Plants, True Relief", en: "Pure Plants, True Relief", ar: "نباتات نقية، راحة حقيقية" },
   "hero.title1": { fr: "Rituels", en: "Natural", ar: "طقوس" },
   "hero.title2": { fr: "Naturels", en: "Rituals", ar: "طبيعية" },
   "hero.desc": {
     fr: "Mélanges de plantes traditionnels, préparés avec soin pour le bien-être de chaque femme. Sans conservateurs, 100% naturel.",
     en: "Traditional plant blends, carefully prepared for every woman's well-being. No preservatives, 100% natural.",
-    ar: "خلطات نباتية تقليدية، محضرة بعناية لرفاهية كل امرأة. بدون مواد حافظة، 100% طبيعي.",
+    ar: "خلطات نباتية تقليدية، محضرة بعناية للرفاهية اليومية، بدون مواد حافظة، 100% طبيعية",
   },
   "hero.scroll": { fr: "Scroll", en: "Scroll", ar: "مرّري" },
 
@@ -80,11 +80,11 @@ const translations = {
     en: "Carefully selected plants, no preservatives or artificial additives.",
     ar: "نباتات مختارة بعناية، بدون مواد حافظة أو إضافات اصطناعية.",
   },
-  "index.feminineWellbeing": { fr: "Bien-être Féminin", en: "Women's Wellness", ar: "رفاهية المرأة" },
+  "index.feminineWellbeing": { fr: "Bien-être Féminin", en: "Women's Wellness", ar: "رفاهية يومية" },
   "index.feminineDesc": {
     fr: "Formules traditionnelles dédiées au soin et au confort de chaque femme.",
     en: "Traditional formulas dedicated to every woman's care and comfort.",
-    ar: "تركيبات تقليدية مخصصة لرعاية وراحة كل امرأة.",
+    ar: "تركيبات تقليدية مخصصة لرعاية وراحة كل فرد.",
   },
   "index.ancestralKnowledge": { fr: "Savoir Ancestral", en: "Ancestral Knowledge", ar: "معرفة الأجداد" },
   "index.ancestralDesc": {
@@ -96,7 +96,7 @@ const translations = {
   "index.followDesc": {
     fr: "Rejoignez notre communauté et découvrez nos rituels naturels au quotidien.",
     en: "Join our community and discover our daily natural rituals.",
-    ar: "انضمي إلى مجتمعنا واكتشفي طقوسنا الطبيعية اليومية.",
+    ar: "انضم إلى مجتمعنا واكتشف طقوسنا الطبيعية اليومية.",
   },
 
   // Products page
@@ -112,6 +112,35 @@ const translations = {
   "products.collectionPrep": { fr: "Cette collection est en cours de préparation.", en: "This collection is being prepared.", ar: "هذه المجموعة قيد التحضير." },
   "products.needAdvice": { fr: "Besoin de Conseils ?", en: "Need Advice?", ar: "تحتاجين نصيحة؟" },
   "products.hereForYou": { fr: "Nous Sommes Là Pour Vous", en: "We're Here For You", ar: "نحن هنا من أجلك" },
+
+  // Track Order
+  "trackOrder.title": { fr: "Suivre ma Commande", en: "Track my Order", ar: "تتبع طلبي" },
+  "trackOrder.desc": { fr: "Entrez votre numéro de commande pour voir l'état de votre livraison en temps réel.", en: "Enter your order number to see the status of your delivery in real time.", ar: "أدخلي رقم طلبك لمعرفة حالة التوصيل في الوقت الفعلي." },
+  "trackOrder.placeholder": { fr: "Ex: #CMD-X123", en: "Ex: #CMD-X123", ar: "مثال: #CMD-X123" },
+  "trackOrder.searching": { fr: "Recherche...", en: "Searching...", ar: "جاري البحث..." },
+  "trackOrder.button": { fr: "Suivre", en: "Track", ar: "تتبع" },
+  "trackOrder.placedOn": { fr: "Passée le", en: "Placed on", ar: "تم الطلب في" },
+  "trackOrder.history": { fr: "Historique de livraison", en: "Delivery history", ar: "سجل التوصيل" },
+  "trackOrder.orderReceived": { fr: "Commande Reçue", en: "Order Received", ar: "تم استلام الطلب" },
+  "trackOrder.estimatedDelivery": { fr: "Livraison prévue", en: "Estimated delivery", ar: "التوصيل المتوقع" },
+  "trackOrder.soon": { fr: "Prochainement", en: "Soon", ar: "قريباً" },
+  "trackOrder.summary": { fr: "Résumé", en: "Summary", ar: "الملخص" },
+  "trackOrder.total": { fr: "Total", en: "Total", ar: "المجموع" },
+  "trackOrder.needHelp": { fr: "Besoin d'aide ?", en: "Need help?", ar: "تحتاجين مساعدة؟" },
+  "trackOrder.helpDesc": { fr: "Une question sur votre commande ? Nos conseillers sont à votre disposition.", en: "A question about your order? Our advisors are at your disposal.", ar: "لديك سؤال حول طلبك؟ مستشارونا رهن إشارتك." },
+  "trackOrder.contactWhatsApp": { fr: "Nous contacter sur WhatsApp", en: "Contact us on WhatsApp", ar: "تواصلي معنا عبر الواتساب" },
+  "trackOrder.notFound": { fr: "Commande introuvable", en: "Order not found", ar: "الطلب غير موجود" },
+  "trackOrder.notFoundDesc": { fr: "Nous n'avons trouvé aucune commande avec le numéro {id}", en: "We couldn't find any order with the number {id}", ar: "لم نتمكن من العثور على أي طلب بالرقم {id}" },
+  "trackOrder.retry": { fr: "Réessayer", en: "Retry", ar: "إعادة المحاولة" },
+  "trackOrder.waitingTitle": { fr: "En attendant votre colis...", en: "While waiting for your package...", ar: "في انتظار طردك..." },
+  "trackOrder.discoverNew": { fr: "Découvrir nos nouveautés", en: "Discover our novelties", ar: "اكتشفي جديدنا" },
+
+  // Statuses
+  "status.pending": { fr: "En attente", en: "Pending", ar: "قيد الانتظار" },
+  "status.confirmed": { fr: "Confirmée", en: "Confirmed", ar: "تم التأكيد" },
+  "status.shipped": { fr: "Expédiée", en: "Shipped", ar: "تم الشحن" },
+  "status.delivered": { fr: "Livrée", en: "Delivered", ar: "تم التوصيل" },
+  "status.cancelled": { fr: "Annulée", en: "Cancelled", ar: "ملغاة" },
 
   // Product detail
   "productDetail.notFound": { fr: "Produit Introuvable", en: "Product Not Found", ar: "المنتج غير موجود" },
@@ -191,7 +220,7 @@ const translations = {
   // About
   "about.heroTag": { fr: "Notre Histoire", en: "Our Story", ar: "قصتنا" },
   "about.heroTitle1": { fr: "Rituels Naturels", en: "Natural Rituals", ar: "طقوس طبيعية" },
-  "about.heroTitle2": { fr: "pour Chaque Femme", en: "for Every Woman", ar: "لكل امرأة" },
+  "about.heroTitle2": { fr: "pour Chaque Individu", en: "for Every Individual", ar: "لكل فرد" },
   "about.heroDesc": {
     fr: "Des plantes pures, préparées avec soin, pour un soulagement véritable.",
     en: "Pure plants, carefully prepared, for true relief.",
@@ -233,12 +262,12 @@ const translations = {
   "about.approachText1": {
     fr: "Chaque ingrédient est sélectionné pour sa pureté et ses bienfaits. Nous travaillons directement avec des producteurs locaux qui partagent notre engagement pour la qualité et le respect de l'environnement.",
     en: "Every ingredient is selected for its purity and benefits. We work directly with local producers who share our commitment to quality and environmental respect.",
-    ar: "كل مكون يتم اختياره لنقائه وفوائده. نعمل مباشرة مع منتجين محليين يشاركوننا التزامنا بالجودة واحترام البيئة.",
+    ar: "كل مكون يتم اختياره لنقائه وفوائده. نعمل مباشرة مع منتجين يشاركوننا التزامنا بالجودة واحترام البيئة.",
   },
   "about.approachText2": {
     fr: "Nos préparations sont réalisées en petits lots pour garantir fraîcheur et qualité optimales. Chaque pot est le reflet de notre amour pour les plantes et notre dévouement au bien-être féminin.",
     en: "Our preparations are made in small batches to ensure optimal freshness and quality. Each jar reflects our love for plants and our dedication to women's wellness.",
-    ar: "مستحضراتنا محضرة بكميات صغيرة لضمان أقصى درجات الطزاجة والجودة. كل وعاء يعكس حبنا للنباتات وتفانينا في رفاهية المرأة.",
+    ar: "مستحضراتنا محضرة بكميات صغيرة لضمان أقصى درجات الطزاجة والجودة. كل وعاء يعكس حبنا للنباتات وتفانينا في رفاهيتك.",
   },
   "about.whatGuidesUs": { fr: "Ce Qui Nous Guide", en: "What Guides Us", ar: "ما يرشدنا" },
   "about.ourValues": { fr: "Nos Valeurs", en: "Our Values", ar: "قيمنا" },
@@ -252,13 +281,13 @@ const translations = {
   "about.traditionDesc": {
     fr: "Des recettes ancestrales transmises de génération en génération, adaptées aux besoins des femmes modernes.",
     en: "Ancestral recipes passed down through generations, adapted to modern women's needs.",
-    ar: "وصفات عريقة متوارثة عبر الأجيال، مُكيّفة لاحتياجات المرأة المعاصرة.",
+    ar: "وصفات عريقة متوارثة عبر الأجيال، مُكيّفة لاحتيجاتك المعاصرة.",
   },
   "about.kindness": { fr: "Bienveillance", en: "Kindness", ar: "اللطف" },
   "about.kindnessDesc": {
     fr: "Chaque produit est préparé avec amour et intention, dans le respect de la femme et de la nature.",
     en: "Each product is prepared with love and intention, with respect for women and nature.",
-    ar: "كل منتج محضر بحب وعناية، باحترام للمرأة والطبيعة.",
+    ar: "كل منتج محضر بحب وعناية، باحترام للطبيعة.",
   },
   "about.ctaTag": { fr: "Contactez-Nous", en: "Contact Us", ar: "اتصلي بنا" },
   "about.ctaTitle": { fr: "Une Question ?", en: "Have a Question?", ar: "لديك سؤال؟" },
@@ -269,20 +298,19 @@ const translations = {
   },
   "about.writeUs": { fr: "Nous Écrire", en: "Write to Us", ar: "راسلينا" },
   "about.statNatural": { fr: "Naturel", en: "Natural", ar: "طبيعي" },
-  "about.statAdditives": { fr: "Additifs", en: "Additives", ar: "إضافات" },
-  "about.statRituals": { fr: "Rituels", en: "Rituals", ar: "طقوس" },
+  "about.statAdditives": { fr: "Additifs", en: "Additives", ar: "مواد حافظة" },
   "about.naturalNoPreservatives": { fr: "100% naturel, sans conservateurs", en: "100% natural, no preservatives", ar: "100% طبيعي، بدون مواد حافظة" },
   "about.preparedWithLove": { fr: "Préparé avec amour & intention", en: "Prepared with love & intention", ar: "محضر بحب وعناية" },
   "about.ourProcess": { fr: "Notre Processus", en: "Our Process", ar: "عمليتنا" },
   "about.fromFieldToCup": { fr: "Du Champ à Votre Tasse", en: "From Field to Your Cup", ar: "من الحقل إلى كوبك" },
   "about.step1Title": { fr: "Sélection", en: "Selection", ar: "الاختيار" },
-  "about.step1Desc": { fr: "Plantes soigneusement choisies auprès de producteurs locaux de confiance.", en: "Carefully chosen plants from trusted local producers.", ar: "نباتات مختارة بعناية من منتجين محليين موثوقين." },
+  "about.step1Desc": { fr: "Plantes soigneusement choisies auprès de producteurs locaux de confiance.", en: "Carefully chosen plants from trusted local producers.", ar: "نباتات مختارة بعناية من منتجين موثوقين." },
   "about.step2Title": { fr: "Préparation", en: "Preparation", ar: "التحضير" },
-  "about.step2Desc": { fr: "Mélanges artisanaux en petits lots pour une qualité optimale.", en: "Handcrafted blends in small batches for optimal quality.", ar: "خلطات يدوية بكميات صغيرة لضمان أفضل جودة." },
+  "about.step2Desc": { fr: "Mélanges artisanaux en petits lots pour une qualité optimale.", en: "Handcrafted blends in small batches for optimal quality.", ar: "خلطات يدوية بكميات محدودة لضمان أفضل جودة." },
   "about.step3Title": { fr: "Contrôle", en: "Control", ar: "الرقابة" },
   "about.step3Desc": { fr: "Chaque lot est vérifié pour garantir pureté et fraîcheur.", en: "Each batch is checked to ensure purity and freshness.", ar: "يتم فحص كل دفعة لضمان النقاء والطزاجة." },
   "about.step4Title": { fr: "Livraison", en: "Delivery", ar: "التوصيل" },
-  "about.step4Desc": { fr: "Emballé avec soin et livré partout au Maroc.", en: "Carefully packed and delivered everywhere in Morocco.", ar: "مغلف بعناية ويتم توصيله إلى جميع أنحاء المغرب." },
+  "about.step4Desc": { fr: "Emballé avec soin et livré partout au Maroc.", en: "Carefully packed and delivered everywhere in Morocco.", ar: "يتم التغليف بعناية والتوصيل إلى جميع أنحاء المغرب." },
 
   // Pack detail
   "pack.notFound": { fr: "Pack Introuvable", en: "Pack Not Found", ar: "الحزمة غير موجودة" },
@@ -297,6 +325,7 @@ const translations = {
   "footer.explore": { fr: "Explorer", en: "Explore", ar: "استكشفي" },
   "footer.contact": { fr: "Contact", en: "Contact", ar: "اتصلي بنا" },
   "footer.schedule": { fr: "Lun–Ven, 9h–18h", en: "Mon–Fri, 9am–6pm", ar: "الإثنين–الجمعة، 9ص–6م" },
+  "footer.tagline": { fr: "Pure Plants, True Relief. Rituels naturels pour chaque individu.", en: "Pure Plants, True Relief. Natural rituals for every individual.", ar: "نباتات نقية، راحة حقيقية. طقوس طبيعية لكل فرد." },
 
   // Promo codes
   "checkout.promoCode": { fr: "Code promo", en: "Promo code", ar: "رمز ترويجي" },

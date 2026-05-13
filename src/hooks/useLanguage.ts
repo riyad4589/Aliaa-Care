@@ -17,8 +17,18 @@ const getStoredLanguage = (): Language | null => {
   }
 };
 
+const getInitialLanguage = (): Language => {
+  const stored = getStoredLanguage();
+  if (stored) {
+    document.documentElement.dir = stored === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = stored;
+    return stored;
+  }
+  return "fr";
+};
+
 export const useLanguage = create<LanguageState>((set) => ({
-  language: getStoredLanguage() || "fr",
+  language: getInitialLanguage(),
   hasChosen: !!getStoredLanguage(),
   setLanguage: (lang) => {
     localStorage.setItem("aliaa-lang", lang);

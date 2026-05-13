@@ -18,26 +18,44 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTrackOrder } from "@/hooks/useOrders";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fr, enUS, arMA } from "date-fns/locale";
 import { Link } from "react-router-dom";
+import { useT } from "@/hooks/useT";
+import { useLanguage } from "@/hooks/useLanguage";
 
-const statusConfig = {
-  pending: { label: "En attente", color: "text-amber-600 bg-amber-50", icon: Clock },
-  confirmed: { label: "Confirmée", color: "text-blue-600 bg-blue-50", icon: CheckCircle2 },
-  shipped: { label: "Expédiée", color: "text-purple-600 bg-purple-50", icon: Truck },
-  delivered: { label: "Livrée", color: "text-green-600 bg-green-50", icon: CheckCircle },
-  cancelled: { label: "Annulée", color: "text-red-600 bg-red-50", icon: XCircle },
+const locales = {
+  fr: fr,
+  en: enUS,
+  ar: arMA,
 };
 
 const TrackOrder = () => {
   const [orderNumber, setOrderNumber] = useState("");
   const [searchQuery, setSearchQuery] = useState<string | null>(null);
   const { data: order, isLoading, isError } = useTrackOrder(searchQuery);
+  const { t } = useT();
+  const { language } = useLanguage();
+
+  const statusConfig = {
+    pending: { label: t("status.pending"), color: "text-amber-600 bg-amber-50", icon: Clock },
+    confirmed: { label: t("status.confirmed"), color: "text-blue-600 bg-blue-50", icon: CheckCircle2 },
+    shipped: { label: t("status.shipped"), color: "text-purple-600 bg-purple-50", icon: Truck },
+    delivered: { label: t("status.delivered"), color: "text-green-600 bg-green-50", icon: CheckCircle },
+    cancelled: { label: t("status.cancelled"), color: "text-red-600 bg-red-50", icon: XCircle },
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (orderNumber.trim()) {
       setSearchQuery(orderNumber.trim());
+    }
+  };
+
+  const formatDate = (date: string) => {
+    try {
+      return format(new Date(date), "PPP à HH:mm", { locale: locales[language] || fr });
+    } catch (e) {
+      return date;
     }
   };
 
@@ -56,9 +74,9 @@ const TrackOrder = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-12"
           >
-            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl mb-6">Suivre ma Commande</h1>
+            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl mb-6">{t("trackOrder.title")}</h1>
             <p className="text-muted-foreground text-lg max-w-md mx-auto">
-              Entrez votre numéro de commande pour voir l'état de votre livraison en temps réel.
+              {t("trackOrder.desc")}
             </p>
           </motion.div>
 
@@ -73,13 +91,13 @@ const TrackOrder = () => {
                 <Input 
                   value={orderNumber}
                   onChange={(e) => setOrderNumber(e.target.value)}
-                  placeholder="Ex: #CMD-X123"
+                  placeholder={t("trackOrder.placeholder")}
                   maxLength={50}
                   className="pl-12 h-14 bg-transparent border-none focus-visible:ring-0 text-lg font-medium"
                 />
               </div>
               <Button type="submit" size="lg" className="h-14 px-8 rounded-xl btn-premium" disabled={isLoading}>
-                {isLoading ? "Recherche..." : "Suivre"}
+                {isLoading ? t("trackOrder.searching") : t("trackOrder.button")}
               </Button>
             </form>
           </motion.div>
@@ -111,16 +129,16 @@ const TrackOrder = () => {
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground text-sm">
                       <Calendar className="w-4 h-4" />
-                      Passée le {format(new Date(order.created_at), "PPP à HH:mm", { locale: fr })}
+                      {t("trackOrder.placedOn")} {formatDate(order.created_at)}
                     </div>
                   </div>
                   
-                  <div className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-semibold ${statusConfig[order.status].color}`}>
+                  <div className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-semibold ${statusConfig[order.status]?.color}`}>
                     {(() => {
-                      const Icon = statusConfig[order.status].icon;
+                      const Icon = statusConfig[order.status]?.icon || Package;
                       return <Icon className="w-5 h-5" />;
                     })()}
-                    {statusConfig[order.status].label}
+                    {statusConfig[order.status]?.label || order.status}
                   </div>
                 </div>
 
@@ -130,17 +148,17 @@ const TrackOrder = () => {
                   <div className="md:col-span-3 bg-white rounded-3xl p-8 border border-border shadow-sm space-y-8">
                     <div className="flex items-center gap-3 mb-4">
                       <History className="w-5 h-5 text-primary" />
-                      <h3 className="font-serif text-xl">Historique de livraison</h3>
+                      <h3 className="font-serif text-xl">{t("trackOrder.history")}</h3>
                     </div>
                     
-                    <div className="relative pl-8 space-y-10 before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-[2px] before:bg-muted">
+                    <div className="relative ps-8 space-y-10 before:absolute before:start-[15px] before:top-2 before:bottom-2 before:w-[2px] before:bg-muted">
                       {/* Initial step */}
                       <div className="relative">
-                        <div className="absolute -left-[27px] top-1 w-4 h-4 rounded-full bg-primary ring-4 ring-white" />
+                        <div className="absolute -start-[27px] top-1 w-4 h-4 rounded-full bg-primary ring-4 ring-white" />
                         <div className="space-y-1">
-                          <p className="font-semibold text-lg">Commande Reçue</p>
+                          <p className="font-semibold text-lg">{t("trackOrder.orderReceived")}</p>
                           <p className="text-sm text-muted-foreground">
-                            {format(new Date(order.created_at), "PPP à HH:mm", { locale: fr })}
+                            {formatDate(order.created_at)}
                           </p>
                         </div>
                       </div>
@@ -154,11 +172,11 @@ const TrackOrder = () => {
                           transition={{ delay: idx * 0.1 }}
                           className="relative"
                         >
-                          <div className="absolute -left-[27px] top-1 w-4 h-4 rounded-full bg-primary ring-4 ring-white" />
+                          <div className="absolute -start-[27px] top-1 w-4 h-4 rounded-full bg-primary ring-4 ring-white" />
                           <div className="space-y-1">
                             <p className="font-semibold text-lg">{step.label}</p>
                             <p className="text-sm text-muted-foreground">
-                              {format(new Date(step.date), "PPP à HH:mm", { locale: fr })}
+                              {formatDate(step.date)}
                             </p>
                           </div>
                         </motion.div>
@@ -167,10 +185,10 @@ const TrackOrder = () => {
                       {/* Final step prediction if not delivered */}
                       {order.status !== 'delivered' && order.status !== 'cancelled' && (
                         <div className="relative opacity-40 grayscale">
-                          <div className="absolute -left-[27px] top-1 w-4 h-4 rounded-full bg-muted ring-4 ring-white" />
+                          <div className="absolute -start-[27px] top-1 w-4 h-4 rounded-full bg-muted ring-4 ring-white" />
                           <div className="space-y-1">
-                            <p className="font-semibold text-lg">Livraison prévue</p>
-                            <p className="text-sm text-muted-foreground">Prochainement</p>
+                            <p className="font-semibold text-lg">{t("trackOrder.estimatedDelivery")}</p>
+                            <p className="text-sm text-muted-foreground">{t("trackOrder.soon")}</p>
                           </div>
                         </div>
                       )}
@@ -180,7 +198,7 @@ const TrackOrder = () => {
                   {/* Right: Summary */}
                   <div className="md:col-span-2 space-y-6">
                     <div className="bg-linen rounded-3xl p-8 border border-primary/10 space-y-6">
-                      <h3 className="font-serif text-xl mb-4">Résumé</h3>
+                      <h3 className="font-serif text-xl mb-4">{t("trackOrder.summary")}</h3>
                       <div className="space-y-4">
                         {order.items.map((item, idx) => (
                           <div key={idx} className="flex justify-between items-center text-sm">
@@ -193,7 +211,7 @@ const TrackOrder = () => {
                           </div>
                         ))}
                         <div className="pt-4 border-t border-primary/10 flex justify-between items-baseline">
-                          <span className="text-lg font-serif">Total</span>
+                          <span className="text-lg font-serif">{t("trackOrder.total")}</span>
                           <span className="text-2xl font-serif text-primary">
                             {order.total.toLocaleString()} DH
                           </span>
@@ -202,13 +220,13 @@ const TrackOrder = () => {
                     </div>
 
                     <div className="bg-primary text-white rounded-3xl p-8 space-y-4 shadow-lg shadow-primary/20">
-                      <h4 className="font-serif text-lg">Besoin d'aide ?</h4>
+                      <h4 className="font-serif text-lg">{t("trackOrder.needHelp")}</h4>
                       <p className="text-white/80 text-sm leading-relaxed">
-                        Une question sur votre commande ? Nos conseillers sont à votre disposition.
+                        {t("trackOrder.helpDesc")}
                       </p>
                       <Button asChild className="w-full bg-white text-primary hover:bg-white/90 rounded-xl py-6 font-semibold">
                         <a href="https://wa.me/212652535301" target="_blank" rel="noopener noreferrer">
-                          Nous contacter sur WhatsApp
+                          {t("trackOrder.contactWhatsApp")}
                         </a>
                       </Button>
                     </div>
@@ -225,12 +243,12 @@ const TrackOrder = () => {
                 <div className="w-20 h-20 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-6">
                   <XCircle className="w-10 h-10 text-muted-foreground/30" />
                 </div>
-                <h3 className="font-serif text-2xl mb-2">Commande introuvable</h3>
+                <h3 className="font-serif text-2xl mb-2">{t("trackOrder.notFound")}</h3>
                 <p className="text-muted-foreground max-w-xs mx-auto mb-8">
-                  Nous n'avons trouvé aucune commande avec le numéro <span className="font-mono font-bold text-foreground">#{searchQuery.length > 50 ? `${searchQuery.substring(0, 50)}...` : searchQuery}</span>.
+                  {t("trackOrder.notFoundDesc").replace("{id}", searchQuery.length > 50 ? `${searchQuery.substring(0, 50)}...` : searchQuery)}
                 </p>
                 <Button variant="outline" onClick={() => setSearchQuery(null)}>
-                  Réessayer
+                  {t("trackOrder.retry")}
                 </Button>
               </motion.div>
             )}
@@ -243,12 +261,12 @@ const TrackOrder = () => {
         <div className="container-full">
           <div className="flex justify-between items-end mb-12">
             <div>
-              <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">Notre Collection</p>
-              <h2 className="font-serif text-3xl md:text-4xl">En attendant votre colis...</h2>
+              <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("common.collections")}</p>
+              <h2 className="font-serif text-3xl md:text-4xl">{t("trackOrder.waitingTitle")}</h2>
             </div>
             <Button asChild variant="ghost" className="group">
               <Link to="/products" className="flex items-center gap-2">
-                Découvrir nos nouveautés <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                {t("trackOrder.discoverNew")} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform rtl:rotate-180" />
               </Link>
             </Button>
           </div>

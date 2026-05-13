@@ -21,7 +21,6 @@ const About = () => {
   const stats = [
     { value: "100%", label: t("about.statNatural") },
     { value: "0%", label: t("about.statAdditives") },
-    { value: "4+", label: t("about.statRituals") },
   ];
 
   return (

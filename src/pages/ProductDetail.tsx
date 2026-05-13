@@ -125,11 +125,11 @@ const ProductDetail = () => {
                 </AnimatePresence>
                 {product.images.length > 1 && (
                   <>
-                    <button onClick={prevImage} className="absolute ltr:left-5 rtl:right-5 top-1/2 -translate-y-1/2 p-3 bg-background/90 backdrop-blur-md hover:bg-background transition-all duration-300 opacity-0 group-hover:opacity-100 rounded-full">
-                      <ChevronLeft className="w-5 h-5" />
+                    <button onClick={prevImage} className="absolute start-5 top-1/2 -translate-y-1/2 p-3 bg-background/90 backdrop-blur-md hover:bg-background transition-all duration-300 opacity-0 group-hover:opacity-100 rounded-full">
+                      <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
                     </button>
-                    <button onClick={nextImage} className="absolute ltr:right-5 rtl:left-5 top-1/2 -translate-y-1/2 p-3 bg-background/90 backdrop-blur-md hover:bg-background transition-all duration-300 opacity-0 group-hover:opacity-100 rounded-full">
-                      <ChevronRight className="w-5 h-5" />
+                    <button onClick={nextImage} className="absolute end-5 top-1/2 -translate-y-1/2 p-3 bg-background/90 backdrop-blur-md hover:bg-background transition-all duration-300 opacity-0 group-hover:opacity-100 rounded-full">
+                      <ChevronRight className="w-5 h-5 rtl:rotate-180" />
                     </button>
                     <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
                       {product.images.map((_, index) => (
@@ -139,7 +139,7 @@ const ProductDetail = () => {
                     </div>
                   </>
                 )}
-                <div className="absolute top-5 ltr:left-5 rtl:right-5 flex flex-col gap-2">
+                <div className="absolute top-5 start-5 flex flex-col gap-2">
                   {product.new && (
                     <span className="px-3 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase bg-foreground text-background rounded-sm">{t("common.new")}</span>
                   )}
@@ -290,7 +290,7 @@ const ProductDetail = () => {
                     disabled={product.stock === 0}
                     className="flex-1 rounded-none py-6 text-sm tracking-[0.15em] uppercase btn-premium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <ShoppingBag className="w-4 h-4 ltr:mr-3 rtl:ml-3" />
+                    <ShoppingBag className="w-4 h-4 me-3" />
                     {product.stock === 0 ? t("common.unavailable") : t("common.addToCart")}
                   </Button>
                   
@@ -312,7 +312,7 @@ const ProductDetail = () => {
                 {/* --- END DEMO WHATSAPP SPLIT BUTTON --- */}
 
                 <Button variant="outline" size="lg" className="rounded-none w-full py-6 text-sm tracking-[0.1em] uppercase" onClick={handleWishlistToggle}>
-                  <Heart className={cn("w-4 h-4 ltr:mr-3 rtl:ml-3 transition-all duration-300", inWishlist && "fill-primary text-primary")} />
+                  <Heart className={cn("w-4 h-4 me-3 transition-all duration-300", inWishlist && "fill-primary text-primary")} />
                   {inWishlist ? t("productDetail.saved") : t("productDetail.addToFavorites")}
                 </Button>
               </div>
@@ -337,7 +337,7 @@ const ProductDetail = () => {
               </div>
               <Link to={`/products?collection=${collection?.slug}`}
                 className="hidden md:flex items-center gap-2 text-sm tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground transition-colors">
-                {t("common.viewAll")} <ArrowRight className="w-4 h-4" />
+                {t("common.viewAll")} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">

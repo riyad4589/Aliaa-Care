@@ -69,8 +69,8 @@ export const Header = () => {
       className={cn(
         "sticky top-0 z-50 transition-all duration-500",
         scrolled
-          ? "bg-background/95 backdrop-blur-md border-b border-border shadow-sm"
-          : "bg-background/80 backdrop-blur-sm border-b border-transparent"
+          ? "bg-background border-b border-border shadow-sm"
+          : "bg-background border-b border-transparent"
       )}
     >
       {/* Announcement Bar */}
@@ -165,7 +165,7 @@ export const Header = () => {
                   <AnimatePresence>
                     {items.length > 0 && (
                       <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
-                        className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-semibold rounded-full flex items-center justify-center">
+                        className="absolute -top-0.5 -end-0.5 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-semibold rounded-full flex items-center justify-center">
                         {items.length > 9 ? "9+" : items.length}
                       </motion.span>
                     )}
