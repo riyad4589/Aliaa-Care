@@ -18,9 +18,10 @@ export interface Promotion {
   get_quantity: number | null;
   get_product_id: string | null;
   tier_rules: TierRule[] | null;
-  target_type: string; // all, specific_products, specific_categories
+  target_type: string; // all, specific_products, specific_categories, specific_packs
   product_ids: string[];
   category_ids: string[];
+  pack_ids?: string[];
   active: boolean;
   created_at: string;
 }
@@ -61,6 +62,7 @@ export function useActivePromotions() {
       if (promo.target_type === "all") applies = true;
       else if (promo.target_type === "specific_products" && promo.product_ids?.includes(productId)) applies = true;
       else if (promo.target_type === "specific_categories" && promo.category_ids?.some(cid => categoryIds.includes(cid))) applies = true;
+      else if (promo.target_type === "specific_packs" && promo.pack_ids?.includes(productId)) applies = true;
       if (applies && (promo.discount_percent || 0) > maxDiscount) {
         maxDiscount = promo.discount_percent || 0;
       }

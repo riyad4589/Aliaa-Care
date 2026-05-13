@@ -3,6 +3,7 @@ import { useState } from "react";
 import { usePromotions, useCreatePromotion, useUpdatePromotion, useDeletePromotion, useBulkDeletePromotions, Promotion, TierRule } from "@/hooks/usePromotions";
 import { useProducts } from "@/hooks/useProducts";
 import { useCategories } from "@/hooks/useCategories";
+import { usePacks } from "@/hooks/usePacks";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -46,6 +47,7 @@ const defaultForm = {
   target_type: "all",
   product_ids: [] as string[],
   category_ids: [] as string[],
+  pack_ids: [] as string[],
   active: true,
 };
 
@@ -53,6 +55,7 @@ const AdminPromotions = () => {
   const { data: promotions = [], isLoading } = usePromotions();
   const { data: products = [] } = useProducts();
   const { data: categories = [] } = useCategories();
+  const { data: packs = [] } = usePacks();
   const createMut = useCreatePromotion();
   const updateMut = useUpdatePromotion();
   const deleteMut = useDeletePromotion();
@@ -91,6 +94,7 @@ const AdminPromotions = () => {
       target_type: p.target_type,
       product_ids: p.product_ids || [],
       category_ids: p.category_ids || [],
+      pack_ids: p.pack_ids || [],
       active: p.active,
     });
     setDialogOpen(true);
@@ -115,6 +119,7 @@ const AdminPromotions = () => {
       target_type: form.target_type,
       product_ids: form.target_type === "specific_products" ? form.product_ids : [],
       category_ids: form.target_type === "specific_categories" ? form.category_ids : [],
+      pack_ids: form.target_type === "specific_packs" ? form.pack_ids : [],
       active: form.active,
     };
     try {
@@ -181,6 +186,15 @@ const AdminPromotions = () => {
       category_ids: f.category_ids.includes(id)
         ? f.category_ids.filter(cid => cid !== id)
         : [...f.category_ids, id],
+    }));
+  };
+
+  const togglePackId = (id: string) => {
+    setForm(f => ({
+      ...f,
+      pack_ids: f.pack_ids.includes(id)
+        ? f.pack_ids.filter(pid => pid !== id)
+        : [...f.pack_ids, id],
     }));
   };
 
@@ -432,6 +446,7 @@ const AdminPromotions = () => {
                       <SelectItem value="all">Tous les produits</SelectItem>
                       <SelectItem value="specific_products">Produits spécifiques</SelectItem>
                       <SelectItem value="specific_categories">Catégories spécifiques</SelectItem>
+                      <SelectItem value="specific_packs">Packs spécifiques</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -456,6 +471,18 @@ const AdminPromotions = () => {
                           <Checkbox checked={form.category_ids.includes(c.id)}
                             onCheckedChange={() => toggleCategoryId(c.id)} />
                           <span className="truncate">{c.name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+
+                  {form.target_type === "specific_packs" && (
+                    <div className="space-y-1 max-h-[350px] overflow-y-auto">
+                      {packs.map(p => (
+                        <label key={p.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-2 rounded-md transition-colors">
+                          <Checkbox checked={form.pack_ids.includes(p.id)}
+                            onCheckedChange={() => togglePackId(p.id)} />
+                          <span className="truncate">{p.name}</span>
                         </label>
                       ))}
                     </div>
