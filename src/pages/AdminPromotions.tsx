@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -348,6 +348,9 @@ const AdminPromotions = () => {
         >
           <DialogHeader>
             <DialogTitle className="font-serif text-2xl">{editing ? "Modifier la promotion" : "Nouvelle promotion"}</DialogTitle>
+            <DialogDescription>
+              Configurez les détails et les règles de votre promotion ci-dessous.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 pt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

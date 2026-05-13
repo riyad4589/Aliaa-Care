@@ -466,6 +466,7 @@ export type Database = {
           id: string
           is_flash: boolean
           name: string
+          pack_ids: string[] | null
           product_ids: string[] | null
           starts_at: string
           target_type: string
@@ -484,6 +485,7 @@ export type Database = {
           id?: string
           is_flash?: boolean
           name: string
+          pack_ids?: string[] | null
           product_ids?: string[] | null
           starts_at?: string
           target_type?: string
@@ -502,6 +504,7 @@ export type Database = {
           id?: string
           is_flash?: boolean
           name?: string
+          pack_ids?: string[] | null
           product_ids?: string[] | null
           starts_at?: string
           target_type?: string
