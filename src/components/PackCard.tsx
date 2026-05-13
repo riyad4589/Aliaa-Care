@@ -9,6 +9,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/data/products";
+import { useActivePromotions } from "@/hooks/usePromotions";
 interface PackCardProps {
   pack: DbPack;
   index?: number;
