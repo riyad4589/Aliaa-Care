@@ -64,8 +64,11 @@ const ProductDetail = () => {
     }
   };
 
+  const discount = getProductDiscount(product.id, product.collections || []);
+  const discountedPrice = discount > 0 ? Math.round(product.price * (1 - discount / 100)) : product.price;
+
   const handleAddToCart = () => {
-    addToCart(product, quantity, selectedFlavors.slice(0, quantity));
+    addToCart({ ...product, price: discountedPrice }, quantity, selectedFlavors.slice(0, quantity));
     toast({ title: t("productDetail.addedToCart"), description: `${quantity} × ${product.name}` });
     setQuantity(1);
     setSelectedFlavors([]);

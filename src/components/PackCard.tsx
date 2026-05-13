@@ -19,13 +19,21 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
   const { toast } = useToast();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
   const { t } = useT();
+  const { getProductDiscount, getFlashPromos } = useActivePromotions();
   
   const inWishlist = isInWishlist(pack.id);
+  const discount = getProductDiscount(pack.id, []);
+  const discountedPrice = discount > 0 ? Math.round(pack.price * (1 - discount / 100)) : pack.price;
 
   const totalValue = pack.items.reduce((sum, item) => sum + (item.product_price || 0) * item.quantity, 0);
-  const savings = totalValue - pack.price;
+  const savings = totalValue - discountedPrice;
   const hasPackImage = pack.image && pack.image !== "/placeholder.svg";
   const firstProductImage = pack.items[0]?.product_image || "/placeholder.svg";
+
+  const flashPromo = getFlashPromos().find(fp =>
+    fp.target_type === "all" ||
+    (fp.target_type === "specific_products" && fp.product_ids?.includes(pack.id))
+  );
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -36,7 +44,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
       name: pack.name,
       slug: pack.slug,
       collection: "",
-      price: pack.price,
+      price: discountedPrice,
       description: pack.description,
       longDescription: pack.long_description,
       materials: "",
@@ -102,6 +110,11 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
             <Package className="w-3 h-3" />
             Pack
           </span>
+          {discount > 0 && (
+            <span className="px-3 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase bg-destructive text-destructive-foreground rounded-sm">
+              -{discount}%
+            </span>
+          )}
           {savings > 0 && (
             <span className="px-3 py-1.5 text-[10px] font-semibold tracking-[0.15em] uppercase bg-foreground text-background rounded-sm">
               -{savings.toFixed(0)} DH
@@ -134,13 +147,26 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
 
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-baseline gap-2">
-            <span className="text-[19px] font-sans font-bold text-foreground tracking-tight">
-              {pack.price.toLocaleString()}<span className="text-sm font-medium text-muted-foreground/70 ml-1">DH</span>
-            </span>
-            {savings > 0 && (
-              <span className="text-xs font-sans text-muted-foreground line-through opacity-70">
-                {totalValue.toLocaleString()}<span className="text-[10px] ml-0.5">DH</span>
-              </span>
+            {discount > 0 ? (
+              <>
+                <span className="text-[19px] font-sans font-bold text-destructive tracking-tight">
+                  {discountedPrice.toLocaleString()}<span className="text-sm font-medium text-muted-foreground/70 ml-1">DH</span>
+                </span>
+                <span className="text-xs font-sans text-muted-foreground line-through opacity-70">
+                  {pack.price.toLocaleString()}<span className="text-[10px] ml-0.5">DH</span>
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-[19px] font-sans font-bold text-foreground tracking-tight">
+                  {pack.price.toLocaleString()}<span className="text-sm font-medium text-muted-foreground/70 ml-1">DH</span>
+                </span>
+                {savings > 0 && (
+                  <span className="text-xs font-sans text-muted-foreground line-through opacity-70">
+                    {totalValue.toLocaleString()}<span className="text-[10px] ml-0.5">DH</span>
+                  </span>
+                )}
+              </>
             )}
           </div>
           <Button

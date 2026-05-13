@@ -54,7 +54,8 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
     e.preventDefault();
     e.stopPropagation();
     if (product.stock === 0) return;
-    addToCart(product);
+    const discountedPrice = promoDiscount > 0 ? Math.round(product.price * (1 - promoDiscount / 100)) : product.price;
+    addToCart({ ...product, price: discountedPrice });
     toast({ title: t("productDetail.addedToCart"), description: product.name });
   };
 

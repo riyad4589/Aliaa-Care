@@ -12,6 +12,7 @@ import { useState } from "react";
 import { useWishlist } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
 import { Product } from "@/data/products";
+import { useActivePromotions } from "@/hooks/usePromotions";
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -29,7 +30,11 @@ const PackDetail = () => {
 
   const pack = packs?.find((p) => p.slug === slug && p.active);
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+  const { getProductDiscount } = useActivePromotions();
+  
   const inWishlist = pack ? isInWishlist(pack.id) : false;
+  const discount = pack ? getProductDiscount(pack.id, []) : 0;
+  const discountedPrice = pack ? (discount > 0 ? Math.round(pack.price * (1 - discount / 100)) : pack.price) : 0;
 
   if (isLoading) {
     return (
@@ -69,7 +74,7 @@ const PackDetail = () => {
         name: pack.name,
         slug: pack.slug,
         collection: "",
-        price: pack.price,
+        price: discountedPrice,
         description: pack.description,
         longDescription: pack.long_description,
         materials: "",
@@ -91,7 +96,7 @@ const PackDetail = () => {
         name: pack.name,
         slug: pack.slug,
         collection: "",
-        price: pack.price,
+        price: discountedPrice,
         description: pack.description,
         longDescription: pack.long_description,
         materials: "",
@@ -135,17 +140,35 @@ const PackDetail = () => {
                   {t("common.save")} {savings.toFixed(0)} DH
                 </span>
               )}
+              {discount > 0 && (
+                <span className="px-3 py-1.5 text-[10px] font-semibold tracking-[0.2em] uppercase bg-destructive text-destructive-foreground rounded-sm">
+                  -{discount}%
+                </span>
+              )}
             </div>
             <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-4">{pack.name}</h1>
             <p className="text-muted-foreground leading-relaxed mb-6">{pack.long_description || pack.description}</p>
             <div className="flex items-baseline gap-4 mb-8">
-              <span className="text-3xl font-sans font-bold text-foreground tracking-tight">
-                {pack.price.toLocaleString()}<span className="text-lg font-medium text-muted-foreground/70 ml-1.5">DH</span>
-              </span>
-              {savings > 0 && (
-                <span className="text-lg font-sans text-muted-foreground line-through opacity-60">
-                  {totalValue.toLocaleString()}<span className="text-sm ml-1">DH</span>
-                </span>
+              {discount > 0 ? (
+                <>
+                  <span className="text-3xl font-sans font-bold text-destructive tracking-tight">
+                    {discountedPrice.toLocaleString()}<span className="text-lg font-medium text-muted-foreground/70 ml-1.5">DH</span>
+                  </span>
+                  <span className="text-lg font-sans text-muted-foreground line-through opacity-60">
+                    {pack.price.toLocaleString()}<span className="text-sm ml-1">DH</span>
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-3xl font-sans font-bold text-foreground tracking-tight">
+                    {pack.price.toLocaleString()}<span className="text-lg font-medium text-muted-foreground/70 ml-1.5">DH</span>
+                  </span>
+                  {savings > 0 && (
+                    <span className="text-lg font-sans text-muted-foreground line-through opacity-60">
+                      {totalValue.toLocaleString()}<span className="text-sm ml-1">DH</span>
+                    </span>
+                  )}
+                </>
               )}
             </div>
             <div className="mb-8">
