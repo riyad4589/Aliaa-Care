@@ -8,8 +8,8 @@ import { CartIcon } from "@/components/CartIcon";
 import { useClientProducts } from "@/hooks/useClientProducts";
 import { useT } from "@/hooks/useT";
 import { useLanguage, Language } from "@/hooks/useLanguage";
-import logoImg from "@/assets/LOGOWEB.png";
 import typoImg from "@/assets/TYPO02 PNG.png";
+import { getTranslated } from "@/utils/translationUtils";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -42,7 +42,7 @@ export const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const { items } = useWishlist();
   const { collections } = useClientProducts();
-  const { t } = useT();
+  const { t, lang } = useT();
   const { language, setLanguage } = useLanguage();
   const { user, profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
@@ -107,8 +107,8 @@ export const Header = () => {
                                 "block select-none space-y-1 rounded-sm p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                               )}
                             >
-                              <div className="text-sm font-medium leading-none">{collection.name}</div>
-                              <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{collection.description}</p>
+                              <div className="text-sm font-medium leading-none">{getTranslated(collection, "name", lang)}</div>
+                              <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{getTranslated(collection, "description", lang)}</p>
                             </Link>
                           </NavigationMenuLink>
                         </li>
@@ -180,7 +180,7 @@ export const Header = () => {
                     <p className="text-sm font-medium">{items.length} {t("header.savedItems")}</p>
                     <div className="space-y-1">
                       {items.slice(0, 3).map((item) => (
-                        <p key={item.id} className="text-xs text-muted-foreground truncate">{item.name}</p>
+                        <p key={item.id} className="text-xs text-muted-foreground truncate">{getTranslated(item, "name", lang)}</p>
                       ))}
                       {items.length > 3 && (
                         <p className="text-xs text-muted-foreground">+{items.length - 3} {t("header.more")}</p>
@@ -229,7 +229,7 @@ export const Header = () => {
                     navigate(`/products?collection=${collection.slug}`);
                   }}
                 >
-                  {collection.name}
+                  {getTranslated(collection, "name", lang)}
                 </button>
               ))}
             </div>

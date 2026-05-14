@@ -2,11 +2,12 @@ import { Link } from "react-router-dom";
 import { Instagram } from "lucide-react";
 import { useClientProducts } from "@/hooks/useClientProducts";
 import { useT } from "@/hooks/useT";
+import { getTranslated } from "@/utils/translationUtils";
 import typoImg from "@/assets/TYPO02 PNG.png";
 
 export const Footer = () => {
   const { collections } = useClientProducts();
-  const { t } = useT();
+  const { t, lang } = useT();
 
   return (
     <footer className="bg-[#365836] text-white overflow-hidden relative">
@@ -30,7 +31,7 @@ export const Footer = () => {
               {collections.map((collection) => (
                 <li key={collection.id}>
                   <Link to={`/products?collection=${collection.slug}`} className="text-sm text-white/40 hover:text-white transition-colors duration-300 inline-block group">
-                    {collection.name}
+                    {getTranslated(collection, "name", lang)}
                     <span className="block h-px w-0 bg-white/40 group-hover:w-full transition-all duration-300" />
                   </Link>
                 </li>
