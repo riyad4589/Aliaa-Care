@@ -15,8 +15,12 @@ import selsDeBain2Img from "@/assets/sels-de-bain-2.jpeg";
 export interface Collection {
   id: string;
   name: string;
+  name_ar?: string;
+  name_en?: string;
   slug: string;
   description: string;
+  description_ar?: string;
+  description_en?: string;
   image: string;
   heroImage?: string;
 }
@@ -24,14 +28,22 @@ export interface Collection {
 export interface Product {
   id: string;
   name: string;
+  name_ar?: string;
+  name_en?: string;
   slug: string;
   collection: string;
   collections?: string[];
   price: number;
   originalPrice?: number;
   description: string;
+  description_ar?: string;
+  description_en?: string;
   longDescription: string;
+  longDescription_ar?: string;
+  longDescription_en?: string;
   materials: string;
+  materials_ar?: string;
+  materials_en?: string;
   weight?: number;
   stock?: number;
   images: string[];

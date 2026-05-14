@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
+import { getTranslated } from "@/utils/translationUtils";
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -34,7 +35,7 @@ const ProductDetail = () => {
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
   const { addItem: addToCart } = useCart();
   const { toast } = useToast();
-  const { t } = useT();
+  const { t, lang } = useT();
 
   if (!product) {
     return (
@@ -57,10 +58,10 @@ const ProductDetail = () => {
   const handleWishlistToggle = () => {
     if (inWishlist) {
       removeFromWishlist(product.id);
-      toast({ title: t("productDetail.removedFromFavorites"), description: product.name });
+      toast({ title: t("productDetail.removedFromFavorites"), description: getTranslated(product, "name", lang) });
     } else {
       addToWishlist(product);
-      toast({ title: t("productDetail.addedToFavorites"), description: product.name });
+      toast({ title: t("productDetail.addedToFavorites"), description: getTranslated(product, "name", lang) });
     }
   };
 
@@ -69,7 +70,7 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     addToCart({ ...product, price: discountedPrice }, quantity, selectedFlavors.slice(0, quantity));
-    toast({ title: t("productDetail.addedToCart"), description: `${quantity} × ${product.name}` });
+    toast({ title: t("productDetail.addedToCart"), description: `${quantity} × ${getTranslated(product, "name", lang)}` });
     setQuantity(1);
     setSelectedFlavors([]);
   };
@@ -92,11 +93,11 @@ const ProductDetail = () => {
           <span className="text-border">/</span>
           {collection && (
             <>
-              <Link to={`/products?collection=${collection.slug}`} className="hover:text-foreground transition-colors">{collection.name}</Link>
+              <Link to={`/products?collection=${collection.slug}`} className="hover:text-foreground transition-colors">{getTranslated(collection, "name", lang)}</Link>
               <span className="text-border">/</span>
             </>
           )}
-          <span className="text-foreground">{product.name}</span>
+          <span className="text-foreground">{getTranslated(product, "name", lang)}</span>
         </div>
       </div>
 
@@ -114,7 +115,7 @@ const ProductDetail = () => {
                   <motion.img
                     key={currentImageIndex}
                     src={product.images[currentImageIndex]}
-                    alt={product.name}
+                    alt={getTranslated(product, "name", lang)}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -157,7 +158,7 @@ const ProductDetail = () => {
                     <button key={index} onClick={() => setCurrentImageIndex(index)}
                       className={cn("w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300",
                         index === currentImageIndex ? "ring-2 ring-foreground ring-offset-2 ring-offset-background" : "opacity-60 hover:opacity-100")}>
-                      <img src={image} alt={`${product.name} ${index + 1}`} className="w-full h-full object-cover" />
+                      <img src={image} alt={`${getTranslated(product, "name", lang)} ${index + 1}`} className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>
@@ -169,9 +170,9 @@ const ProductDetail = () => {
               className="lg:col-span-7 lg:sticky lg:top-28 lg:self-start">
               {collection && (
                 <Link to={`/products?collection=${collection.slug}`}
-                  className="inline-block text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-5 hover:text-primary/80 transition-colors">{collection.name}</Link>
+                  className="inline-block text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-5 hover:text-primary/80 transition-colors">{getTranslated(collection, "name", lang)}</Link>
               )}
-              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground mb-5 leading-[1.05]">{product.name}</h1>
+              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground mb-5 leading-[1.05]">{getTranslated(product, "name", lang)}</h1>
               {(() => {
                 const discount = getProductDiscount(product.id, product.collections || []);
                 const originalPrice = product.originalPrice;
@@ -221,11 +222,11 @@ const ProductDetail = () => {
                 );
               })()}
               <div className="w-12 h-px bg-border mb-8" />
-              <p className="text-muted-foreground leading-[1.8] mb-10">{product.longDescription}</p>
+              <p className="text-muted-foreground leading-[1.8] mb-10">{getTranslated(product, "longDescription", lang)}</p>
               <div className="space-y-5 mb-10 pb-10 border-b border-border">
                 <div>
                   <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-1.5">{t("productDetail.ingredients")}</span>
-                  <span className="text-sm text-foreground">{product.materials}</span>
+                  <span className="text-sm text-foreground">{getTranslated(product, "materials", lang)}</span>
                 </div>
                 {product.weight && (
                   <div>
@@ -304,7 +305,7 @@ const ProductDetail = () => {
                     onClick={() => {
                       const phone = "212699928463";
                       const url = window.location.href;
-                      const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le produit : ${product.name}\nPrix : ${product.price} DH\nLien : ${url}`);
+                      const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le produit : ${getTranslated(product, "name", lang)}\nPrix : ${product.price} DH\nLien : ${url}`);
                       window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
                     }}
                     title={t("productDetail.whatsappQuestion")}
@@ -336,7 +337,7 @@ const ProductDetail = () => {
             <div className="flex items-end justify-between mb-12">
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("productDetail.youMayAlsoLike")}</p>
-                <h2 className="font-serif text-3xl md:text-4xl text-foreground">{t("productDetail.moreFrom")} {collection?.name}</h2>
+                <h2 className="font-serif text-3xl md:text-4xl text-foreground">{t("productDetail.moreFrom")} {getTranslated(collection as any, "name", lang)}</h2>
               </div>
               <Link to={`/products?collection=${collection?.slug}`}
                 className="hidden md:flex items-center gap-2 text-sm tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground transition-colors">

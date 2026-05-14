@@ -10,13 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import chayNifasImg from "@/assets/chay-nifas.jpeg";
+import { getTranslated } from "@/utils/translationUtils";
 
 type SortOption = "featured" | "newest" | "price-asc" | "price-desc" | "name-asc";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { products, collections, getCollectionBySlug } = useClientProducts();
-  const { t } = useT();
+  const { t, lang } = useT();
   const activeCollection = searchParams.get("collection") || "all";
   const activeSort = (searchParams.get("sort") as SortOption) || "featured";
 
@@ -80,7 +81,7 @@ const Products = () => {
     <>
       <section className="relative h-[40vh] md:h-[55vh] overflow-hidden">
         <div className="absolute inset-0">
-          <img src={currentCollection?.heroImage || chayNifasImg} alt={currentCollection?.name || t("common.products")}
+          <img src={currentCollection?.heroImage || chayNifasImg} alt={getTranslated(currentCollection as any, "name", lang) || t("common.products")}
             className="w-full h-full object-cover transition-opacity duration-700" />
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal/60 via-charcoal/20 to-charcoal/10" />
         </div>
@@ -90,9 +91,9 @@ const Products = () => {
               {currentCollection ? t("common.collection") : t("common.shop")}
             </p>
             <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl text-white mb-3 leading-[0.95]">
-              {currentCollection ? currentCollection.name : t("common.products")}
+              {currentCollection ? getTranslated(currentCollection, "name", lang) : t("common.products")}
             </h1>
-            {currentCollection && <p className="text-base text-white/70 max-w-lg">{currentCollection.description}</p>}
+            {currentCollection && <p className="text-base text-white/70 max-w-lg">{getTranslated(currentCollection, "description", lang)}</p>}
           </motion.div>
         </div>
       </section>
@@ -110,7 +111,7 @@ const Products = () => {
                 <Button key={collection.id} variant="ghost" size="sm" onClick={() => handleFilterChange(collection.slug)}
                   className={cn("rounded-none px-5 whitespace-nowrap text-xs tracking-[0.1em] uppercase transition-all duration-300",
                     activeCollection === collection.slug ? "bg-foreground text-background hover:bg-foreground/90 hover:text-background" : "hover:bg-accent")}>
-                  {collection.name}
+                  {getTranslated(collection, "name", lang)}
                 </Button>
               ))}
             </div>

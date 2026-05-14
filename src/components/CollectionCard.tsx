@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { ClientCollection } from "@/hooks/useClientProducts";
 import { useT } from "@/hooks/useT";
+import { getTranslated } from "@/utils/translationUtils";
 
 interface CollectionCardProps {
   collection: ClientCollection;
@@ -11,7 +12,7 @@ interface CollectionCardProps {
 }
 
 export const CollectionCard = ({ collection, index = 0, variant = "default" }: CollectionCardProps) => {
-  const { t } = useT();
+  const { t, lang } = useT();
   return (
     <motion.article
       initial={{ opacity: 0, y: 40 }}
@@ -21,15 +22,15 @@ export const CollectionCard = ({ collection, index = 0, variant = "default" }: C
     >
       <Link to={`/products?collection=${collection.slug}`} className="group block relative">
         <div className={`relative overflow-hidden bg-muted/50 aspect-[3/2]`}>
-          <img src={collection.image} alt={collection.name} className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110" />
+          <img src={collection.image} alt={getTranslated(collection, "name", lang)} className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110" />
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-charcoal/10 to-transparent" />
           <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/20 transition-colors duration-700" />
           <div className="absolute inset-0 flex flex-col justify-end p-7 md:p-8">
             <p className="text-[10px] font-semibold tracking-[0.25em] uppercase text-white/60 mb-2 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
               {t("common.collection")}
             </p>
-            <h3 className="font-serif text-2xl md:text-3xl text-white mb-2 transform group-hover:-translate-y-1 transition-transform duration-500">{collection.name}</h3>
-            <p className="text-sm text-white/70 leading-relaxed max-w-xs transform translate-y-1 group-hover:translate-y-0 transition-transform duration-500 delay-75">{collection.description}</p>
+            <h3 className="font-serif text-2xl md:text-3xl text-white mb-2 transform group-hover:-translate-y-1 transition-transform duration-500">{getTranslated(collection, "name", lang)}</h3>
+            <p className="text-sm text-white/70 leading-relaxed max-w-xs transform translate-y-1 group-hover:translate-y-0 transition-transform duration-500 delay-75">{getTranslated(collection, "description", lang)}</p>
             <div className="flex items-center gap-2 mt-4 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-150">
               <span className="text-xs font-medium tracking-[0.15em] uppercase text-white/90">{t("common.explore")}</span>
               <ArrowRight className="w-4 h-4 text-white/90 transform group-hover:translate-x-1 transition-transform duration-300" />

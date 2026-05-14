@@ -5,10 +5,16 @@ import { compressImage } from "@/utils/imageCompression";
 export interface DbProduct {
   id: string;
   name: string;
+  name_ar?: string | null;
+  name_en?: string | null;
   slug: string;
   price: number;
   description: string | null;
+  description_ar?: string | null;
+  description_en?: string | null;
   long_description: string | null;
+  long_description_ar?: string | null;
+  long_description_en?: string | null;
   materials: string | null;
   weight: number | null;
   stock: number;

@@ -5,13 +5,19 @@ import { useBanner } from "@/hooks/useBanner";
 export interface ClientProduct {
   id: string;
   name: string;
+  name_ar?: string | null;
+  name_en?: string | null;
   slug: string;
   collection: string; // primary category id
   collections?: string[];
   price: number;
   originalPrice?: number;
   description: string;
+  description_ar?: string | null;
+  description_en?: string | null;
   longDescription: string;
+  longDescription_ar?: string | null;
+  longDescription_en?: string | null;
   materials: string;
   weight?: number;
   stock: number;
@@ -24,8 +30,12 @@ export interface ClientProduct {
 export interface ClientCollection {
   id: string;
   name: string;
+  name_ar?: string | null;
+  name_en?: string | null;
   slug: string;
   description: string;
+  description_ar?: string | null;
+  description_en?: string | null;
   image: string;
   heroImage?: string;
 }
@@ -34,13 +44,19 @@ function toClientProduct(p: DbProduct): ClientProduct {
   return {
     id: p.id,
     name: p.name,
+    name_ar: p.name_ar,
+    name_en: p.name_en,
     slug: p.slug,
     collection: p.category_ids[0] || "",
     collections: p.category_ids,
     price: p.price,
     originalPrice: p.original_price ?? undefined,
     description: p.description || "",
+    description_ar: p.description_ar,
+    description_en: p.description_en,
     longDescription: p.long_description || "",
+    longDescription_ar: p.long_description_ar,
+    longDescription_en: p.long_description_en,
     materials: p.materials || "",
     weight: p.weight ?? undefined,
     stock: p.stock,
@@ -55,8 +71,12 @@ function toClientCollection(c: DbCategory): ClientCollection {
   return {
     id: c.id,
     name: c.name,
+    name_ar: c.name_ar,
+    name_en: c.name_en,
     slug: c.slug,
     description: c.description || "",
+    description_ar: c.description_ar,
+    description_en: c.description_en,
     image: c.image || "/placeholder.svg",
     heroImage: c.image || "/placeholder.svg",
   };

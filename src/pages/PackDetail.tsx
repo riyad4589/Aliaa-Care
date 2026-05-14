@@ -13,6 +13,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
 import { Product } from "@/data/products";
 import { useActivePromotions } from "@/hooks/usePromotions";
+import { getTranslated } from "@/utils/translationUtils";
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -25,7 +26,7 @@ const PackDetail = () => {
   const { data: packs, isLoading } = usePacks();
   const { addItem } = useCart();
   const { toast } = useToast();
-  const { t } = useT();
+  const { t, lang } = useT();
   const [quantity, setQuantity] = useState(1);
 
   const pack = packs?.find((p) => p.slug === slug && p.active);
@@ -71,38 +72,38 @@ const PackDetail = () => {
     for (let i = 0; i < quantity; i++) {
       addItem({
         id: pack.id,
-        name: pack.name,
+        name: getTranslated(pack, "name", lang),
         slug: pack.slug,
         collection: "",
         price: discountedPrice,
-        description: pack.description,
-        longDescription: pack.long_description,
+        description: getTranslated(pack, "description", lang),
+        longDescription: getTranslated(pack, "long_description", lang),
         materials: "",
         images: [firstImage],
       });
     }
-    toast({ title: t("pack.addedToCart"), description: `${pack.name} x${quantity}` });
+    toast({ title: t("pack.addedToCart"), description: `${getTranslated(pack, "name", lang)} x${quantity}` });
   };
 
   const handleWishlistToggle = () => {
     if (!pack) return;
     if (inWishlist) {
       removeFromWishlist(pack.id);
-      toast({ title: t("productDetail.removedFromFavorites"), description: pack.name });
+      toast({ title: t("productDetail.removedFromFavorites"), description: getTranslated(pack, "name", lang) });
     } else {
       const firstImage = pack.items[0]?.product_image || pack.image;
       addToWishlist({
         id: pack.id,
-        name: pack.name,
+        name: getTranslated(pack, "name", lang),
         slug: pack.slug,
         collection: "",
         price: discountedPrice,
-        description: pack.description,
-        longDescription: pack.long_description,
+        description: getTranslated(pack, "description", lang),
+        longDescription: getTranslated(pack, "long_description", lang),
         materials: "",
         images: [firstImage],
       } as Product);
-      toast({ title: t("productDetail.addedToFavorites"), description: pack.name });
+      toast({ title: t("productDetail.addedToFavorites"), description: getTranslated(pack, "name", lang) });
     }
   };
 
@@ -125,7 +126,7 @@ const PackDetail = () => {
                   ))}
                 </div>
               ) : (
-                <img src={firstImage} alt={pack.name} className="w-full h-full object-cover" />
+                <img src={firstImage} alt={getTranslated(pack, "name", lang)} className="w-full h-full object-cover" />
               )}
             </div>
           </motion.div>
@@ -146,8 +147,8 @@ const PackDetail = () => {
                 </span>
               )}
             </div>
-            <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-4">{pack.name}</h1>
-            <p className="text-muted-foreground leading-relaxed mb-6">{pack.long_description || pack.description}</p>
+            <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-4">{getTranslated(pack, "name", lang)}</h1>
+            <p className="text-muted-foreground leading-relaxed mb-6">{getTranslated(pack, "long_description", lang) || getTranslated(pack, "description", lang)}</p>
             <div className="flex items-baseline gap-4 mb-8">
               {discount > 0 ? (
                 <>
@@ -208,7 +209,7 @@ const PackDetail = () => {
                 onClick={() => {
                   const phone = "212699928463";
                   const url = window.location.href;
-                  const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le pack : ${pack.name}\nPrix : ${pack.price} DH\nLien : ${url}`);
+                  const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le pack : ${getTranslated(pack, "name", lang)}\nPrix : ${pack.price} DH\nLien : ${url}`);
                   window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
                 }}
               >

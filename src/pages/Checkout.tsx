@@ -14,6 +14,7 @@ import { useT } from "@/hooks/useT";
 import { sendOrderWhatsAppNotification } from "@/lib/whatsapp";
 import { cities, regions } from "@/data/maroc";
 import { cn } from "@/lib/utils";
+import { getTranslated } from "@/utils/translationUtils";
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -375,10 +376,10 @@ const Checkout = () => {
                   {items.map((item) => (
                     <div key={item.product.id} className="flex gap-4">
                       <div className="w-16 h-20 bg-muted/30 overflow-hidden">
-                        <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                        <img src={item.product.images[0]} alt={getTranslated(item.product, "name", lang)} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-medium line-clamp-1">{item.product.name}</p>
+                        <p className="text-sm font-medium line-clamp-1">{getTranslated(item.product, "name", lang)}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{t("checkout.qty")} : {item.quantity}</p>
                         <p className="text-sm mt-1">{(item.product.price * item.quantity).toLocaleString()} DH</p>
                       </div>

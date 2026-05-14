@@ -10,6 +10,7 @@ import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/data/products";
 import { useActivePromotions } from "@/hooks/usePromotions";
+import { getTranslated } from "@/utils/translationUtils";
 interface PackCardProps {
   pack: DbPack;
   index?: number;
@@ -19,7 +20,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
   const { addItem } = useCart();
   const { toast } = useToast();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
-  const { t } = useT();
+  const { t, lang } = useT();
   const { getProductDiscount, getFlashPromos } = useActivePromotions();
   
   const inWishlist = isInWishlist(pack.id);
@@ -42,16 +43,16 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
     // Add the pack as a product-like item to cart
     addItem({
       id: pack.id,
-      name: pack.name,
+      name: getTranslated(pack, "name", lang),
       slug: pack.slug,
       collection: "",
       price: discountedPrice,
-      description: pack.description,
-      longDescription: pack.long_description,
+      description: getTranslated(pack, "description", lang),
+      longDescription: getTranslated(pack, "long_description", lang),
       materials: "",
       images: [hasPackImage ? pack.image : firstProductImage],
     });
-    toast({ title: t("pack.addedToCart"), description: pack.name });
+    toast({ title: t("pack.addedToCart"), description: getTranslated(pack, "name", lang) });
   };
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
@@ -59,20 +60,20 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
     e.stopPropagation();
     if (inWishlist) {
       removeFromWishlist(pack.id);
-      toast({ title: t("productDetail.removedFromFavorites"), description: pack.name });
+      toast({ title: t("productDetail.removedFromFavorites"), description: getTranslated(pack, "name", lang) });
     } else {
       addToWishlist({
         id: pack.id,
-        name: pack.name,
+        name: getTranslated(pack, "name", lang),
         slug: pack.slug,
         collection: "",
         price: pack.price,
-        description: pack.description,
-        longDescription: pack.long_description,
+        description: getTranslated(pack, "description", lang),
+        longDescription: getTranslated(pack, "long_description", lang),
         materials: "",
         images: [hasPackImage ? pack.image : firstProductImage],
       } as Product);
-      toast({ title: t("productDetail.addedToFavorites"), description: pack.name });
+      toast({ title: t("productDetail.addedToFavorites"), description: getTranslated(pack, "name", lang) });
     }
   };
 
@@ -84,7 +85,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
         {hasPackImage ? (
           <img
             src={pack.image}
-            alt={pack.name}
+            alt={getTranslated(pack, "name", lang)}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         ) : pack.items.length >= 3 ? (
@@ -101,7 +102,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
         ) : (
           <img
             src={firstProductImage}
-            alt={pack.name}
+            alt={getTranslated(pack, "name", lang)}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         )}
@@ -133,10 +134,10 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
 
       <div className="p-5 space-y-3">
         <h3 className="font-serif text-lg text-foreground group-hover:text-primary transition-colors leading-snug">
-          {pack.name}
+          {getTranslated(pack, "name", lang)}
         </h3>
 
-        <p className="text-sm text-muted-foreground line-clamp-2">{pack.description}</p>
+        <p className="text-sm text-muted-foreground line-clamp-2">{getTranslated(pack, "description", lang)}</p>
 
         <div className="flex flex-wrap gap-1.5">
           {pack.items.map((item) => (

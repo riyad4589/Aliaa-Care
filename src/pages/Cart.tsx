@@ -7,11 +7,12 @@ import { useCart } from "@/hooks/useCart";
 import { useActivePromotions } from "@/hooks/usePromotions";
 import { Button } from "@/components/ui/button";
 import { useT } from "@/hooks/useT";
+import { getTranslated } from "@/utils/translationUtils";
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, getSubtotal } = useCart();
   const { getTieredDiscount, getTieredPromos } = useActivePromotions();
-  const { t } = useT();
+  const { t, lang } = useT();
   const subtotal = getSubtotal();
   const totalItems = items.reduce((s, i) => s + i.quantity, 0);
   const tieredDiscount = getTieredDiscount(totalItems);
@@ -59,12 +60,12 @@ const Cart = () => {
                   <motion.div key={item.product.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: index * 0.1 }} className="flex gap-6 py-8 border-b border-border">
                     <Link to={`/product/${item.product.slug}`} className="w-28 h-32 md:w-36 md:h-44 flex-shrink-0 overflow-hidden bg-muted/30 group">
-                      <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      <img src={item.product.images[0]} alt={getTranslated(item.product, "name", lang)} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     </Link>
                       <div className="flex-1 flex flex-col">
                       <div className="flex-1">
-                        <Link to={`/product/${item.product.slug}`} className="font-serif text-lg md:text-xl hover:text-primary transition-colors">{item.product.name}</Link>
-                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.product.description}</p>
+                        <Link to={`/product/${item.product.slug}`} className="font-serif text-lg md:text-xl hover:text-primary transition-colors">{getTranslated(item.product, "name", lang)}</Link>
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{getTranslated(item.product, "description", lang)}</p>
                         
                         {item.selectedFlavors && item.selectedFlavors.length > 0 && (
                           <div className="mt-2 space-y-1">

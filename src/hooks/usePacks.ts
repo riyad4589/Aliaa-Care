@@ -4,9 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 export interface DbPack {
   id: string;
   name: string;
+  name_ar?: string | null;
+  name_en?: string | null;
   slug: string;
   description: string;
+  description_ar?: string | null;
+  description_en?: string | null;
   long_description: string;
+  long_description_ar?: string | null;
+  long_description_en?: string | null;
   price: number;
   image: string;
   active: boolean;

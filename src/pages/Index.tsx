@@ -15,11 +15,12 @@ import coffretImg from "@/assets/coffret-aliaa.webp";
 import coffretImgMobile from "@/assets/coffret-aliaa-phone.webp";
 import gommageCorpsImg from "@/assets/gommage-corps.jpeg";
 import eauDeRoseImg from "@/assets/eau-de-rose.jpeg";
+import { getTranslated } from "@/utils/translationUtils";
 
 const Index = () => {
   const { products, collections, banner } = useClientProducts();
   const { data: allPacks = [] } = usePacks();
-  const { t } = useT();
+  const { t, lang } = useT();
   const activePacks = allPacks.filter((p) => p.active);
   const latestProducts = products.slice(0, 4);
   const displayedCollections = collections.slice(0, 4);
@@ -104,18 +105,18 @@ const Index = () => {
             <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-center">
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                 transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const }} className="relative aspect-square overflow-hidden group">
-                <img src={featuredCollection.heroImage || featuredCollection.image} alt={featuredCollection.name}
+                <img src={featuredCollection.heroImage || featuredCollection.image} alt={getTranslated(featuredCollection, "name", lang)}
                   className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 via-transparent to-transparent" />
               </motion.div>
               <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                 transition={{ duration: 0.8, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] as const }} className="md:py-12">
                 <p className="text-[11px] font-semibold tracking-[0.3em] uppercase text-primary mb-4">{t("index.featuredCollection")}</p>
-                <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground mb-6 leading-[0.95]">{featuredCollection.name}</h2>
-                <p className="text-muted-foreground leading-relaxed mb-8 max-w-md">{featuredCollection.description}. {t("index.featuredDesc")}</p>
+                <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground mb-6 leading-[0.95]">{getTranslated(featuredCollection, "name", lang)}</h2>
+                <p className="text-muted-foreground leading-relaxed mb-8 max-w-md">{getTranslated(featuredCollection, "description", lang)}. {t("index.featuredDesc")}</p>
                 <Button asChild size="lg" className="rounded-none px-10 py-6 text-sm tracking-[0.15em] uppercase btn-premium">
                   <Link to={`/products?collection=${featuredCollection.slug}`}>
-                    {t("index.discoverCollection")} {featuredCollection.name}<ArrowRight className="ltr:ml-3 rtl:mr-3 w-4 h-4" />
+                    {t("index.discoverCollection")} {getTranslated(featuredCollection, "name", lang)}<ArrowRight className="ltr:ml-3 rtl:mr-3 w-4 h-4" />
                   </Link>
                 </Button>
               </motion.div>

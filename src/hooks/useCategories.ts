@@ -4,8 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 export interface DbCategory {
   id: string;
   name: string;
+  name_ar?: string | null;
+  name_en?: string | null;
   slug: string;
   description: string | null;
+  description_ar?: string | null;
+  description_en?: string | null;
   image: string | null;
   active: boolean;
   created_at: string;

@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { getTranslated } from "@/utils/translationUtils";
 
 interface ProductCardProps {
   product: Product;
@@ -23,7 +24,7 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
   const { addItem: addToCart } = useCart();
   const { collections } = useClientProducts();
   const { getProductDiscount, getFlashPromos } = useActivePromotions();
-  const { t } = useT();
+  const { t, lang } = useT();
   const { toast } = useToast();
   const inWishlist = isInWishlist(product.id);
   const collection = collections.find((c) => c.id === product.collection);
@@ -43,10 +44,10 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
     e.stopPropagation();
     if (inWishlist) {
       removeFromWishlist(product.id);
-      toast({ title: t("productDetail.removedFromFavorites"), description: product.name });
+      toast({ title: t("productDetail.removedFromFavorites"), description: getTranslated(product, "name", lang) });
     } else {
       addToWishlist(product);
-      toast({ title: t("productDetail.addedToFavorites"), description: product.name });
+      toast({ title: t("productDetail.addedToFavorites"), description: getTranslated(product, "name", lang) });
     }
   };
 
@@ -56,7 +57,7 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
     if (product.stock === 0) return;
     const discountedPrice = promoDiscount > 0 ? Math.round(product.price * (1 - promoDiscount / 100)) : product.price;
     addToCart({ ...product, price: discountedPrice });
-    toast({ title: t("productDetail.addedToCart"), description: product.name });
+    toast({ title: t("productDetail.addedToCart"), description: getTranslated(product, "name", lang) });
   };
 
   return (
@@ -69,10 +70,10 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
     >
       <Link to={`/product/${product.slug}`} className="block">
         <div className={cn("relative overflow-hidden bg-muted/50 mb-5 rounded-lg", variant === "large" ? "aspect-square" : "aspect-square")}>
-          <img src={product.images[0]} alt={product.name}
+          <img src={product.images[0]} alt={getTranslated(product, "name", lang)}
             className={cn("w-full h-full object-cover transition-all duration-1000 ease-out", hasSecondImage ? "group-hover:opacity-0 group-hover:scale-105" : "group-hover:scale-105")} />
           {hasSecondImage && (
-            <img src={product.images[1]} alt={`${product.name}`}
+            <img src={product.images[1]} alt={getTranslated(product, "name", lang)}
               className="absolute inset-0 w-full h-full object-cover opacity-0 scale-105 transition-all duration-1000 ease-out group-hover:opacity-100 group-hover:scale-100" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
@@ -121,13 +122,13 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
         <div className="space-y-3">
           <div className="space-y-1">
             {collection && (
-              <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-primary/70">{collection.name}</p>
+              <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-primary/70">{getTranslated(collection, "name", lang)}</p>
             )}
-            <h3 className="font-serif text-xl text-foreground group-hover:text-primary transition-colors leading-snug">{product.name}</h3>
+            <h3 className="font-serif text-xl text-foreground group-hover:text-primary transition-colors leading-snug">{getTranslated(product, "name", lang)}</h3>
           </div>
           
           <p className="text-sm text-muted-foreground/80 line-clamp-2 leading-relaxed h-10 italic">
-            {product.description}
+            {getTranslated(product, "description", lang)}
           </p>
           
           <div className="flex items-center justify-between pt-3 border-t border-border/50">
