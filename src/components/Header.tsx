@@ -7,6 +7,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { CartIcon } from "@/components/CartIcon";
 import { useClientProducts } from "@/hooks/useClientProducts";
 import { useT } from "@/hooks/useT";
+import { useBanner } from "@/hooks/useBanner";
 import { useLanguage, Language } from "@/hooks/useLanguage";
 import typoImg from "@/assets/TYPO02 PNG.png";
 import { getTranslated } from "@/utils/translationUtils";
@@ -43,6 +44,7 @@ export const Header = () => {
   const { items } = useWishlist();
   const { collections } = useClientProducts();
   const { t, lang } = useT();
+  const { data: banner } = useBanner();
   const { language, setLanguage } = useLanguage();
   const { user, profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
@@ -74,11 +76,26 @@ export const Header = () => {
       )}
     >
       {/* Announcement Bar */}
-      <div className="bg-primary text-primary-foreground py-2 overflow-hidden whitespace-nowrap border-b border-primary/20 text-center">
-        <div className="inline-block text-[10px] md:text-xs font-bold uppercase tracking-[0.3em]">
-          {t("header.deliveryMaroc") || "Livraison partout au Maroc"}
+      {banner?.enabled && (
+        <div 
+          className="bg-primary py-2 overflow-hidden border-b border-primary/20 text-center relative"
+          style={{ color: banner.text_color }}
+        >
+          {banner.scrolling_enabled ? (
+            <div className="flex whitespace-nowrap animate-scroll">
+              {[...Array(10)].map((_, i) => (
+                <div key={i} className="inline-block text-[10px] md:text-xs font-bold uppercase tracking-[0.3em] px-8">
+                  {banner.message}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="inline-block text-[10px] md:text-xs font-bold uppercase tracking-[0.3em]">
+              {banner.message}
+            </div>
+          )}
         </div>
-      </div>
+      )}
 
       <nav className="container-full">
         <div className="flex items-center justify-between h-16 md:h-20">

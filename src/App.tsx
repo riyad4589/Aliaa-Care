@@ -40,6 +40,7 @@ const AdminPromoCodes = lazy(() => import("./pages/AdminPromoCodes"));
 const AdminPackaging = lazy(() => import("./pages/AdminPackaging"));
 const AdminPromotions = lazy(() => import("./pages/AdminPromotions"));
 const AdminOrders = lazy(() => import("./pages/AdminOrders"));
+const AdminSettings = lazy(() => import("./pages/AdminSettings"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -154,6 +155,7 @@ const App = () => (
                 {/* <Route path="packaging" element={<AdminPackaging />} /> */}
                 <Route path="promotions" element={<AdminPromotions />} />
                 <Route path="orders" element={<AdminOrders />} />
+                <Route path="settings" element={<AdminSettings />} />
               </Route>
 
               {/* Catch-all */}
