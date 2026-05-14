@@ -34,7 +34,7 @@ const PackDetail = () => {
   const { getProductDiscount } = useActivePromotions();
 
   const inWishlist = pack ? isInWishlist(pack.id) : false;
-  const discount = pack ? getProductDiscount(pack.id, []) : 0;
+  const discount = pack ? getProductDiscount(pack.id, [], true) : 0;
   const discountedPrice = pack ? (discount > 0 ? Math.round(pack.price * (1 - discount / 100)) : pack.price) : 0;
 
   if (isLoading) {

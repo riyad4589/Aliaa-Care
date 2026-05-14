@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { usePromotions, useCreatePromotion, useUpdatePromotion, useDeletePromotion, useBulkDeletePromotions, Promotion, TierRule } from "@/hooks/usePromotions";
 import { useProducts } from "@/hooks/useProducts";
@@ -23,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Zap, Tag, Percent, ShoppingCart, Star, Loader2, AlertTriangle, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Zap, Tag, Percent, ShoppingCart, Star, Loader2, AlertTriangle, Search, Calendar, Clock } from "lucide-react";
 
 const PROMO_TYPES = [
   { value: "percentage", label: "Réduction %", icon: Percent },
@@ -52,6 +53,7 @@ const defaultForm = {
 };
 
 const AdminPromotions = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: promotions = [], isLoading } = usePromotions();
   const { data: products = [] } = useProducts();
   const { data: categories = [] } = useCategories();
@@ -61,7 +63,6 @@ const AdminPromotions = () => {
   const deleteMut = useDeletePromotion();
   const { toast } = useToast();
 
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Promotion | null>(null);
   const [form, setForm] = useState(defaultForm);
   const bulkDeletePromos = useBulkDeletePromotions();
@@ -70,35 +71,80 @@ const AdminPromotions = () => {
   const [promoToDelete, setPromoToDelete] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
+  // Sync dialog state with URL
+  const dialogOpen = searchParams.get("action") === "edit" || searchParams.get("action") === "new";
+
+  useEffect(() => {
+    const action = searchParams.get("action");
+    const id = searchParams.get("id");
+    
+    const draftKey = `promo_draft_${action}_${id || 'new'}`;
+    const savedDraft = localStorage.getItem(draftKey);
+
+    if (savedDraft) {
+      setForm(JSON.parse(savedDraft));
+      return;
+    }
+
+    if (action === "new") {
+      setForm(defaultForm);
+      setEditing(null);
+    } else if (action === "edit" && id && promotions.length > 0) {
+      const p = promotions.find(promo => promo.id === id);
+      if (p) {
+        setEditing(p);
+        setForm({
+          name: p.name,
+          type: p.type,
+          discount_percent: p.discount_percent,
+          starts_at: p.starts_at.slice(0, 16),
+          ends_at: p.ends_at.slice(0, 16),
+          is_flash: p.is_flash,
+          buy_quantity: p.buy_quantity || 2,
+          get_quantity: p.get_quantity || 1,
+          get_product_id: p.get_product_id || "",
+          tier_rules: p.tier_rules || [{ min_qty: 3, discount_percent: 10 }],
+          target_type: p.target_type,
+          product_ids: p.product_ids || [],
+          category_ids: p.category_ids || [],
+          pack_ids: p.pack_ids || [],
+          active: p.active,
+        });
+      }
+    } else if (!action) {
+      setEditing(null);
+    }
+  }, [searchParams, promotions]);
+
+  // Save draft whenever form changes
+  useEffect(() => {
+    if (dialogOpen) {
+      const action = searchParams.get("action");
+      const id = searchParams.get("id");
+      const draftKey = `promo_draft_${action}_${id || 'new'}`;
+      localStorage.setItem(draftKey, JSON.stringify(form));
+    }
+  }, [form, dialogOpen, searchParams]);
+
+  const clearDraft = () => {
+    const action = searchParams.get("action");
+    const id = searchParams.get("id");
+    localStorage.removeItem(`promo_draft_${action}_${id || 'new'}`);
+  };
+
+  const setDialogOpen = (open: boolean) => {
+    if (!open) {
+      clearDraft();
+      setSearchParams({});
+    }
+  };
+
+  const openCreate = () => { setSearchParams({ action: "new" }); };
+  const openEdit = (p: Promotion) => { setSearchParams({ action: "edit", id: p.id }); };
+
   const filtered = promotions.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
 
-  const openCreate = () => {
-    setEditing(null);
-    setForm(defaultForm);
-    setDialogOpen(true);
-  };
 
-  const openEdit = (p: Promotion) => {
-    setEditing(p);
-    setForm({
-      name: p.name,
-      type: p.type,
-      discount_percent: p.discount_percent,
-      starts_at: p.starts_at.slice(0, 16),
-      ends_at: p.ends_at.slice(0, 16),
-      is_flash: p.is_flash,
-      buy_quantity: p.buy_quantity || 2,
-      get_quantity: p.get_quantity || 1,
-      get_product_id: p.get_product_id || "",
-      tier_rules: p.tier_rules || [{ min_qty: 3, discount_percent: 10 }],
-      target_type: p.target_type,
-      product_ids: p.product_ids || [],
-      category_ids: p.category_ids || [],
-      pack_ids: p.pack_ids || [],
-      active: p.active,
-    });
-    setDialogOpen(true);
-  };
 
   const handleSave = async () => {
     if (!form.name.trim()) {
@@ -118,7 +164,7 @@ const AdminPromotions = () => {
       tier_rules: form.type === "tiered" ? form.tier_rules : null,
       target_type: form.target_type,
       product_ids: form.target_type === "specific_products" ? form.product_ids : [],
-      category_ids: form.target_type === "specific_categories" ? form.category_ids : [],
+      category_ids: (form.target_type === "specific_categories" || form.target_type === "all_categories") ? form.category_ids : [],
       pack_ids: form.target_type === "specific_packs" ? form.pack_ids : [],
       active: form.active,
     };
@@ -130,6 +176,7 @@ const AdminPromotions = () => {
         await createMut.mutateAsync(payload);
         toast({ title: "Promotion créée" });
       }
+      clearDraft();
       setDialogOpen(false);
     } catch {
       toast({ title: "Erreur", variant: "destructive" });
@@ -342,7 +389,7 @@ const AdminPromotions = () => {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent 
-          className="max-w-3xl max-h-[90vh] overflow-y-auto"
+          className="max-w-6xl max-h-[90vh] overflow-y-auto"
           onInteractOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
         >
@@ -420,16 +467,36 @@ const AdminPromotions = () => {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Date de début</label>
-                    <Input type="datetime-local" value={form.starts_at}
-                      onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Date de fin</label>
-                    <Input type="datetime-local" value={form.ends_at}
-                      onChange={(e) => setForm({ ...form, ends_at: e.target.value })} />
+                <div className="grid grid-cols-1 gap-4 p-4 bg-muted/20 rounded-xl border border-border/50">
+                  <div className="space-y-3">
+                    <label className="text-xs font-semibold tracking-wider uppercase text-muted-foreground flex items-center gap-2">
+                      <Calendar className="w-3 h-3 text-primary" />
+                      Période de validité
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <span className="text-[10px] text-muted-foreground ml-1">Date de début</span>
+                        <div className="relative group">
+                          <Input 
+                            type="datetime-local" 
+                            value={form.starts_at}
+                            onChange={(e) => setForm({ ...form, starts_at: e.target.value })}
+                            className="h-10 pl-3 bg-background border-border/50 transition-all focus:border-primary focus:ring-1 focus:ring-primary/20"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <span className="text-[10px] text-muted-foreground ml-1">Date de fin</span>
+                        <div className="relative group">
+                          <Input 
+                            type="datetime-local" 
+                            value={form.ends_at}
+                            onChange={(e) => setForm({ ...form, ends_at: e.target.value })}
+                            className="h-10 pl-3 bg-background border-border/50 transition-all focus:border-primary focus:ring-1 focus:ring-primary/20"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -446,7 +513,10 @@ const AdminPromotions = () => {
                   <Select value={form.target_type} onValueChange={(v) => setForm({ ...form, target_type: v })}>
                     <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Tous les produits</SelectItem>
+                      <SelectItem value="all">Tout (Boutique entière)</SelectItem>
+                      <SelectItem value="all_products">Tous les produits</SelectItem>
+                      <SelectItem value="all_packs">Tous les packs</SelectItem>
+                      <SelectItem value="all_categories">Toutes les catégories</SelectItem>
                       <SelectItem value="specific_products">Produits spécifiques</SelectItem>
                       <SelectItem value="specific_categories">Catégories spécifiques</SelectItem>
                       <SelectItem value="specific_packs">Packs spécifiques</SelectItem>
@@ -494,7 +564,28 @@ const AdminPromotions = () => {
                   {form.target_type === "all" && (
                     <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
                       <Zap className="w-12 h-12 text-primary/30 mb-3" />
-                      <p className="text-sm text-muted-foreground">Cette promotion sera appliquée à tous les articles de la boutique sans exception.</p>
+                      <p className="text-sm text-muted-foreground">Cette promotion sera appliquée à TOUS les articles (produits et packs) sans exception.</p>
+                    </div>
+                  )}
+
+                  {form.target_type === "all_products" && (
+                    <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
+                      <Zap className="w-12 h-12 text-primary/30 mb-3" />
+                      <p className="text-sm text-muted-foreground">Cette promotion sera appliquée à tous les produits individuels (hors packs).</p>
+                    </div>
+                  )}
+
+                  {form.target_type === "all_packs" && (
+                    <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
+                      <Zap className="w-12 h-12 text-primary/30 mb-3" />
+                      <p className="text-sm text-muted-foreground">Cette promotion sera appliquée à tous les packs de produits uniquement.</p>
+                    </div>
+                  )}
+
+                  {form.target_type === "all_categories" && (
+                    <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
+                      <Zap className="w-12 h-12 text-primary/30 mb-3" />
+                      <p className="text-sm text-muted-foreground">Cette promotion sera appliquée à tous les produits qui appartiennent à au moins une catégorie.</p>
                     </div>
                   )}
                 </div>

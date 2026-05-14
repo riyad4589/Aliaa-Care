@@ -79,6 +79,12 @@ export function useAddPack() {
       name: string; slug: string; description: string; long_description: string;
       price: number; image: string; active: boolean; featured: boolean;
       product_ids: string[];
+      name_ar?: string;
+      name_en?: string;
+      description_ar?: string;
+      description_en?: string;
+      long_description_ar?: string;
+      long_description_en?: string;
     }) => {
       const { product_ids, ...packData } = input;
       const { data, error } = await supabase
@@ -104,7 +110,7 @@ export function useUpdatePack() {
   return useMutation({
     mutationFn: async (input: {
       id: string;
-      updates: { name: string; slug: string; description: string; long_description: string; price: number; image: string; active: boolean; featured: boolean };
+      updates: { name: string; slug: string; description: string; long_description: string; price: number; image: string; active: boolean; featured: boolean; name_ar?: string | null; name_en?: string | null; description_ar?: string | null; description_en?: string | null; long_description_ar?: string | null; long_description_en?: string | null };
       product_ids: string[];
     }) => {
       const { error } = await supabase

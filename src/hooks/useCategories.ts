@@ -33,7 +33,17 @@ export function useCategories() {
 export function useAddCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { name: string; slug: string; description?: string; image?: string; active?: boolean }) => {
+    mutationFn: async (input: { 
+      name: string; 
+      slug: string; 
+      description?: string; 
+      image?: string; 
+      active?: boolean;
+      name_ar?: string;
+      name_en?: string;
+      description_ar?: string;
+      description_en?: string;
+    }) => {
       const { data, error } = await supabase.from("categories").insert(input).select().single();
       if (error) throw error;
       return data;
@@ -45,7 +55,7 @@ export function useAddCategory() {
 export function useUpdateCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: Partial<{ active: boolean; name: string; slug: string; description: string | null; image: string | null }> }) => {
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<{ active: boolean; name: string; slug: string; description: string | null; image: string | null; name_ar: string | null; name_en: string | null; description_ar: string | null; description_en: string | null }> }) => {
       const { error } = await supabase.from("categories").update(updates).eq("id", id);
       if (error) throw error;
     },

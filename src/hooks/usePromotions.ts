@@ -54,12 +54,15 @@ export function useActivePromotions() {
   const { data: all = [], ...rest } = usePromotions();
   const active = all.filter(isPromoActive);
   
-  const getProductDiscount = (productId: string, categoryIds: string[] = []): number => {
+  const getProductDiscount = (productId: string, categoryIds: string[] = [], isPack: boolean = false): number => {
     let maxDiscount = 0;
     for (const promo of active) {
       if (promo.type === "buy_x_get_y" || promo.type === "tiered") continue;
       let applies = false;
       if (promo.target_type === "all") applies = true;
+      else if (promo.target_type === "all_products" && !isPack) applies = true;
+      else if (promo.target_type === "all_packs" && isPack) applies = true;
+      else if (promo.target_type === "all_categories" && categoryIds.length > 0) applies = true;
       else if (promo.target_type === "specific_products" && promo.product_ids?.includes(productId)) applies = true;
       else if (promo.target_type === "specific_categories" && promo.category_ids?.some(cid => categoryIds.includes(cid))) applies = true;
       else if (promo.target_type === "specific_packs" && promo.pack_ids?.includes(productId)) applies = true;

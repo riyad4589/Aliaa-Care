@@ -32,7 +32,17 @@ const AdminCategories = () => {
   const deleteCategory = useDeleteCategory();
   const bulkDeleteCategories = useBulkDeleteCategories();
   const { toast } = useToast();
-  const [editing, setEditing] = useState<{ id?: string; name: string; description: string; slug: string; image: string } | null>(null);
+  const [editing, setEditing] = useState<{ 
+    id?: string; 
+    name: string; 
+    description: string; 
+    slug: string; 
+    image: string;
+    name_ar?: string;
+    name_en?: string;
+    description_ar?: string;
+    description_en?: string;
+  } | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState("");
@@ -56,11 +66,21 @@ const AdminCategories = () => {
     }
 
     if (action === "new") {
-      setEditing({ name: "", description: "", slug: "", image: "" });
+      setEditing({ name: "", description: "", slug: "", image: "", name_ar: "", name_en: "", description_ar: "", description_en: "" });
     } else if (action === "edit" && id && categories.length > 0) {
       const c = categories.find(cat => cat.id === id);
       if (c) {
-        setEditing({ id: c.id, name: c.name, description: c.description || "", slug: c.slug, image: c.image || "" });
+        setEditing({ 
+          id: c.id, 
+          name: c.name, 
+          description: c.description || "", 
+          slug: c.slug, 
+          image: c.image || "",
+          name_ar: c.name_ar || "",
+          name_en: c.name_en || "",
+          description_ar: c.description_ar || "",
+          description_en: c.description_en || ""
+        });
       }
     } else if (!action) {
       setEditing(null);
@@ -138,10 +158,31 @@ const AdminCategories = () => {
 
     try {
       if (editing.id) {
-        await updateCategory.mutateAsync({ id: editing.id, updates: { name: editing.name, slug, description: editing.description, image: editing.image } });
+        await updateCategory.mutateAsync({ 
+          id: editing.id, 
+          updates: { 
+            name: editing.name, 
+            slug, 
+            description: editing.description, 
+            image: editing.image,
+            name_ar: editing.name_ar,
+            name_en: editing.name_en,
+            description_ar: editing.description_ar,
+            description_en: editing.description_en
+          } 
+        });
         toast({ title: "Catégorie mise à jour" });
       } else {
-        await addCategory.mutateAsync({ name: editing.name, slug, description: editing.description, image: editing.image });
+        await addCategory.mutateAsync({ 
+          name: editing.name, 
+          slug, 
+          description: editing.description, 
+          image: editing.image,
+          name_ar: editing.name_ar,
+          name_en: editing.name_en,
+          description_ar: editing.description_ar,
+          description_en: editing.description_en
+        });
         toast({ title: "Catégorie ajoutée" });
       }
       clearDraft();
@@ -352,7 +393,7 @@ const AdminCategories = () => {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent 
-          className="max-w-2xl max-h-[90vh] overflow-y-auto"
+          className="max-w-4xl max-h-[90vh] overflow-y-auto"
           onInteractOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
         >
@@ -386,6 +427,28 @@ const AdminCategories = () => {
                       placeholder="Décrivez les produits de cette catégorie..."
                       className="resize-none"
                     />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-1.5 block">Nom (Arabe)</label>
+                      <Input dir="rtl" value={editing.name_ar} onChange={(e) => setEditing({ ...editing, name_ar: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-1.5 block">Nom (Anglais)</label>
+                      <Input value={editing.name_en} onChange={(e) => setEditing({ ...editing, name_en: e.target.value })} />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-1.5 block">Description (Arabe)</label>
+                      <Textarea dir="rtl" value={editing.description_ar} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} rows={3} />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-1.5 block">Description (Anglais)</label>
+                      <Textarea value={editing.description_en} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} rows={3} />
+                    </div>
                   </div>
                 </div>
 

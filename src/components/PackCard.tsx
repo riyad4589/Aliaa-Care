@@ -24,7 +24,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
   const { getProductDiscount, getFlashPromos } = useActivePromotions();
   
   const inWishlist = isInWishlist(pack.id);
-  const discount = getProductDiscount(pack.id, []);
+  const discount = getProductDiscount(pack.id, [], true);
   const discountedPrice = discount > 0 ? Math.round(pack.price * (1 - discount / 100)) : pack.price;
 
   const totalValue = pack.items.reduce((sum, item) => sum + (item.product_price || 0) * item.quantity, 0);

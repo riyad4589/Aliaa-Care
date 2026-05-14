@@ -31,6 +31,14 @@ interface EditingProduct {
   description: string;
   long_description: string;
   materials: string;
+  name_ar: string;
+  name_en: string;
+  description_ar: string;
+  description_en: string;
+  long_description_ar: string;
+  long_description_en: string;
+  materials_ar: string;
+  materials_en: string;
   weight?: number;
   stock: number;
   active: boolean;
@@ -44,7 +52,9 @@ interface EditingProduct {
 
 const emptyProduct: EditingProduct = {
   name: "", slug: "", price: 0, description: "", long_description: "",
-  materials: "", weight: undefined, images: [], stock: 10, active: true, visible: true,
+  materials: "", name_ar: "", name_en: "", description_ar: "", description_en: "",
+  long_description_ar: "", long_description_en: "", materials_ar: "", materials_en: "",
+  weight: undefined, images: [], stock: 10, active: true, visible: true,
   featured: false, is_new: false, category_ids: [], flavors: [],
 };
 
@@ -92,6 +102,14 @@ const AdminProducts = () => {
           description: p.description || "",
           long_description: p.long_description || "",
           materials: p.materials || "",
+          name_ar: p.name_ar || "",
+          name_en: p.name_en || "",
+          description_ar: p.description_ar || "",
+          description_en: p.description_en || "",
+          long_description_ar: p.long_description_ar || "",
+          long_description_en: p.long_description_en || "",
+          materials_ar: p.materials_ar || "",
+          materials_en: p.materials_en || "",
           weight: p.weight ?? undefined,
           stock: p.stock,
           active: p.active,
@@ -200,6 +218,14 @@ const AdminProducts = () => {
             description: editingProduct.description,
             long_description: editingProduct.long_description,
             materials: editingProduct.materials,
+            name_ar: editingProduct.name_ar,
+            name_en: editingProduct.name_en,
+            description_ar: editingProduct.description_ar,
+            description_en: editingProduct.description_en,
+            long_description_ar: editingProduct.long_description_ar,
+            long_description_en: editingProduct.long_description_en,
+            materials_ar: editingProduct.materials_ar,
+            materials_en: editingProduct.materials_en,
             weight: editingProduct.weight || null,
             stock: editingProduct.stock,
             active: editingProduct.active,
@@ -220,6 +246,14 @@ const AdminProducts = () => {
           description: editingProduct.description,
           long_description: editingProduct.long_description,
           materials: editingProduct.materials,
+          name_ar: editingProduct.name_ar,
+          name_en: editingProduct.name_en,
+          description_ar: editingProduct.description_ar,
+          description_en: editingProduct.description_en,
+          long_description_ar: editingProduct.long_description_ar,
+          long_description_en: editingProduct.long_description_en,
+          materials_ar: editingProduct.materials_ar,
+          materials_en: editingProduct.materials_en,
           weight: editingProduct.weight,
           stock: editingProduct.stock,
           active: editingProduct.active,
@@ -464,7 +498,7 @@ const AdminProducts = () => {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent 
-          className="max-w-3xl max-h-[90vh] overflow-y-auto"
+          className="max-w-6xl max-h-[90vh] overflow-y-auto"
           onInteractOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
         >
@@ -589,10 +623,54 @@ const AdminProducts = () => {
                     <label className="text-sm font-medium mb-1.5 block">Description courte</label>
                     <Textarea value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} rows={2} />
                   </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Nom (Arabe)</label>
+                      <Input dir="rtl" value={editingProduct.name_ar} onChange={(e) => setEditingProduct({ ...editingProduct, name_ar: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Nom (Anglais)</label>
+                      <Input value={editingProduct.name_en} onChange={(e) => setEditingProduct({ ...editingProduct, name_en: e.target.value })} />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Ingrédients (Arabe)</label>
+                      <Input dir="rtl" value={editingProduct.materials_ar} onChange={(e) => setEditingProduct({ ...editingProduct, materials_ar: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Ingrédients (Anglais)</label>
+                      <Input value={editingProduct.materials_en} onChange={(e) => setEditingProduct({ ...editingProduct, materials_en: e.target.value })} />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Description courte (Arabe)</label>
+                      <Textarea dir="rtl" value={editingProduct.description_ar} onChange={(e) => setEditingProduct({ ...editingProduct, description_ar: e.target.value })} rows={2} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Description courte (Anglais)</label>
+                      <Textarea value={editingProduct.description_en} onChange={(e) => setEditingProduct({ ...editingProduct, description_en: e.target.value })} rows={2} />
+                    </div>
+                  </div>
                   
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Description longue</label>
                     <Textarea value={editingProduct.long_description} onChange={(e) => setEditingProduct({ ...editingProduct, long_description: e.target.value })} rows={4} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Description longue (Arabe)</label>
+                      <Textarea dir="rtl" value={editingProduct.long_description_ar} onChange={(e) => setEditingProduct({ ...editingProduct, long_description_ar: e.target.value })} rows={3} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Description longue (Anglais)</label>
+                      <Textarea value={editingProduct.long_description_en} onChange={(e) => setEditingProduct({ ...editingProduct, long_description_en: e.target.value })} rows={3} />
+                    </div>
                   </div>
                 </div>
               </div>

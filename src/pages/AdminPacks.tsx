@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { usePacks, useAddPack, useUpdatePack, useDeletePack, useBulkDeletePacks, useTogglePackActive, DbPack } from "@/hooks/usePacks";
 import { useProducts } from "@/hooks/useProducts";
@@ -34,14 +35,23 @@ interface EditingPack {
   active: boolean;
   featured: boolean;
   product_ids: string[];
+  name_ar: string;
+  name_en: string;
+  description_ar: string;
+  description_en: string;
+  long_description_ar: string;
+  long_description_en: string;
 }
 
 const emptyPack: EditingPack = {
   name: "", slug: "", description: "", long_description: "",
   price: 0, image: "/placeholder.svg", active: true, featured: false, product_ids: [],
+  name_ar: "", name_en: "", description_ar: "", description_en: "",
+  long_description_ar: "", long_description_en: "",
 };
 
 const AdminPacks = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: packs = [], isLoading } = usePacks();
   const { data: products = [] } = useProducts();
   const addPack = useAddPack();
@@ -49,7 +59,6 @@ const AdminPacks = () => {
   const deletePack = useDeletePack();
   const toggleActive = useTogglePackActive();
   const { toast } = useToast();
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<EditingPack | null>(null);
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
@@ -59,6 +68,71 @@ const AdminPacks = () => {
   const [packToDelete, setPackToDelete] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync dialog state with URL
+  const dialogOpen = searchParams.get("action") === "edit" || searchParams.get("action") === "new";
+
+  useEffect(() => {
+    const action = searchParams.get("action");
+    const id = searchParams.get("id");
+    
+    const draftKey = `pack_draft_${action}_${id || 'new'}`;
+    const savedDraft = localStorage.getItem(draftKey);
+
+    if (savedDraft) {
+      setEditing(JSON.parse(savedDraft));
+      return;
+    }
+
+    if (action === "new") {
+      setEditing({ ...emptyPack });
+    } else if (action === "edit" && id && packs.length > 0) {
+      const p = packs.find(p => p.id === id);
+      if (p) {
+        const productIds = (p.items || []).map((i) => i.product_id).filter(Boolean);
+        setEditing({
+          id: p.id, name: p.name, slug: p.slug, description: p.description,
+          long_description: p.long_description, price: p.price, image: p.image,
+          active: p.active, featured: p.featured,
+          product_ids: productIds,
+          name_ar: p.name_ar || "",
+          name_en: p.name_en || "",
+          description_ar: p.description_ar || "",
+          description_en: p.description_en || "",
+          long_description_ar: p.long_description_ar || "",
+          long_description_en: p.long_description_en || "",
+        });
+      }
+    } else if (!action) {
+      setEditing(null);
+    }
+  }, [searchParams, packs]);
+
+  // Save draft whenever editing changes
+  useEffect(() => {
+    if (editing && dialogOpen) {
+      const action = searchParams.get("action");
+      const id = searchParams.get("id");
+      const draftKey = `pack_draft_${action}_${id || 'new'}`;
+      localStorage.setItem(draftKey, JSON.stringify(editing));
+    }
+  }, [editing, dialogOpen, searchParams]);
+
+  const clearDraft = () => {
+    const action = searchParams.get("action");
+    const id = searchParams.get("id");
+    localStorage.removeItem(`pack_draft_${action}_${id || 'new'}`);
+  };
+
+  const setDialogOpen = (open: boolean) => {
+    if (!open) {
+      clearDraft();
+      setSearchParams({});
+    }
+  };
+
+  const openNew = () => { setSearchParams({ action: "new" }); };
+  const openEdit = (p: DbPack) => { setSearchParams({ action: "edit", id: p.id }); };
 
   const filtered = packs.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -110,7 +184,22 @@ const AdminPacks = () => {
       if (editing.id) {
         await updatePack.mutateAsync({
           id: editing.id,
-          updates: { name: editing.name, slug, description: editing.description, long_description: editing.long_description, price: editing.price, image: editing.image, active: editing.active, featured: editing.featured },
+          updates: { 
+            name: editing.name, 
+            slug, 
+            description: editing.description, 
+            long_description: editing.long_description, 
+            price: editing.price, 
+            image: editing.image, 
+            active: editing.active, 
+            featured: editing.featured,
+            name_ar: editing.name_ar,
+            name_en: editing.name_en,
+            description_ar: editing.description_ar,
+            description_en: editing.description_en,
+            long_description_ar: editing.long_description_ar,
+            long_description_en: editing.long_description_en,
+          },
           product_ids: editing.product_ids,
         });
         toast({ title: "Pack mis à jour" });
@@ -119,9 +208,16 @@ const AdminPacks = () => {
           name: editing.name, slug, description: editing.description, long_description: editing.long_description,
           price: editing.price, image: editing.image, active: editing.active, featured: editing.featured,
           product_ids: editing.product_ids,
+          name_ar: editing.name_ar,
+          name_en: editing.name_en,
+          description_ar: editing.description_ar,
+          description_en: editing.description_en,
+          long_description_ar: editing.long_description_ar,
+          long_description_en: editing.long_description_en,
         });
         toast({ title: "Pack ajouté" });
       }
+      clearDraft();
       setDialogOpen(false);
       setEditing(null);
     } catch {
@@ -131,19 +227,8 @@ const AdminPacks = () => {
     }
   };
 
-  const openNew = () => { setEditing({ ...emptyPack }); setDialogOpen(true); };
-  const openEdit = (p: DbPack) => {
-    console.log("Opening pack for edit:", p.name, "items:", p.items);
-    const productIds = (p.items || []).map((i) => i.product_id).filter(Boolean);
-    console.log("Extracted product_ids:", productIds);
-    setEditing({
-      id: p.id, name: p.name, slug: p.slug, description: p.description,
-      long_description: p.long_description, price: p.price, image: p.image,
-      active: p.active, featured: p.featured,
-      product_ids: productIds,
-    });
-    setDialogOpen(true);
-  };
+  const openNew = () => { setSearchParams({ action: "new" }); };
+  const openEdit = (p: DbPack) => { setSearchParams({ action: "edit", id: p.id }); };
 
   if (isLoading) {
     return <><div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div></>;
@@ -288,7 +373,7 @@ const AdminPacks = () => {
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent 
-          className="max-w-3xl max-h-[90vh] overflow-y-auto"
+          className="max-w-6xl max-h-[90vh] overflow-y-auto"
           onInteractOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
         >
@@ -315,9 +400,42 @@ const AdminPacks = () => {
                     <Textarea value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} rows={2} />
                   </div>
 
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Nom (Arabe)</label>
+                      <Input dir="rtl" value={editing.name_ar} onChange={(e) => setEditing({ ...editing, name_ar: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Nom (Anglais)</label>
+                      <Input value={editing.name_en} onChange={(e) => setEditing({ ...editing, name_en: e.target.value })} />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Description courte (Arabe)</label>
+                      <Textarea dir="rtl" value={editing.description_ar} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} rows={2} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Description courte (Anglais)</label>
+                      <Textarea value={editing.description_en} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} rows={2} />
+                    </div>
+                  </div>
+
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Description longue</label>
                     <Textarea value={editing.long_description} onChange={(e) => setEditing({ ...editing, long_description: e.target.value })} rows={4} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Description longue (Arabe)</label>
+                      <Textarea dir="rtl" value={editing.long_description_ar} onChange={(e) => setEditing({ ...editing, long_description_ar: e.target.value })} rows={3} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Description longue (Anglais)</label>
+                      <Textarea value={editing.long_description_en} onChange={(e) => setEditing({ ...editing, long_description_en: e.target.value })} rows={3} />
+                    </div>
                   </div>
 
                   <div>
