@@ -28,6 +28,7 @@ const PackDetail = () => {
   const { toast } = useToast();
   const { t, lang } = useT();
   const [quantity, setQuantity] = useState(1);
+  const [selectedPackFlavors, setSelectedPackFlavors] = useState<Record<string, string[]>>({});
 
   const pack = packs?.find((p) => p.slug === slug && p.active);
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
@@ -80,6 +81,7 @@ const PackDetail = () => {
         longDescription: getTranslated(pack, "long_description", lang),
         materials: "",
         images: [firstImage],
+        packItemFlavors: selectedPackFlavors,
       });
     }
     toast({ title: t("pack.addedToCart"), description: `${getTranslated(pack, "name", lang)} x${quantity}` });
@@ -183,6 +185,39 @@ const PackDetail = () => {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{item.product_name}</p>
                       <p className="text-xs text-muted-foreground">{t("checkout.qty")}: {item.quantity}</p>
+                      
+                      {/* Flavor selection for pack items */}
+                      {item.product_flavors && item.product_flavors.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          {Array.from({ length: item.quantity }).map((_, i) => {
+                            const currentFlavors = getTranslated(item, "product_flavors", lang) as string[];
+                            if (!currentFlavors || currentFlavors.length === 0) return null;
+                            
+                            const selections = selectedPackFlavors[item.product_name || ""] || [];
+                            const currentVal = selections[i] || currentFlavors[0];
+
+                            return (
+                              <div key={i} className="flex flex-col gap-1">
+                                {item.quantity > 1 && <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Unité {i + 1}</span>}
+                                <select
+                                  className="w-full bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer rounded"
+                                  value={currentVal}
+                                  onChange={(e) => {
+                                    const newSelections = [...selections];
+                                    while (newSelections.length <= i) newSelections.push(currentFlavors[0]);
+                                    newSelections[i] = e.target.value;
+                                    setSelectedPackFlavors({ ...selectedPackFlavors, [item.product_name || ""]: newSelections });
+                                  }}
+                                >
+                                  {currentFlavors.map((f) => (
+                                    <option key={f} value={f}>{f}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                     <span className="text-sm text-muted-foreground">{(item.product_price || 0).toLocaleString()} DH</span>
                   </div>

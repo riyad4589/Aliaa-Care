@@ -9,6 +9,7 @@ export interface OrderItem {
   quantity: number;
   unit_price: number;
   selected_flavors?: string[];
+  pack_item_flavors?: Record<string, string[]>;
 }
 
 export interface OrderData {
@@ -62,9 +63,19 @@ export const sendOrderWhatsAppNotification = async (
   const itemsList = items
     .map((item) => {
       let text = `• ${item.quantity}x ${item.product_name} (${item.unit_price} DH)`;
+      
       if (item.selected_flavors && item.selected_flavors.length > 0) {
         text += `\n  _${t.flavors} ${item.selected_flavors.join(", ")}_`;
       }
+      
+      if (item.pack_item_flavors && Object.keys(item.pack_item_flavors).length > 0) {
+        Object.entries(item.pack_item_flavors).forEach(([pName, flavors]) => {
+          if (flavors && flavors.length > 0) {
+            text += `\n   - ${pName}: _${flavors.join(", ")}_`;
+          }
+        });
+      }
+      
       return text;
     })
     .join("\n");

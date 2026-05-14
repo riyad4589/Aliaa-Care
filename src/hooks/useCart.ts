@@ -6,12 +6,13 @@ export interface CartItem {
   product: Product;
   quantity: number;
   selectedFlavors?: string[];
+  packItemFlavors?: Record<string, string[]>; // product_id -> array of flavors
 }
 
 interface CartState {
   items: CartItem[];
-  addItem: (product: Product, quantity?: number, selectedFlavors?: string[]) => void;
-  updateQuantity: (productId: string, quantity: number, selectedFlavors?: string[]) => void;
+  addItem: (product: Product, quantity?: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>) => void;
+  updateQuantity: (productId: string, quantity: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>) => void;
   removeItem: (productId: string) => void;
   clearCart: () => void;
   getSubtotal: () => number;
@@ -25,7 +26,7 @@ export const useCart = create<CartState>()(
     (set, get) => ({
       items: [],
 
-      addItem: (product: Product, quantity = 1, selectedFlavors = []) => {
+      addItem: (product: Product, quantity = 1, selectedFlavors = [], packItemFlavors = {}) => {
         const now = Date.now();
         // Prevent double adds within 500ms
         if (lastAddedTime[product.id] && now - lastAddedTime[product.id] < 500) {
@@ -49,7 +50,8 @@ export const useCart = create<CartState>()(
                   ? { 
                       ...item, 
                       quantity: newQuantity,
-                      selectedFlavors: combinedFlavors.length > 0 ? combinedFlavors : undefined
+                      selectedFlavors: combinedFlavors.length > 0 ? combinedFlavors : undefined,
+                      packItemFlavors: Object.keys(packItemFlavors).length > 0 ? packItemFlavors : item.packItemFlavors
                     }
                   : item
               ),
@@ -57,12 +59,17 @@ export const useCart = create<CartState>()(
           }
 
           return {
-            items: [...state.items, { product, quantity, selectedFlavors: selectedFlavors.length > 0 ? selectedFlavors : undefined }],
+            items: [...state.items, { 
+              product, 
+              quantity, 
+              selectedFlavors: selectedFlavors.length > 0 ? selectedFlavors : undefined,
+              packItemFlavors: Object.keys(packItemFlavors).length > 0 ? packItemFlavors : undefined
+            }],
           };
         });
       },
 
-      updateQuantity: (productId: string, quantity: number, selectedFlavors?: string[]) => {
+      updateQuantity: (productId: string, quantity: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>) => {
         if (quantity < 1) {
           get().removeItem(productId);
           return;
@@ -90,7 +97,8 @@ export const useCart = create<CartState>()(
               return { 
                 ...item, 
                 quantity: newQty,
-                selectedFlavors: newFlavors.length > 0 ? newFlavors : undefined
+                selectedFlavors: newFlavors.length > 0 ? newFlavors : undefined,
+                packItemFlavors: packItemFlavors || item.packItemFlavors
               };
             }
             return item;

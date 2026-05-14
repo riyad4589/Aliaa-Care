@@ -228,6 +228,7 @@ const Checkout = () => {
             quantity: i.quantity,
             unit_price: i.product.price,
             selected_flavors: i.selectedFlavors || [],
+            pack_item_flavors: i.packItemFlavors || {},
           })),
           lang // Pass the current language
         );

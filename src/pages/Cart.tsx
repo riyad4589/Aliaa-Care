@@ -84,6 +84,32 @@ const Cart = () => {
                           </div>
                         )}
 
+                        {item.packItemFlavors && Object.keys(item.packItemFlavors).length > 0 && (
+                          <div className="mt-3 space-y-3">
+                            <p className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground">
+                              {lang === 'ar' ? "تفاصيل النكهات :" : 
+                               lang === 'en' ? "Flavor details :" : 
+                               "Détails des goûts :"}
+                            </p>
+                            {(item.product as any).items?.map((packItem: any) => {
+                              const flavors = item.packItemFlavors?.[packItem.product_name];
+                              if (!flavors || flavors.length === 0) return null;
+                              return (
+                                <div key={packItem.product_id} className="pl-3 border-l-2 border-primary/20">
+                                  <p className="text-xs font-medium">{packItem.product_name}</p>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {flavors.map((f: string, i: number) => (
+                                      <span key={i} className="text-[10px] px-1.5 py-0.5 bg-primary/5 rounded border border-primary/10">
+                                        {f}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+
                         <p className="font-serif text-lg mt-3">{item.product.price.toLocaleString()} DH</p>
                       </div>
                       <div className="flex items-center justify-between mt-4">
