@@ -7,12 +7,19 @@ import { Language } from "@/i18n/translations";
  * @param language The current active language
  * @returns The translated string or the original field as fallback
  */
-export function getTranslated(item: any, field: string, language: Language): string {
+export function getTranslated(item: any, field: string, language: Language): any {
   if (!item) return "";
   
   // Construct the translated field name (e.g., name_ar, description_en)
   const translatedField = language === 'fr' ? field : `${field}_${language}`;
   
   // Return translated version if available, otherwise fallback to French (original field)
-  return item[translatedField] || item[field] || "";
+  const value = item[translatedField] || item[field];
+  
+  // Return empty string for null/undefined if it's expected to be a string
+  if (value === null || value === undefined) {
+    return Array.isArray(item[field]) ? [] : "";
+  }
+  
+  return value;
 }

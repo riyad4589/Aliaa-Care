@@ -19,12 +19,16 @@ export interface ClientProduct {
   longDescription_ar?: string | null;
   longDescription_en?: string | null;
   materials: string;
+  materials_ar?: string | null;
+  materials_en?: string | null;
   weight?: number;
   stock: number;
   images: string[];
   featured?: boolean;
   new?: boolean;
   flavors?: string[];
+  flavors_ar?: string[] | null;
+  flavors_en?: string[] | null;
 }
 
 export interface ClientCollection {
@@ -58,12 +62,16 @@ function toClientProduct(p: DbProduct): ClientProduct {
     longDescription_ar: p.long_description_ar,
     longDescription_en: p.long_description_en,
     materials: p.materials || "",
+    materials_ar: p.materials_ar,
+    materials_en: p.materials_en,
     weight: p.weight ?? undefined,
     stock: p.stock,
     images: p.images.length > 0 ? p.images : ["/placeholder.svg"],
     featured: p.featured ?? false,
     new: p.is_new ?? false,
     flavors: p.flavors || [],
+    flavors_ar: p.flavors_ar,
+    flavors_en: p.flavors_en,
   };
 }
 

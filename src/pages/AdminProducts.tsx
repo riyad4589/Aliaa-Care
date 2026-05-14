@@ -48,6 +48,8 @@ interface EditingProduct {
   images: string[];
   category_ids: string[];
   flavors: string[];
+  flavors_ar: string[];
+  flavors_en: string[];
 }
 
 const emptyProduct: EditingProduct = {
@@ -55,7 +57,7 @@ const emptyProduct: EditingProduct = {
   materials: "", name_ar: "", name_en: "", description_ar: "", description_en: "",
   long_description_ar: "", long_description_en: "", materials_ar: "", materials_en: "",
   weight: undefined, images: [], stock: 10, active: true, visible: true,
-  featured: false, is_new: false, category_ids: [], flavors: [],
+  featured: false, is_new: false, category_ids: [], flavors: [], flavors_ar: [], flavors_en: [],
 };
 
 const AdminProducts = () => {
@@ -203,9 +205,9 @@ const AdminProducts = () => {
     const slug = editingProduct.slug || editingProduct.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
     
     // Clean up flavors array: trim and filter empty strings
-    const cleanedFlavors = editingProduct.flavors
-      .map(f => f.trim())
-      .filter(Boolean);
+    const cleanedFlavors = editingProduct.flavors.map(f => f.trim()).filter(Boolean);
+    const cleanedFlavorsAr = editingProduct.flavors_ar.map(f => f.trim()).filter(Boolean);
+    const cleanedFlavorsEn = editingProduct.flavors_en.map(f => f.trim()).filter(Boolean);
 
     try {
       if (editingProduct.id) {
@@ -233,6 +235,8 @@ const AdminProducts = () => {
             featured: editingProduct.featured,
             is_new: editingProduct.is_new,
             flavors: cleanedFlavors,
+            flavors_ar: cleanedFlavorsAr,
+            flavors_en: cleanedFlavorsEn,
           },
           images: editingProduct.images,
           category_ids: editingProduct.category_ids,
@@ -261,6 +265,8 @@ const AdminProducts = () => {
           featured: editingProduct.featured,
           is_new: editingProduct.is_new,
           flavors: cleanedFlavors,
+          flavors_ar: cleanedFlavorsAr,
+          flavors_en: cleanedFlavorsEn,
           images: editingProduct.images.length > 0 ? editingProduct.images : ["/placeholder.svg"],
           category_ids: editingProduct.category_ids,
         });
@@ -569,30 +575,71 @@ const AdminProducts = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/20 rounded-lg border border-border">
+                    <div className="md:col-span-3 mb-1">
+                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Ingrédients</label>
+                    </div>
                     <div>
-                      <label className="text-sm font-medium mb-1.5 block">Ingrédients</label>
+                      <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Français</span>
                       <Input value={editingProduct.materials} onChange={(e) => setEditingProduct({ ...editingProduct, materials: e.target.value })} placeholder="Ex: Eau, Aloé..." />
                     </div>
                     <div>
-                      <label className="text-sm font-medium mb-1.5 block">Poids (g)</label>
-                      <Input type="number" value={editingProduct.weight || ""} onChange={(e) => setEditingProduct({ ...editingProduct, weight: e.target.value ? Number(e.target.value) : undefined })} placeholder="Ex: 120" />
+                      <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Arabe</span>
+                      <Input value={editingProduct.materials_ar} onChange={(e) => setEditingProduct({ ...editingProduct, materials_ar: e.target.value })} placeholder="المكونات..." dir="rtl" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Anglais</span>
+                      <Input value={editingProduct.materials_en} onChange={(e) => setEditingProduct({ ...editingProduct, materials_en: e.target.value })} placeholder="Ingredients..." />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium mb-1.5 block">Goûts / Variantes (séparés par des virgules)</label>
-                    <Input 
-                      value={editingProduct.flavors.join(", ")} 
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        // Don't filter Boolean here so trailing commas/spaces work during typing
-                        const flavorsArray = val.split(",").map(s => s.trimStart());
-                        setEditingProduct({ ...editingProduct, flavors: flavorsArray });
-                      }} 
-                      placeholder="Ex: Vanille, Chocolat, Fraise" 
-                    />
-                    <p className="text-[10px] text-muted-foreground mt-1">Laissez vide si le produit n'a pas de variantes de goût. Utilisez des virgules pour séparer.</p>
+                    <label className="text-sm font-medium mb-1.5 block">Poids (g)</label>
+                    <Input type="number" value={editingProduct.weight || ""} onChange={(e) => setEditingProduct({ ...editingProduct, weight: e.target.value ? Number(e.target.value) : undefined })} placeholder="Ex: 120" />
+                  </div>
+
+                  <div className="space-y-4 p-4 bg-muted/20 rounded-lg border border-border">
+                    <div className="mb-1">
+                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Goûts / Variantes (séparés par des virgules)</label>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Français</span>
+                      <Input 
+                        value={editingProduct.flavors.join(", ")} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const flavorsArray = val.split(",").map(s => s.trimStart());
+                          setEditingProduct({ ...editingProduct, flavors: flavorsArray });
+                        }} 
+                        placeholder="Vanille, Chocolat..." 
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Arabe</span>
+                      <Input 
+                        value={editingProduct.flavors_ar.join(", ")} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const flavorsArray = val.split(",").map(s => s.trimStart());
+                          setEditingProduct({ ...editingProduct, flavors_ar: flavorsArray });
+                        }} 
+                        placeholder="الفانيليا، الشوكولاتة..." 
+                        dir="rtl"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Anglais</span>
+                      <Input 
+                        value={editingProduct.flavors_en.join(", ")} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const flavorsArray = val.split(",").map(s => s.trimStart());
+                          setEditingProduct({ ...editingProduct, flavors_en: flavorsArray });
+                        }} 
+                        placeholder="Vanilla, Chocolate..." 
+                      />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">Laissez vide si le produit n'a pas de variantes. Utilisez des virgules pour séparer.</p>
                   </div>
                 </div>
 

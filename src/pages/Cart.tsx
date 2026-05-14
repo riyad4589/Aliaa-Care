@@ -69,7 +69,11 @@ const Cart = () => {
                         
                         {item.selectedFlavors && item.selectedFlavors.length > 0 && (
                           <div className="mt-2 space-y-1">
-                            <p className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground">Goût(s) sélectionné(s) :</p>
+                            <p className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground">
+                              {lang === 'ar' ? "النكهات المختارة :" : 
+                               lang === 'en' ? "Selected flavor(s) :" : 
+                               "Goût(s) sélectionné(s) :"}
+                            </p>
                             <div className="flex flex-wrap gap-1.5">
                               {item.selectedFlavors.map((flavor, i) => (
                                 <span key={i} className="text-[11px] px-2 py-0.5 bg-muted rounded-full">

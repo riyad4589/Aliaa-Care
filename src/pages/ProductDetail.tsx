@@ -241,10 +241,11 @@ const ProductDetail = () => {
                   quantity={quantity}
                   onQuantityChange={(q) => {
                     setQuantity(q);
-                    if (product.flavors && product.flavors.length > 0) {
+                    const currentFlavors = getTranslated(product, "flavors", lang) as string[];
+                    if (currentFlavors && currentFlavors.length > 0) {
                       const newFlavors = [...selectedFlavors];
                       if (newFlavors.length < q) {
-                        const defaultFlavor = product.flavors[0];
+                        const defaultFlavor = currentFlavors[0];
                         while (newFlavors.length < q) newFlavors.push(defaultFlavor);
                       } else if (newFlavors.length > q) {
                         newFlavors.splice(q);
@@ -258,30 +259,35 @@ const ProductDetail = () => {
               {product.flavors && product.flavors.length > 0 && (
                 <div className="mb-10 space-y-4">
                   <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-3">
-                    Choisir {quantity > 1 ? "les goûts" : "le goût"}
+                    {lang === 'ar' ? (quantity > 1 ? "اختر النكهات" : "اختر النكهة") : 
+                     lang === 'en' ? (quantity > 1 ? "Choose flavors" : "Choose flavor") :
+                     (quantity > 1 ? "Choisir les goûts" : "Choisir le goût")}
                   </span>
                   <div className="grid gap-3">
-                    {Array.from({ length: quantity }).map((_, i) => (
-                      <div key={i} className="flex flex-col gap-1.5">
-                        {quantity > 1 && <span className="text-[10px] text-muted-foreground">Unité {i + 1}</span>}
-                        <select
-                          className="w-full bg-background border border-border px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
-                          value={selectedFlavors[i] || product.flavors![0]}
-                          onChange={(e) => {
-                            const newFlavors = [...selectedFlavors];
-                            if (newFlavors.length <= i) {
-                              while (newFlavors.length <= i) newFlavors.push(product.flavors![0]);
-                            }
-                            newFlavors[i] = e.target.value;
-                            setSelectedFlavors(newFlavors);
-                          }}
-                        >
-                          {product.flavors?.map((f) => (
-                            <option key={f} value={f}>{f}</option>
-                          ))}
-                        </select>
-                      </div>
-                    ))}
+                    {(() => {
+                      const currentFlavors = getTranslated(product, "flavors", lang) as string[];
+                      return Array.from({ length: quantity }).map((_, i) => (
+                        <div key={i} className="flex flex-col gap-1.5">
+                          {quantity > 1 && <span className="text-[10px] text-muted-foreground">Unité {i + 1}</span>}
+                          <select
+                            className="w-full bg-background border border-border px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
+                            value={selectedFlavors[i] || currentFlavors[0]}
+                            onChange={(e) => {
+                              const newFlavors = [...selectedFlavors];
+                              if (newFlavors.length <= i) {
+                                while (newFlavors.length <= i) newFlavors.push(currentFlavors[0]);
+                              }
+                              newFlavors[i] = e.target.value;
+                              setSelectedFlavors(newFlavors);
+                            }}
+                          >
+                            {currentFlavors.map((f) => (
+                              <option key={f} value={f}>{f}</option>
+                            ))}
+                          </select>
+                        </div>
+                      ));
+                    })()}
                   </div>
                 </div>
               )}

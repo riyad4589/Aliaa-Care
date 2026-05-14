@@ -24,6 +24,8 @@ export interface DbProduct {
   featured: boolean | null;
   is_new: boolean | null;
   flavors: string[] | null;
+  flavors_ar?: string[] | null;
+  flavors_en?: string[] | null;
   original_price: number | null;
   created_at: string;
   updated_at: string;
@@ -79,6 +81,8 @@ export function useAddProduct() {
       featured?: boolean;
       is_new?: boolean;
       flavors?: string[];
+      flavors_ar?: string[];
+      flavors_en?: string[];
       name_ar?: string;
       name_en?: string;
       description_ar?: string;
@@ -119,7 +123,7 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: async (input: {
       id: string;
-      updates: Partial<{ active: boolean; cost_price: number | null; description: string | null; description_ar: string | null; description_en: string | null; featured: boolean | null; is_new: boolean | null; long_description: string | null; long_description_ar: string | null; long_description_en: string | null; materials: string | null; materials_ar: string | null; materials_en: string | null; name: string; name_ar: string | null; name_en: string | null; original_price: number | null; price: number; slug: string; stock: number; visible: boolean; weight: number | null; flavors: string[] | null }>;
+      updates: Partial<{ active: boolean; cost_price: number | null; description: string | null; description_ar: string | null; description_en: string | null; featured: boolean | null; is_new: boolean | null; long_description: string | null; long_description_ar: string | null; long_description_en: string | null; materials: string | null; materials_ar: string | null; materials_en: string | null; name: string; name_ar: string | null; name_en: string | null; original_price: number | null; price: number; slug: string; stock: number; visible: boolean; weight: number | null; flavors: string[] | null; flavors_ar: string[] | null; flavors_en: string[] | null }>;
       images?: string[];
       category_ids?: string[];
     }) => {
