@@ -121,6 +121,8 @@ const AdminProducts = () => {
           images: p.images,
           category_ids: p.category_ids,
           flavors: p.flavors || [],
+          flavors_ar: p.flavors_ar || [],
+          flavors_en: p.flavors_en || [],
         });
       }
     } else if (!action) {
@@ -605,7 +607,7 @@ const AdminProducts = () => {
                     <div>
                       <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Français</span>
                       <Input 
-                        value={editingProduct.flavors.join(", ")} 
+                        value={(editingProduct.flavors || []).join(", ")} 
                         onChange={(e) => {
                           const val = e.target.value;
                           const flavorsArray = val.split(",").map(s => s.trimStart());
@@ -617,7 +619,7 @@ const AdminProducts = () => {
                     <div>
                       <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Arabe</span>
                       <Input 
-                        value={editingProduct.flavors_ar.join(", ")} 
+                        value={(editingProduct.flavors_ar || []).join(", ")} 
                         onChange={(e) => {
                           const val = e.target.value;
                           const flavorsArray = val.split(",").map(s => s.trimStart());
@@ -630,7 +632,7 @@ const AdminProducts = () => {
                     <div>
                       <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Anglais</span>
                       <Input 
-                        value={editingProduct.flavors_en.join(", ")} 
+                        value={(editingProduct.flavors_en || []).join(", ")} 
                         onChange={(e) => {
                           const val = e.target.value;
                           const flavorsArray = val.split(",").map(s => s.trimStart());
