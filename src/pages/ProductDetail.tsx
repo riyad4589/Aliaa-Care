@@ -296,13 +296,13 @@ const ProductDetail = () => {
                     <ShoppingBag className="w-4 h-4 me-3" />
                     {product.stock === 0 ? t("common.unavailable") : t("common.addToCart")}
                   </Button>
-                  
+
                   <Button
                     variant="outline"
                     size="lg"
                     className="w-16 rounded-none py-6 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all duration-300 flex-shrink-0 group"
                     onClick={() => {
-                      const phone = "212652535301";
+                      const phone = "212699928463";
                       const url = window.location.href;
                       const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le produit : ${product.name}\nPrix : ${product.price} DH\nLien : ${url}`);
                       window.open(`https://wa.me/${phone}?text=${message}`, "_blank");

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Search, 
-  Package, 
-  Truck, 
-  CheckCircle, 
-  CheckCircle2, 
-  Clock, 
-  XCircle, 
+import {
+  Search,
+  Package,
+  Truck,
+  CheckCircle,
+  CheckCircle2,
+  Clock,
+  XCircle,
   History,
   Calendar,
   ShoppingBag,
@@ -69,7 +69,7 @@ const TrackOrder = () => {
         </div>
 
         <div className="container-narrow">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-12"
@@ -80,7 +80,7 @@ const TrackOrder = () => {
             </p>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white/80 backdrop-blur-xl border border-white p-2 rounded-2xl shadow-xl max-w-lg mx-auto mb-16"
@@ -88,7 +88,7 @@ const TrackOrder = () => {
             <form onSubmit={handleSearch} className="flex gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input 
+                <Input
                   value={orderNumber}
                   onChange={(e) => setOrderNumber(e.target.value)}
                   placeholder={t("trackOrder.placeholder")}
@@ -104,7 +104,7 @@ const TrackOrder = () => {
 
           <AnimatePresence mode="wait">
             {isLoading ? (
-              <motion.div 
+              <motion.div
                 key="loading"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -114,7 +114,7 @@ const TrackOrder = () => {
                 <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
               </motion.div>
             ) : order ? (
-              <motion.div 
+              <motion.div
                 key="result"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -132,7 +132,7 @@ const TrackOrder = () => {
                       {t("trackOrder.placedOn")} {formatDate(order.created_at)}
                     </div>
                   </div>
-                  
+
                   <div className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-semibold ${statusConfig[order.status]?.color}`}>
                     {(() => {
                       const Icon = statusConfig[order.status]?.icon || Package;
@@ -150,7 +150,7 @@ const TrackOrder = () => {
                       <History className="w-5 h-5 text-primary" />
                       <h3 className="font-serif text-xl">{t("trackOrder.history")}</h3>
                     </div>
-                    
+
                     <div className="relative ps-8 space-y-10 before:absolute before:start-[15px] before:top-2 before:bottom-2 before:w-[2px] before:bg-muted">
                       {/* Initial step */}
                       <div className="relative">
@@ -165,8 +165,8 @@ const TrackOrder = () => {
 
                       {/* History steps */}
                       {order.status_history?.map((step, idx) => (
-                        <motion.div 
-                          key={idx} 
+                        <motion.div
+                          key={idx}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: idx * 0.1 }}
@@ -225,7 +225,7 @@ const TrackOrder = () => {
                         {t("trackOrder.helpDesc")}
                       </p>
                       <Button asChild className="w-full bg-white text-primary hover:bg-white/90 rounded-xl py-6 font-semibold">
-                        <a href="https://wa.me/212652535301" target="_blank" rel="noopener noreferrer">
+                        <a href="https://wa.me/212699928463" target="_blank" rel="noopener noreferrer">
                           {t("trackOrder.contactWhatsApp")}
                         </a>
                       </Button>
@@ -234,7 +234,7 @@ const TrackOrder = () => {
                 </div>
               </motion.div>
             ) : searchQuery && (
-              <motion.div 
+              <motion.div
                 key="not-found"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
