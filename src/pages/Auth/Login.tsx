@@ -96,75 +96,73 @@ const Login = () => {
           animate={{ opacity: 1, x: 0 }}
           className="w-full max-w-md bg-white p-8 md:p-12 shadow-xl border border-border/50"
         >
-          <div className="text-center mb-10">
+          <div className="text-center mb-8">
             <h2 className="font-serif text-3xl text-foreground mb-2">Connexion</h2>
             <p className="text-muted-foreground">Accédez à votre espace sécurisé</p>
           </div>
 
+          <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-md text-yellow-600 text-sm flex flex-col gap-2">
+            <span className="font-semibold flex items-center gap-2">
+               <Lock className="w-4 h-4" /> 
+               Maintenance en cours
+            </span>
+            <p>L'accès administrateur est temporairement suspendu pendant la mise à jour du système.</p>
+          </div>
+
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="opacity-50">Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/50" />
                 <Input
                   id="email"
                   type="email"
                   placeholder="exemple@aliaacare.com"
-                  className="pl-10"
+                  className="pl-10 cursor-not-allowed opacity-50"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
+                  disabled
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
+              <Label htmlFor="password" className="opacity-50">Mot de passe</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/50" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
-                  className="pl-10 pr-10"
+                  className="pl-10 pr-10 opacity-50 cursor-not-allowed"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
+                  disabled
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-3 top-3 text-muted-foreground/50 cursor-not-allowed"
+                  disabled
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  <Eye className="h-4 w-4" />
                 </button>
               </div>
             </div>
 
             <Button
-              type="submit"
-              className="w-full btn-premium py-6 uppercase tracking-widest text-xs h-auto"
-              disabled={isLoading}
+              type="button"
+              className="w-full btn-premium py-6 uppercase tracking-widest text-xs h-auto opacity-50 cursor-not-allowed"
+              disabled
             >
-              {isLoading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <LogIn className="mr-2 h-4 w-4" />
-              )}
-              Se connecter
+              <Lock className="mr-2 h-4 w-4" />
+              Accès bloqué
             </Button>
           </form>
 
           <div className="mt-8 text-center">
             <button
-              onClick={() => {
-                if (window.location.hostname.startsWith('admin.')) {
-                  window.location.href = "https://aliaacare.com";
-                } else {
-                  navigate("/");
-                }
-              }}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors underline decoration-dotted underline-offset-4"
+              disabled
+              className="text-sm text-muted-foreground/50 underline decoration-dotted underline-offset-4 cursor-not-allowed"
             >
               Retour à la boutique
             </button>

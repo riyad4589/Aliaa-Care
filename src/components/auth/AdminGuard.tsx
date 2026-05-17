@@ -18,7 +18,7 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
       const isAdminDomain = hostname.startsWith('admin.');
 
       if (!isAdmin || (!isAdminDomain && !isLocalhost)) {
-        navigate(isAdminDomain ? "/auth/login" : "/");
+        navigate(isAdminDomain || isLocalhost ? "/auth/login" : "/");
       }
     }
   }, [isAdmin, isLoading, navigate]);

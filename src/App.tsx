@@ -15,6 +15,7 @@ import { AdminLayout } from "./components/layout/AdminLayout";
 import { lazy, Suspense } from "react";
 
 // Client Pages
+const Maintenance = lazy(() => import("./pages/Maintenance"));
 const Index = lazy(() => import("./pages/Index"));
 const Products = lazy(() => import("./pages/Products"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
@@ -127,39 +128,52 @@ const App = () => (
               </Route>
 
               {/* Client Routes */}
-              <Route path="/" element={<ClientLayout />}>
-                <Route index element={<Index />} />
-                <Route path="products" element={<Products />} />
-                <Route path="product/:slug" element={<ProductDetail />} />
-                <Route path="about" element={<About />} />
-                <Route path="cart" element={<Cart />} />
-                <Route path="wishlist" element={<Wishlist />} />
-                <Route path="checkout" element={<Checkout />} />
-                <Route path="packs" element={<Packs />} />
-                <Route path="pack/:slug" element={<PackDetail />} />
-                <Route path="track-order" element={<TrackOrder />} />
-              </Route>
+              <Route path="/" element={<Maintenance />} />
+              {/* Client Routes - Temporarily Disabled for Maintenance */}
+              {false && (
+                <Route element={<ClientLayout />}>
+                  <Route path="home" element={<Index />} />
+                  <Route path="products" element={<Products />} />
+                  <Route path="product/:slug" element={<ProductDetail />} />
+                  <Route path="about" element={<About />} />
+                  <Route path="cart" element={<Cart />} />
+                  <Route path="wishlist" element={<Wishlist />} />
+                  <Route path="checkout" element={<Checkout />} />
+                  <Route path="packs" element={<Packs />} />
+                  <Route path="pack/:slug" element={<PackDetail />} />
+                  <Route path="track-order" element={<TrackOrder />} />
+                </Route>
+              )}
 
-              {/* Admin Routes */}
-              <Route path="/admin" element={
+              {/* Admin Routes - Maintenance Mode */}
+              <Route path="/admin/*" element={
                 <AdminGuard>
-                  <AdminLayout />
+                  <Maintenance />
                 </AdminGuard>
-              }>
-                <Route index element={<AdminDashboard />} />
-                <Route path="products" element={<AdminProducts />} />
-                <Route path="finances" element={<AdminFinances />} />
-                <Route path="categories" element={<AdminCategories />} />
-                <Route path="packs" element={<AdminPacks />} />
-                {/* <Route path="promo-codes" element={<AdminPromoCodes />} /> */}
-                {/* <Route path="packaging" element={<AdminPackaging />} /> */}
-                <Route path="promotions" element={<AdminPromotions />} />
-                <Route path="orders" element={<AdminOrders />} />
-                <Route path="settings" element={<AdminSettings />} />
-              </Route>
+              } />
 
-              {/* Catch-all */}
-              <Route path="*" element={<NotFound />} />
+              {/* Admin Routes - Temporarily Disabled */}
+              {false && (
+                <Route path="/admin" element={
+                  <AdminGuard>
+                    <AdminLayout />
+                  </AdminGuard>
+                }>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="finances" element={<AdminFinances />} />
+                  <Route path="categories" element={<AdminCategories />} />
+                  <Route path="packs" element={<AdminPacks />} />
+                  {/* <Route path="promo-codes" element={<AdminPromoCodes />} /> */}
+                  {/* <Route path="packaging" element={<AdminPackaging />} /> */}
+                  <Route path="promotions" element={<AdminPromotions />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                </Route>
+              )}
+
+              {/* Catch-all - Redirect to maintenance */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
         </BrowserRouter>
