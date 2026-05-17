@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { LogIn, Mail, Lock, Loader2, Eye, EyeOff } from "lucide-react";
 import coffretImg from "@/assets/coffret-aliaa-phone.webp";
+import { FloatingRandomMessage } from "@/pages/Maintenance";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -169,6 +170,8 @@ const Login = () => {
           </div>
         </motion.div>
       </div>
+
+      <FloatingRandomMessage highVisibility />
     </div>
   );
 };

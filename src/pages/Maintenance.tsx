@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import typoImg from "@/assets/TYPO02 PNG.png";
 
 const Maintenance = () => {
@@ -20,11 +21,12 @@ const Maintenance = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, delay: 0.2 }}
+          className="flex flex-col items-center gap-2"
         >
           <img
             src={typoImg}
             alt="AliaaCare Logo"
-            className="h-32 md:h-48 mx-auto object-contain drop-shadow-sm pointer-events-none"
+            className="h-24 md:h-32 mx-auto object-contain drop-shadow-sm pointer-events-none"
           />
         </motion.div>
 
@@ -55,7 +57,46 @@ const Maintenance = () => {
           </div>
         </motion.div>
       </motion.div>
+
+      <FloatingRandomMessage />
     </div>
+  );
+};
+
+export const FloatingRandomMessage = ({ highVisibility = false }: { highVisibility?: boolean }) => {
+  const [pos, setPos] = useState({ x: "50vw", y: "50vh" });
+
+  useEffect(() => {
+    const moveRandomly = () => {
+      setPos({
+        // 0 to 80vw/vh to prevent horizontal/vertical scrollbars or clipping
+        x: `${Math.floor(Math.random() * 80)}vw`,
+        y: `${Math.floor(Math.random() * 85)}vh`,
+      });
+    };
+
+    moveRandomly();
+    const interval = setInterval(moveRandomly, 3500); // Bouge toutes les 3.5 secondes
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <motion.div
+      className="fixed top-0 left-0 z-50 pointer-events-none"
+      animate={{ x: pos.x, y: pos.y }}
+      transition={{
+        duration: 3.5,
+        ease: "easeInOut",
+      }}
+    >
+      <p className={`font-bold py-2 px-6 rounded-full shadow-lg backdrop-blur-sm animate-pulse whitespace-nowrap ${
+        highVisibility 
+          ? "bg-primary text-primary-foreground text-base md:text-lg shadow-2xl border-2 border-white/20" 
+          : "text-sm md:text-base text-primary bg-primary/10 border border-primary/20"
+      }`}>
+        Veuillez contacter l'équipe dev pour toute assistance.
+      </p>
+    </motion.div>
   );
 };
 
