@@ -25,7 +25,7 @@ const AdminSettings = () => {
     setIsSaving(true);
     try {
       await updateBanner.mutateAsync(settings);
-      toast({ title: "Paramètres enregistrés", description: "La barre d'annonce a été mise à jour." });
+      toast({ title: "Paramètres enregistrés" });
     } catch (error) {
       toast({ title: "Erreur", description: "Impossible d'enregistrer les paramètres.", variant: "destructive" });
     } finally {
