@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Save, Layout, Type, Palette, MoveHorizontal } from "lucide-react";
+import { Loader2, Save, Layout, Type, Palette, MoveHorizontal, AlertTriangle } from "lucide-react";
 
 const AdminSettings = () => {
   const { data: banner, isLoading } = useBanner();
@@ -129,6 +129,40 @@ const AdminSettings = () => {
             >
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               Enregistrer les modifications
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-border/50 shadow-sm overflow-hidden border-destructive/20">
+        <CardHeader className="bg-destructive/5 border-b border-destructive/10">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-destructive" />
+            <CardTitle className="font-serif text-xl text-destructive">Mode Maintenance</CardTitle>
+          </div>
+          <CardDescription>Activer le mode maintenance rendra le site inaccessible pour les clients.</CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6 space-y-6">
+          <div className="flex items-center justify-between p-4 bg-muted/20 rounded-lg border border-border/50">
+            <div className="space-y-0.5">
+              <label className="text-sm font-medium">Activer la maintenance</label>
+              <p className="text-xs text-muted-foreground">Bloque l'accès au site client et affiche la page de maintenance.</p>
+            </div>
+            <Switch 
+              checked={settings.maintenance_mode || false} 
+              onCheckedChange={(checked) => setSettings({ ...settings, maintenance_mode: checked })} 
+            />
+          </div>
+
+          <div className="pt-4 border-t border-border/50 flex justify-end">
+            <Button 
+              onClick={handleSave} 
+              disabled={isSaving}
+              variant="destructive"
+              className="gap-2 px-8"
+            >
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Enregistrer l'état du site
             </Button>
           </div>
         </CardContent>

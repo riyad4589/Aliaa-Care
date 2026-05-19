@@ -108,6 +108,27 @@ const HostnameRedirect = () => {
   return null;
 };
 
+import { useBanner } from "@/hooks/useBanner";
+
+const ClientGuard = ({ children }: { children: React.ReactNode }) => {
+  const { data: banner, isLoading: isBannerLoading } = useBanner();
+  const { isAdmin, isLoading: isAuthLoading } = useAuth();
+  
+  if (isBannerLoading || isAuthLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (banner?.maintenance_mode && !isAdmin) {
+    return <Maintenance />;
+  }
+
+  return <>{children}</>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -128,52 +149,39 @@ const App = () => (
               </Route>
 
               {/* Client Routes */}
-              <Route path="/" element={<Maintenance />} />
-              {/* Client Routes - Temporarily Disabled for Maintenance */}
-              {false && (
-                <Route element={<ClientLayout />}>
-                  <Route path="home" element={<Index />} />
-                  <Route path="products" element={<Products />} />
-                  <Route path="product/:slug" element={<ProductDetail />} />
-                  <Route path="about" element={<About />} />
-                  <Route path="cart" element={<Cart />} />
-                  <Route path="wishlist" element={<Wishlist />} />
-                  <Route path="checkout" element={<Checkout />} />
-                  <Route path="packs" element={<Packs />} />
-                  <Route path="pack/:slug" element={<PackDetail />} />
-                  <Route path="track-order" element={<TrackOrder />} />
-                </Route>
-              )}
+              <Route element={<ClientGuard><ClientLayout /></ClientGuard>}>
+                <Route path="/" element={<Index />} />
+                <Route path="products" element={<Products />} />
+                <Route path="product/:slug" element={<ProductDetail />} />
+                <Route path="about" element={<About />} />
+                <Route path="cart" element={<Cart />} />
+                <Route path="wishlist" element={<Wishlist />} />
+                <Route path="checkout" element={<Checkout />} />
+                <Route path="packs" element={<Packs />} />
+                <Route path="pack/:slug" element={<PackDetail />} />
+                <Route path="track-order" element={<TrackOrder />} />
+              </Route>
 
-              {/* Admin Routes - Maintenance Mode */}
-              <Route path="/admin/*" element={
+              {/* Admin Routes */}
+              <Route path="/admin" element={
                 <AdminGuard>
-                  <Maintenance />
+                  <AdminLayout />
                 </AdminGuard>
-              } />
+              }>
+                <Route index element={<AdminDashboard />} />
+                <Route path="products" element={<AdminProducts />} />
+                <Route path="finances" element={<AdminFinances />} />
+                <Route path="categories" element={<AdminCategories />} />
+                <Route path="packs" element={<AdminPacks />} />
+                {/* <Route path="promo-codes" element={<AdminPromoCodes />} /> */}
+                {/* <Route path="packaging" element={<AdminPackaging />} /> */}
+                <Route path="promotions" element={<AdminPromotions />} />
+                <Route path="orders" element={<AdminOrders />} />
+                <Route path="settings" element={<AdminSettings />} />
+              </Route>
 
-              {/* Admin Routes - Temporarily Disabled */}
-              {false && (
-                <Route path="/admin" element={
-                  <AdminGuard>
-                    <AdminLayout />
-                  </AdminGuard>
-                }>
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="products" element={<AdminProducts />} />
-                  <Route path="finances" element={<AdminFinances />} />
-                  <Route path="categories" element={<AdminCategories />} />
-                  <Route path="packs" element={<AdminPacks />} />
-                  {/* <Route path="promo-codes" element={<AdminPromoCodes />} /> */}
-                  {/* <Route path="packaging" element={<AdminPackaging />} /> */}
-                  <Route path="promotions" element={<AdminPromotions />} />
-                  <Route path="orders" element={<AdminOrders />} />
-                  <Route path="settings" element={<AdminSettings />} />
-                </Route>
-              )}
-
-              {/* Catch-all - Redirect to maintenance */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              {/* Catch-all - Redirect to NotFound */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
         </BrowserRouter>

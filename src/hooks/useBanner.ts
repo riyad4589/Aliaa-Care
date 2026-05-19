@@ -7,6 +7,7 @@ export interface BannerSettings {
   message: string;
   scrolling_enabled: boolean;
   text_color: string;
+  maintenance_mode: boolean;
 }
 
 export function useBanner() {
@@ -27,7 +28,8 @@ export function useBanner() {
           enabled: true,
           message: "Livraison partout au Maroc 🚚",
           scrolling_enabled: false,
-          text_color: "#FFFFFF"
+          text_color: "#FFFFFF",
+          maintenance_mode: false
         };
       }
       return data;
