@@ -129,69 +129,10 @@ const ClientGuard = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+import ServerError from "./pages/ServerError";
+
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <LanguageSelector />
-        <BrowserRouter>
-          <URLNormalizer />
-          <HostnameRedirect />
-          <ScrollToTop />
-          <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>}>
-            <Routes>
-              {/* Auth Routes */}
-              <Route path="/auth" element={<GuestGuard><OutletWrapper /></GuestGuard>}>
-                <Route path="login" element={<Login />} />
-                <Route index element={<Navigate to="/auth/login" replace />} />
-              </Route>
-
-              {/* Client Routes */}
-              <Route element={<ClientGuard><ClientLayout /></ClientGuard>}>
-                <Route path="/" element={<Index />} />
-                <Route path="products" element={<Products />} />
-                <Route path="product/:slug" element={<ProductDetail />} />
-                <Route path="about" element={<About />} />
-                <Route path="cart" element={<Cart />} />
-                <Route path="wishlist" element={<Wishlist />} />
-                <Route path="checkout" element={<Checkout />} />
-                <Route path="packs" element={<Packs />} />
-                <Route path="pack/:slug" element={<PackDetail />} />
-                <Route path="track-order" element={<TrackOrder />} />
-              </Route>
-
-              {/* Admin Routes */}
-              <Route path="/admin" element={
-                <AdminGuard>
-                  <AdminLayout />
-                </AdminGuard>
-              }>
-                <Route index element={<AdminDashboard />} />
-                <Route path="products" element={<AdminProducts />} />
-                <Route path="finances" element={<AdminFinances />} />
-                <Route path="categories" element={<AdminCategories />} />
-                <Route path="packs" element={<AdminPacks />} />
-                {/* <Route path="promo-codes" element={<AdminPromoCodes />} /> */}
-                {/* <Route path="packaging" element={<AdminPackaging />} /> */}
-                <Route path="promotions" element={<AdminPromotions />} />
-                <Route path="orders" element={<AdminOrders />} />
-                <Route path="settings" element={<AdminSettings />} />
-              </Route>
-
-              {/* Catch-all - Redirect to NotFound */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+  <ServerError />
 );
-
-// Small helper for auth routes since they don't have a shared layout yet
-import { Outlet } from "react-router-dom";
-const OutletWrapper = () => <Outlet />;
 
 export default App;
