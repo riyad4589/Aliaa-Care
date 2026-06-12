@@ -27,6 +27,12 @@ const ProductDetail = () => {
   const { getProductBySlug, getRelatedProducts, collections } = useClientProducts();
   const { getProductDiscount, getFlashPromos } = useActivePromotions();
   const product = getProductBySlug(slug || "");
+  const [selectedWeight, setSelectedWeight] = useState<number | undefined>(() => {
+    if (product?.weight_prices && product.weight_prices.length > 0) {
+      return product.weight_prices[0].weight;
+    }
+    return product?.weight;
+  });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedFlavors, setSelectedFlavors] = useState<string[]>([]);
@@ -65,11 +71,20 @@ const ProductDetail = () => {
     }
   };
 
+  const getBasePrice = () => {
+    if (selectedWeight && product.weight_prices && product.weight_prices.length > 0) {
+      const wp = product.weight_prices.find((w) => w.weight === selectedWeight);
+      if (wp) return wp.price;
+    }
+    return product.price;
+  };
+
+  const basePrice = getBasePrice();
   const discount = getProductDiscount(product.id, product.collections || []);
-  const discountedPrice = discount > 0 ? Math.round(product.price * (1 - discount / 100)) : product.price;
+  const discountedPrice = discount > 0 ? Math.round(basePrice * (1 - discount / 100)) : basePrice;
 
   const handleAddToCart = () => {
-    addToCart({ ...product, price: discountedPrice }, quantity, selectedFlavors.slice(0, quantity));
+    addToCart({ ...product, price: discountedPrice }, quantity, selectedFlavors.slice(0, quantity), {}, selectedWeight);
     toast({ title: t("productDetail.addedToCart"), description: `${quantity} × ${getTranslated(product, "name", lang)}` });
     setQuantity(1);
     setSelectedFlavors([]);
@@ -175,9 +190,10 @@ const ProductDetail = () => {
               <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-foreground mb-5 leading-[1.05]">{getTranslated(product, "name", lang)}</h1>
               {(() => {
                 const discount = getProductDiscount(product.id, product.collections || []);
+                const basePrice = getBasePrice();
                 const originalPrice = product.originalPrice;
-                const hasOriginal = originalPrice && originalPrice > product.price;
-                const promoDiscount = discount > 0 ? discount : (hasOriginal ? Math.round((1 - product.price / originalPrice) * 100) : 0);
+                const hasOriginal = originalPrice && originalPrice > basePrice;
+                const promoDiscount = discount > 0 ? discount : (hasOriginal ? Math.round((1 - basePrice / originalPrice) * 100) : 0);
                 const flashPromo = getFlashPromos().find(fp =>
                   fp.target_type === "all" ||
                   (fp.target_type === "specific_products" && fp.product_ids?.includes(product.id))
@@ -187,17 +203,17 @@ const ProductDetail = () => {
                     {promoDiscount > 0 ? (
                       <div className="flex items-baseline gap-4">
                         <p className="text-3xl font-sans font-bold text-destructive tracking-tight">
-                          {Math.round(product.price * (1 - promoDiscount / 100)).toLocaleString()}<span className="text-lg font-medium text-muted-foreground/70 ml-1.5">DH</span>
+                          {Math.round(basePrice * (1 - promoDiscount / 100)).toLocaleString()}<span className="text-lg font-medium text-muted-foreground/70 ml-1.5">DH</span>
                         </p>
                         <p className="text-lg font-sans text-muted-foreground line-through opacity-60">
-                          {product.price.toLocaleString()}<span className="text-sm ml-1">DH</span>
+                          {basePrice.toLocaleString()}<span className="text-sm ml-1">DH</span>
                         </p>
                         <span className="px-2 py-1 text-xs font-semibold bg-destructive text-destructive-foreground rounded-sm self-center">-{promoDiscount}%</span>
                       </div>
                     ) : hasOriginal ? (
                       <div className="flex items-baseline gap-4">
                         <p className="text-3xl font-sans font-bold text-foreground tracking-tight">
-                          {product.price.toLocaleString()}<span className="text-lg font-medium text-muted-foreground/70 ml-1.5">DH</span>
+                          {basePrice.toLocaleString()}<span className="text-lg font-medium text-muted-foreground/70 ml-1.5">DH</span>
                         </p>
                         <p className="text-lg font-sans text-muted-foreground line-through opacity-60">
                           {originalPrice.toLocaleString()}<span className="text-sm ml-1">DH</span>
@@ -205,7 +221,7 @@ const ProductDetail = () => {
                       </div>
                     ) : (
                       <p className="text-3xl font-sans font-bold text-foreground tracking-tight">
-                        {product.price.toLocaleString()}<span className="text-lg font-medium text-muted-foreground/70 ml-1.5">DH</span>
+                        {basePrice.toLocaleString()}<span className="text-lg font-medium text-muted-foreground/70 ml-1.5">DH</span>
                       </p>
                     )}
                     {flashPromo && (
@@ -228,11 +244,36 @@ const ProductDetail = () => {
                   <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-1.5">{t("productDetail.ingredients")}</span>
                   <span className="text-sm text-foreground">{getTranslated(product, "materials", lang)}</span>
                 </div>
-                {product.weight && (
+                {product.weight_prices && product.weight_prices.length > 0 ? (
                   <div>
-                    <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-1.5">{t("common.netWeight")}</span>
-                    <span className="text-sm text-foreground">{t("common.netWeight")} : {product.weight} g</span>
+                    <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-3">
+                      {lang === 'ar' ? "اختر الوزن" : lang === 'en' ? "Choose weight" : "Choisir le poids"}
+                    </span>
+                    <div className="flex flex-wrap gap-3">
+                      {product.weight_prices.map((wp) => (
+                        <button
+                          key={wp.weight}
+                          type="button"
+                          onClick={() => setSelectedWeight(wp.weight)}
+                          className={cn(
+                            "px-4 py-2 text-xs font-semibold tracking-wider uppercase border transition-all duration-300",
+                            selectedWeight === wp.weight
+                              ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                              : "border-border hover:border-foreground bg-transparent text-foreground"
+                          )}
+                        >
+                          {wp.weight} g
+                        </button>
+                      ))}
+                    </div>
                   </div>
+                ) : (
+                  product.weight && (
+                    <div>
+                      <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-1.5">{t("common.netWeight")}</span>
+                      <span className="text-sm text-foreground">{t("common.netWeight")} : {product.weight} g</span>
+                    </div>
+                  )
                 )}
               </div>
               <div className="mb-6">
@@ -311,7 +352,8 @@ const ProductDetail = () => {
                     onClick={() => {
                       const phone = "212699928463";
                       const url = window.location.href;
-                      const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le produit : ${getTranslated(product, "name", lang)}\nPrix : ${product.price} DH\nLien : ${url}`);
+                      const weightText = selectedWeight ? ` (Poids : ${selectedWeight}g)` : "";
+                      const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le produit : ${getTranslated(product, "name", lang)}${weightText}\nPrix : ${discountedPrice} DH\nLien : ${url}`);
                       window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
                     }}
                     title={t("productDetail.whatsappQuestion")}

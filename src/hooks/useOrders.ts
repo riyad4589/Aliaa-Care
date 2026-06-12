@@ -15,7 +15,7 @@ export interface DbOrder {
   customer_region?: string;
   notes?: string;
   status_history?: { status: string; date: string; label: string }[];
-  items: { product_id: string | null; product_name: string; quantity: number; unit_price: number; cost_price: number; selected_flavors?: string[] }[];
+  items: { product_id: string | null; product_name: string; quantity: number; unit_price: number; cost_price: number; selected_flavors?: string[]; selected_weight?: number }[];
 }
 
 export function useOrders() {
@@ -101,7 +101,7 @@ export function useUpdateOrderDetails() {
         total: number;
         status: DbOrder['status'];
       };
-      items: { product_id: string | null; product_name: string; quantity: number; unit_price: number; cost_price: number; selected_flavors?: string[] }[];
+      items: { product_id: string | null; product_name: string; quantity: number; unit_price: number; cost_price: number; selected_flavors?: string[]; selected_weight?: number }[];
     }) => {
       const { id, updates, items } = input;
       
@@ -143,7 +143,7 @@ export function useAddOrder() {
       customer_city: string;
       customer_region?: string;
       notes?: string;
-      items: { product_id?: string; product_name: string; quantity: number; unit_price: number; cost_price: number; selected_flavors?: string[] }[];
+      items: { product_id?: string; product_name: string; quantity: number; unit_price: number; cost_price: number; selected_flavors?: string[]; selected_weight?: number }[];
     }) => {
       const { items, ...order } = input;
       const { data, error } = await supabase.from("orders").insert({ ...order, status: 'pending' }).select().single();

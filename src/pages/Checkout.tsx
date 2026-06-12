@@ -203,14 +203,24 @@ const Checkout = () => {
         customer_city: formData.city,
         customer_region: formData.region,
         notes: formData.notes,
-        items: items.map((i) => ({
-          product_id: i.product.id,
-          product_name: i.product.name,
-          quantity: i.quantity,
-          unit_price: i.product.price,
-          cost_price: 0,
-          selected_flavors: i.selectedFlavors || [],
-        })),
+        items: items.map((i) => {
+          let price = i.product.price;
+          if (i.selectedWeight && (i.product as any).weight_prices) {
+            const wp = (i.product as any).weight_prices.find((w: any) => w.weight === i.selectedWeight);
+            if (wp) {
+              price = wp.price;
+            }
+          }
+          return {
+            product_id: i.product.id,
+            product_name: i.product.name,
+            quantity: i.quantity,
+            unit_price: price,
+            cost_price: 0,
+            selected_flavors: i.selectedFlavors || [],
+            selected_weight: i.selectedWeight,
+          };
+        }),
       });
 
       // Send WhatsApp notification
@@ -223,13 +233,23 @@ const Checkout = () => {
             phone: formData.phone,
             address: formData.address,
           },
-          items.map((i) => ({
-            product_name: i.product.name,
-            quantity: i.quantity,
-            unit_price: i.product.price,
-            selected_flavors: i.selectedFlavors || [],
-            pack_item_flavors: i.packItemFlavors || {},
-          })),
+          items.map((i) => {
+            let price = i.product.price;
+            if (i.selectedWeight && (i.product as any).weight_prices) {
+              const wp = (i.product as any).weight_prices.find((w: any) => w.weight === i.selectedWeight);
+              if (wp) {
+                price = wp.price;
+              }
+            }
+            return {
+              product_name: i.product.name,
+              quantity: i.quantity,
+              unit_price: price,
+              selected_flavors: i.selectedFlavors || [],
+              pack_item_flavors: i.packItemFlavors || {},
+              selected_weight: i.selectedWeight,
+            };
+          }),
           lang // Pass the current language
         );
       } catch (waError) {
@@ -375,14 +395,26 @@ const Checkout = () => {
                 <h2 className="font-serif text-2xl mb-6">{t("cart.summary")}</h2>
                 <div className="space-y-4 mb-6">
                   {items.map((item) => (
-                    <div key={item.product.id} className="flex gap-4">
+                    <div key={`${item.product.id}-${item.selectedWeight || 'default'}`} className="flex gap-4">
                       <div className="w-16 h-20 bg-muted/30 overflow-hidden">
                         <img src={item.product.images[0]} alt={getTranslated(item.product, "name", lang)} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-medium line-clamp-1">{getTranslated(item.product, "name", lang)}</p>
+                        {item.selectedWeight && (
+                          <p className="text-xs text-muted-foreground mt-0.5">Poids: {item.selectedWeight} g</p>
+                        )}
                         <p className="text-xs text-muted-foreground mt-0.5">{t("checkout.qty")} : {item.quantity}</p>
-                        <p className="text-sm mt-1">{(item.product.price * item.quantity).toLocaleString()} DH</p>
+                        {(() => {
+                          let price = item.product.price;
+                          if (item.selectedWeight && (item.product as any).weight_prices) {
+                            const wp = (item.product as any).weight_prices.find((w: any) => w.weight === item.selectedWeight);
+                            if (wp) {
+                              price = wp.price;
+                            }
+                          }
+                          return <p className="text-sm mt-1">{(price * item.quantity).toLocaleString()} DH</p>;
+                        })()}
                       </div>
                     </div>
                   ))}

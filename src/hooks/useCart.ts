@@ -6,14 +6,15 @@ export interface CartItem {
   product: Product;
   quantity: number;
   selectedFlavors?: string[];
+  selectedWeight?: number;
   packItemFlavors?: Record<string, string[]>; // product_id -> array of flavors
 }
 
 interface CartState {
   items: CartItem[];
-  addItem: (product: Product, quantity?: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>) => void;
-  updateQuantity: (productId: string, quantity: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>) => void;
-  removeItem: (productId: string) => void;
+  addItem: (product: Product, quantity?: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>, selectedWeight?: number) => void;
+  updateQuantity: (productId: string, quantity: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>, selectedWeight?: number) => void;
+  removeItem: (productId: string, selectedWeight?: number) => void;
   clearCart: () => void;
   getSubtotal: () => number;
   getItemCount: () => number;
@@ -26,17 +27,18 @@ export const useCart = create<CartState>()(
     (set, get) => ({
       items: [],
 
-      addItem: (product: Product, quantity = 1, selectedFlavors = [], packItemFlavors = {}) => {
+      addItem: (product: Product, quantity = 1, selectedFlavors = [], packItemFlavors = {}, selectedWeight) => {
         const now = Date.now();
         // Prevent double adds within 500ms
-        if (lastAddedTime[product.id] && now - lastAddedTime[product.id] < 500) {
+        const cacheKey = `${product.id}-${selectedWeight || 'default'}`;
+        if (lastAddedTime[cacheKey] && now - lastAddedTime[cacheKey] < 500) {
           return;
         }
-        lastAddedTime[product.id] = now;
+        lastAddedTime[cacheKey] = now;
 
         set((state) => {
           const existingItem = state.items.find(
-            (item) => item.product.id === product.id
+            (item) => item.product.id === product.id && item.selectedWeight === selectedWeight
           );
 
           if (existingItem) {
@@ -46,7 +48,7 @@ export const useCart = create<CartState>()(
             
             return {
               items: state.items.map((item) =>
-                item.product.id === product.id
+                item.product.id === product.id && item.selectedWeight === selectedWeight
                   ? { 
                       ...item, 
                       quantity: newQuantity,
@@ -63,21 +65,22 @@ export const useCart = create<CartState>()(
               product, 
               quantity, 
               selectedFlavors: selectedFlavors.length > 0 ? selectedFlavors : undefined,
-              packItemFlavors: Object.keys(packItemFlavors).length > 0 ? packItemFlavors : undefined
+              packItemFlavors: Object.keys(packItemFlavors).length > 0 ? packItemFlavors : undefined,
+              selectedWeight
             }],
           };
         });
       },
 
-      updateQuantity: (productId: string, quantity: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>) => {
+      updateQuantity: (productId: string, quantity: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>, selectedWeight?: number) => {
         if (quantity < 1) {
-          get().removeItem(productId);
+          get().removeItem(productId, selectedWeight);
           return;
         }
 
         set((state) => ({
           items: state.items.map((item) => {
-            if (item.product.id === productId) {
+            if (item.product.id === productId && item.selectedWeight === selectedWeight) {
               const newQty = Math.min(quantity, 10);
               let newFlavors = selectedFlavors || item.selectedFlavors || [];
               
@@ -106,9 +109,9 @@ export const useCart = create<CartState>()(
         }));
       },
 
-      removeItem: (productId: string) => {
+      removeItem: (productId: string, selectedWeight?: number) => {
         set((state) => ({
-          items: state.items.filter((item) => item.product.id !== productId),
+          items: state.items.filter((item) => !(item.product.id === productId && item.selectedWeight === selectedWeight)),
         }));
       },
 
@@ -118,7 +121,16 @@ export const useCart = create<CartState>()(
 
       getSubtotal: () => {
         return get().items.reduce(
-          (total, item) => total + item.product.price * item.quantity,
+          (total, item) => {
+            let price = item.product.price;
+            if (item.selectedWeight && (item.product as any).weight_prices) {
+              const wp = (item.product as any).weight_prices.find((w: any) => w.weight === item.selectedWeight);
+              if (wp) {
+                price = wp.price;
+              }
+            }
+            return total + price * item.quantity;
+          },
           0
         );
       },

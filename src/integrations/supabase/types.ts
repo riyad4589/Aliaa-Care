@@ -71,6 +71,7 @@ export type Database = {
           product_name: string
           quantity: number
           selected_flavors: string[] | null
+          selected_weight: number | null
           unit_price: number
         }
         Insert: {
@@ -81,6 +82,7 @@ export type Database = {
           product_name: string
           quantity?: number
           selected_flavors?: string[] | null
+          selected_weight?: number | null
           unit_price?: number
         }
         Update: {
@@ -91,6 +93,7 @@ export type Database = {
           product_name?: string
           quantity?: number
           selected_flavors?: string[] | null
+          selected_weight?: number | null
           unit_price?: number
         }
         Relationships: [
@@ -338,6 +341,7 @@ export type Database = {
           updated_at: string
           visible: boolean
           weight: number | null
+          weight_prices: Json | null
         }
         Insert: {
           active?: boolean
@@ -358,6 +362,7 @@ export type Database = {
           updated_at?: string
           visible?: boolean
           weight?: number | null
+          weight_prices?: Json | null
         }
         Update: {
           active?: boolean
@@ -378,6 +383,7 @@ export type Database = {
           updated_at?: string
           visible?: boolean
           weight?: number | null
+          weight_prices?: Json | null
         }
         Relationships: []
       }

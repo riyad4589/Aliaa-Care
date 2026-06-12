@@ -22,6 +22,7 @@ export interface ClientProduct {
   materials_ar?: string | null;
   materials_en?: string | null;
   weight?: number;
+  weight_prices?: { weight: number; price: number }[];
   stock: number;
   images: string[];
   featured?: boolean;
@@ -65,6 +66,7 @@ function toClientProduct(p: DbProduct): ClientProduct {
     materials_ar: p.materials_ar,
     materials_en: p.materials_en,
     weight: p.weight ?? undefined,
+    weight_prices: (p.weight_prices as { weight: number; price: number }[]) ?? undefined,
     stock: p.stock,
     images: p.images.length > 0 ? p.images : ["/placeholder.svg"],
     featured: p.featured ?? false,

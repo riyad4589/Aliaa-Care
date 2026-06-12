@@ -40,6 +40,7 @@ interface EditingProduct {
   materials_ar: string;
   materials_en: string;
   weight?: number;
+  weight_prices: { weight: number; price: number }[];
   stock: number;
   active: boolean;
   visible: boolean;
@@ -56,7 +57,7 @@ const emptyProduct: EditingProduct = {
   name: "", slug: "", price: 0, description: "", long_description: "",
   materials: "", name_ar: "", name_en: "", description_ar: "", description_en: "",
   long_description_ar: "", long_description_en: "", materials_ar: "", materials_en: "",
-  weight: undefined, images: [], stock: 10, active: true, visible: true,
+  weight: undefined, weight_prices: [], images: [], stock: 10, active: true, visible: true,
   featured: false, is_new: false, category_ids: [], flavors: [], flavors_ar: [], flavors_en: [],
 };
 
@@ -113,6 +114,7 @@ const AdminProducts = () => {
           materials_ar: p.materials_ar || "",
           materials_en: p.materials_en || "",
           weight: p.weight ?? undefined,
+          weight_prices: (p.weight_prices as { weight: number; price: number }[]) || [],
           stock: p.stock,
           active: p.active,
           visible: p.visible,
@@ -231,6 +233,7 @@ const AdminProducts = () => {
             materials_ar: editingProduct.materials_ar,
             materials_en: editingProduct.materials_en,
             weight: editingProduct.weight || null,
+            weight_prices: editingProduct.weight_prices || [],
             stock: editingProduct.stock,
             active: editingProduct.active,
             visible: editingProduct.visible,
@@ -261,6 +264,7 @@ const AdminProducts = () => {
           materials_ar: editingProduct.materials_ar,
           materials_en: editingProduct.materials_en,
           weight: editingProduct.weight,
+          weight_prices: editingProduct.weight_prices || [],
           stock: editingProduct.stock,
           active: editingProduct.active,
           visible: editingProduct.visible,
@@ -598,6 +602,70 @@ const AdminProducts = () => {
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Poids (g)</label>
                     <Input type="number" value={editingProduct.weight || ""} onChange={(e) => setEditingProduct({ ...editingProduct, weight: e.target.value ? Number(e.target.value) : undefined })} placeholder="Ex: 120" />
+                  </div>
+
+                  <div className="space-y-4 p-4 bg-muted/20 rounded-lg border border-border">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Prix par poids optionnels</label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={() => {
+                          const current = editingProduct.weight_prices || [];
+                          setEditingProduct({
+                            ...editingProduct,
+                            weight_prices: [...current, { weight: 0, price: 0 }]
+                          });
+                        }}
+                      >
+                        + Ajouter un prix
+                      </Button>
+                    </div>
+                    {(editingProduct.weight_prices || []).map((wp, idx) => (
+                      <div key={idx} className="flex gap-2 items-center">
+                        <div className="flex-1">
+                          <span className="text-[10px] text-muted-foreground block mb-0.5 ml-1">Poids (g)</span>
+                          <Input
+                            type="number"
+                            value={wp.weight || ""}
+                            placeholder="Ex: 250"
+                            onChange={(e) => {
+                              const newWeightPrices = [...editingProduct.weight_prices];
+                              newWeightPrices[idx] = { ...newWeightPrices[idx], weight: Number(e.target.value) };
+                              setEditingProduct({ ...editingProduct, weight_prices: newWeightPrices });
+                            }}
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-[10px] text-muted-foreground block mb-0.5 ml-1">Prix (DH)</span>
+                          <Input
+                            type="number"
+                            value={wp.price || ""}
+                            placeholder="Ex: 40"
+                            onChange={(e) => {
+                              const newWeightPrices = [...editingProduct.weight_prices];
+                              newWeightPrices[idx] = { ...newWeightPrices[idx], price: Number(e.target.value) };
+                              setEditingProduct({ ...editingProduct, weight_prices: newWeightPrices });
+                            }}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive self-end"
+                          onClick={() => {
+                            const newWeightPrices = editingProduct.weight_prices.filter((_, i) => i !== idx);
+                            setEditingProduct({ ...editingProduct, weight_prices: newWeightPrices });
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <p className="text-[10px] text-muted-foreground">Si renseigné, ces options remplaceront le prix de base sur la fiche produit.</p>
                   </div>
 
                   <div className="space-y-4 p-4 bg-muted/20 rounded-lg border border-border">

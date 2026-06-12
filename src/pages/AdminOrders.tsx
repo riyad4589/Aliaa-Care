@@ -589,7 +589,12 @@ const AdminOrders = () => {
                           {selectedOrder.items.map((item, idx) => (
                             <div key={idx} className="p-4 flex justify-between items-center hover:bg-muted/10 transition-colors">
                               <div className="flex-1 min-w-0 pr-4">
-                                <p className="font-bold text-sm truncate">{item.product_name}</p>
+                                <p className="font-bold text-sm truncate">
+                                  {item.product_name}
+                                  {item.selected_weight && (
+                                    <span className="text-xs font-normal text-muted-foreground ml-2">({item.selected_weight} g)</span>
+                                  )}
+                                </p>
                                 <p className="text-xs text-muted-foreground mt-0.5">
                                   Qté: <span className="font-semibold">{item.quantity}</span> × {item.unit_price} DH
                                 </p>
@@ -822,7 +827,12 @@ const AdminOrders = () => {
                         <div key={idx} className="group flex flex-col sm:flex-row sm:items-center gap-4 p-4 border border-border rounded-xl bg-background hover:border-primary/30 transition-all duration-300 shadow-sm relative overflow-hidden">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <p className="text-sm font-bold truncate">{item.product_name}</p>
+                              <p className="text-sm font-bold truncate">
+                                {item.product_name}
+                                {item.selected_weight && (
+                                  <span className="text-xs font-normal text-muted-foreground ml-2">({item.selected_weight} g)</span>
+                                )}
+                              </p>
                             </div>
                             {item.selected_flavors && item.selected_flavors.length > 0 && (
                               <div className="mt-1 flex flex-wrap gap-1">
