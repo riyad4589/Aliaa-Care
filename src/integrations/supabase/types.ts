@@ -71,7 +71,7 @@ export type Database = {
           product_name: string
           quantity: number
           selected_flavors: string[] | null
-          selected_weight: number | null
+          selected_weight: string | number | null
           unit_price: number
         }
         Insert: {
@@ -82,7 +82,7 @@ export type Database = {
           product_name: string
           quantity?: number
           selected_flavors?: string[] | null
-          selected_weight?: number | null
+          selected_weight?: string | number | null
           unit_price?: number
         }
         Update: {
@@ -93,7 +93,7 @@ export type Database = {
           product_name?: string
           quantity?: number
           selected_flavors?: string[] | null
-          selected_weight?: number | null
+          selected_weight?: string | number | null
           unit_price?: number
         }
         Relationships: [
@@ -157,18 +157,21 @@ export type Database = {
           pack_id: string
           product_id: string
           quantity: number
+          selected_weight: string | null
         }
         Insert: {
           id?: string
           pack_id: string
           product_id: string
           quantity?: number
+          selected_weight?: string | null
         }
         Update: {
           id?: string
           pack_id?: string
           product_id?: string
           quantity?: number
+          selected_weight?: string | null
         }
         Relationships: [
           {
@@ -340,7 +343,7 @@ export type Database = {
           stock: number
           updated_at: string
           visible: boolean
-          weight: number | null
+          weight: string | number | null
           weight_prices: Json | null
         }
         Insert: {
@@ -361,7 +364,7 @@ export type Database = {
           stock?: number
           updated_at?: string
           visible?: boolean
-          weight?: number | null
+          weight?: string | number | null
           weight_prices?: Json | null
         }
         Update: {
@@ -382,7 +385,7 @@ export type Database = {
           stock?: number
           updated_at?: string
           visible?: boolean
-          weight?: number | null
+          weight?: string | number | null
           weight_prices?: Json | null
         }
         Relationships: []
@@ -476,6 +479,7 @@ export type Database = {
           product_ids: string[] | null
           starts_at: string
           target_type: string
+          target_weights: Json | null
           tier_rules: Json | null
           type: string
         }
@@ -495,6 +499,7 @@ export type Database = {
           product_ids?: string[] | null
           starts_at?: string
           target_type?: string
+          target_weights?: Json | null
           tier_rules?: Json | null
           type?: string
         }
@@ -514,6 +519,7 @@ export type Database = {
           product_ids?: string[] | null
           starts_at?: string
           target_type?: string
+          target_weights?: Json | null
           tier_rules?: Json | null
           type?: string
         }

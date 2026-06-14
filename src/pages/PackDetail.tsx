@@ -65,7 +65,15 @@ const PackDetail = () => {
     );
   }
 
-  const totalValue = pack.items.reduce((sum, item) => sum + (item.product_price || 0) * item.quantity, 0);
+  const getItemPrice = (item: any) => {
+    if (item.selected_weight && item.product_weight_prices && item.product_weight_prices.length > 0) {
+      const found = item.product_weight_prices.find((wp: any) => String(wp.weight) === String(item.selected_weight));
+      if (found) return found.price;
+    }
+    return item.product_price || 0;
+  };
+
+  const totalValue = pack.items.reduce((sum, item) => sum + getItemPrice(item) * (item.quantity || 1), 0);
   const savings = totalValue - pack.price;
   const firstImage = pack.items[0]?.product_image || pack.image;
 
@@ -184,7 +192,9 @@ const PackDetail = () => {
                     <img src={item.product_image || "/placeholder.svg"} alt={item.product_name} className="w-14 h-14 object-cover rounded" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{item.product_name}</p>
-                      <p className="text-xs text-muted-foreground">{t("checkout.qty")}: {item.quantity}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("common.netWeight")}: {item.selected_weight || item.product_weight || "Standard"}
+                      </p>
                       
                       {/* Flavor selection for pack items */}
                       {item.product_flavors && item.product_flavors.length > 0 && (
@@ -219,7 +229,7 @@ const PackDetail = () => {
                         </div>
                       )}
                     </div>
-                    <span className="text-sm text-muted-foreground">{(item.product_price || 0).toLocaleString()} DH</span>
+                    <span className="text-sm text-muted-foreground">{getItemPrice(item).toLocaleString()} DH</span>
                   </div>
                 ))}
               </div>

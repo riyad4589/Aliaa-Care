@@ -30,7 +30,10 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
   const collection = collections.find((c) => c.id === product.collection);
   const hasSecondImage = product.images.length > 1;
 
-  const discount = getProductDiscount(product.id, product.collections || []);
+  const defaultWeight = product.weight_prices && product.weight_prices.length > 0
+    ? product.weight_prices[0].weight
+    : product.weight;
+  const discount = getProductDiscount(product.id, product.collections || [], false, defaultWeight);
   const originalPrice = product.originalPrice;
   const hasOriginalPrice = originalPrice && originalPrice > product.price;
   const promoDiscount = discount > 0 ? discount : (hasOriginalPrice ? Math.round((1 - product.price / originalPrice) * 100) : 0);
@@ -157,7 +160,9 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
                 </p>
               )}
               {product.weight && (
-                <p className="text-[10px] text-muted-foreground/50 tracking-wider uppercase font-medium">{product.weight}g</p>
+                <p className="text-[10px] text-muted-foreground/50 tracking-wider uppercase font-medium">
+                  {/^\d+(\.\d+)?$/.test(String(product.weight).trim()) ? `${product.weight}g` : product.weight}
+                </p>
               )}
             </div>
 

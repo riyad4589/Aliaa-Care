@@ -206,7 +206,7 @@ const Checkout = () => {
         items: items.map((i) => {
           let price = i.product.price;
           if (i.selectedWeight && (i.product as any).weight_prices) {
-            const wp = (i.product as any).weight_prices.find((w: any) => w.weight === i.selectedWeight);
+            const wp = (i.product as any).weight_prices.find((w: any) => String(w.weight) === String(i.selectedWeight));
             if (wp) {
               price = wp.price;
             }
@@ -236,7 +236,7 @@ const Checkout = () => {
           items.map((i) => {
             let price = i.product.price;
             if (i.selectedWeight && (i.product as any).weight_prices) {
-              const wp = (i.product as any).weight_prices.find((w: any) => w.weight === i.selectedWeight);
+              const wp = (i.product as any).weight_prices.find((w: any) => String(w.weight) === String(i.selectedWeight));
               if (wp) {
                 price = wp.price;
               }
@@ -402,13 +402,15 @@ const Checkout = () => {
                       <div className="flex-1">
                         <p className="text-sm font-medium line-clamp-1">{getTranslated(item.product, "name", lang)}</p>
                         {item.selectedWeight && (
-                          <p className="text-xs text-muted-foreground mt-0.5">Poids: {item.selectedWeight} g</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Poids: {/^\d+(\.\d+)?$/.test(String(item.selectedWeight).trim()) ? `${item.selectedWeight} g` : item.selectedWeight}
+                          </p>
                         )}
                         <p className="text-xs text-muted-foreground mt-0.5">{t("checkout.qty")} : {item.quantity}</p>
                         {(() => {
                           let price = item.product.price;
                           if (item.selectedWeight && (item.product as any).weight_prices) {
-                            const wp = (item.product as any).weight_prices.find((w: any) => w.weight === item.selectedWeight);
+                            const wp = (item.product as any).weight_prices.find((w: any) => String(w.weight) === String(item.selectedWeight));
                             if (wp) {
                               price = wp.price;
                             }

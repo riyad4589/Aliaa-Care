@@ -22,16 +22,26 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const formatWeight = (w: string | number | null | undefined) => {
+  if (!w) return "";
+  const str = String(w).trim();
+  if (!str) return "";
+  if (/^\d+(\.\d+)?$/.test(str)) {
+    return `${str} g`;
+  }
+  return str;
+};
+
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { getProductBySlug, getRelatedProducts, collections } = useClientProducts();
   const { getProductDiscount, getFlashPromos } = useActivePromotions();
   const product = getProductBySlug(slug || "");
-  const [selectedWeight, setSelectedWeight] = useState<number | undefined>(() => {
+  const [selectedWeight, setSelectedWeight] = useState<string | number | undefined>(() => {
     if (product?.weight_prices && product.weight_prices.length > 0) {
       return product.weight_prices[0].weight;
     }
-    return product?.weight;
+    return product?.weight ?? undefined;
   });
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -73,14 +83,14 @@ const ProductDetail = () => {
 
   const getBasePrice = () => {
     if (selectedWeight && product.weight_prices && product.weight_prices.length > 0) {
-      const wp = product.weight_prices.find((w) => w.weight === selectedWeight);
+      const wp = product.weight_prices.find((w) => String(w.weight) === String(selectedWeight));
       if (wp) return wp.price;
     }
     return product.price;
   };
 
   const basePrice = getBasePrice();
-  const discount = getProductDiscount(product.id, product.collections || []);
+  const discount = getProductDiscount(product.id, product.collections || [], false, selectedWeight);
   const discountedPrice = discount > 0 ? Math.round(basePrice * (1 - discount / 100)) : basePrice;
 
   const handleAddToCart = () => {
@@ -244,7 +254,7 @@ const ProductDetail = () => {
                   <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-1.5">{t("productDetail.ingredients")}</span>
                   <span className="text-sm text-foreground">{getTranslated(product, "materials", lang)}</span>
                 </div>
-                {product.weight_prices && product.weight_prices.length > 0 ? (
+                 {product.weight_prices && product.weight_prices.length > 1 ? (
                   <div>
                     <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-3">
                       {lang === 'ar' ? "اختر الوزن" : lang === 'en' ? "Choose weight" : "Choisir le poids"}
@@ -257,21 +267,23 @@ const ProductDetail = () => {
                           onClick={() => setSelectedWeight(wp.weight)}
                           className={cn(
                             "px-4 py-2 text-xs font-semibold tracking-wider uppercase border transition-all duration-300",
-                            selectedWeight === wp.weight
+                            String(selectedWeight) === String(wp.weight)
                               ? "border-primary bg-primary text-primary-foreground shadow-sm"
                               : "border-border hover:border-foreground bg-transparent text-foreground"
                           )}
                         >
-                          {wp.weight} g
+                          {formatWeight(wp.weight)}
                         </button>
                       ))}
                     </div>
                   </div>
                 ) : (
-                  product.weight && (
+                  (product.weight || (product.weight_prices && product.weight_prices.length === 1)) && (
                     <div>
                       <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-1.5">{t("common.netWeight")}</span>
-                      <span className="text-sm text-foreground">{t("common.netWeight")} : {product.weight} g</span>
+                      <span className="text-sm text-foreground">
+                        {t("common.netWeight")} : {formatWeight(product.weight || product.weight_prices?.[0]?.weight)}
+                      </span>
                     </div>
                   )
                 )}
@@ -352,7 +364,7 @@ const ProductDetail = () => {
                     onClick={() => {
                       const phone = "212699928463";
                       const url = window.location.href;
-                      const weightText = selectedWeight ? ` (Poids : ${selectedWeight}g)` : "";
+                      const weightText = selectedWeight ? ` (Poids : ${/^\d+(\.\d+)?$/.test(String(selectedWeight).trim()) ? `${selectedWeight}g` : selectedWeight})` : "";
                       const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le produit : ${getTranslated(product, "name", lang)}${weightText}\nPrix : ${discountedPrice} DH\nLien : ${url}`);
                       window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
                     }}

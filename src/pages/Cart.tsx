@@ -67,7 +67,7 @@ const Cart = () => {
                         <Link to={`/product/${item.product.slug}`} className="font-serif text-lg md:text-xl hover:text-primary transition-colors">{getTranslated(item.product, "name", lang)}</Link>
                         {item.selectedWeight && (
                           <p className="text-xs font-semibold text-muted-foreground mt-0.5">
-                            Poids: {item.selectedWeight} g
+                            Poids: {/^\d+(\.\d+)?$/.test(String(item.selectedWeight).trim()) ? `${item.selectedWeight} g` : item.selectedWeight}
                           </p>
                         )}
                         <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{getTranslated(item.product, "description", lang)}</p>
@@ -118,7 +118,7 @@ const Cart = () => {
                         {(() => {
                           let price = item.product.price;
                           if (item.selectedWeight && (item.product as any).weight_prices) {
-                            const wp = (item.product as any).weight_prices.find((w: any) => w.weight === item.selectedWeight);
+                            const wp = (item.product as any).weight_prices.find((w: any) => String(w.weight) === String(item.selectedWeight));
                             if (wp) {
                               price = wp.price;
                             }

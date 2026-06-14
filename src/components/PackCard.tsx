@@ -27,7 +27,15 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
   const discount = getProductDiscount(pack.id, [], true);
   const discountedPrice = discount > 0 ? Math.round(pack.price * (1 - discount / 100)) : pack.price;
 
-  const totalValue = pack.items.reduce((sum, item) => sum + (item.product_price || 0) * item.quantity, 0);
+  const getItemPrice = (item: any) => {
+    if (item.selected_weight && item.product_weight_prices && item.product_weight_prices.length > 0) {
+      const found = item.product_weight_prices.find((wp: any) => String(wp.weight) === String(item.selected_weight));
+      if (found) return found.price;
+    }
+    return item.product_price || 0;
+  };
+
+  const totalValue = pack.items.reduce((sum, item) => sum + getItemPrice(item) * (item.quantity || 1), 0);
   const savings = totalValue - discountedPrice;
   const hasPackImage = pack.image && pack.image !== "/placeholder.svg";
   const firstProductImage = pack.items[0]?.product_image || "/placeholder.svg";

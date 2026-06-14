@@ -592,7 +592,9 @@ const AdminOrders = () => {
                                 <p className="font-bold text-sm truncate">
                                   {item.product_name}
                                   {item.selected_weight && (
-                                    <span className="text-xs font-normal text-muted-foreground ml-2">({item.selected_weight} g)</span>
+                                    <span className="text-xs font-normal text-muted-foreground ml-2">
+                                      ({/^\d+(\.\d+)?$/.test(String(item.selected_weight).trim()) ? `${item.selected_weight} g` : item.selected_weight})
+                                    </span>
                                   )}
                                 </p>
                                 <p className="text-xs text-muted-foreground mt-0.5">
@@ -830,7 +832,9 @@ const AdminOrders = () => {
                               <p className="text-sm font-bold truncate">
                                 {item.product_name}
                                 {item.selected_weight && (
-                                  <span className="text-xs font-normal text-muted-foreground ml-2">({item.selected_weight} g)</span>
+                                  <span className="text-xs font-normal text-muted-foreground ml-2">
+                                    ({/^\d+(\.\d+)?$/.test(String(item.selected_weight).trim()) ? `${item.selected_weight} g` : item.selected_weight})
+                                  </span>
                                 )}
                               </p>
                             </div>

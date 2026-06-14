@@ -39,8 +39,8 @@ interface EditingProduct {
   long_description_en: string;
   materials_ar: string;
   materials_en: string;
-  weight?: number;
-  weight_prices: { weight: number; price: number }[];
+  weight?: string;
+  weight_prices: { weight: string | number; price: number }[];
   stock: number;
   active: boolean;
   visible: boolean;
@@ -93,10 +93,14 @@ const AdminProducts = () => {
     }
 
     if (action === "new") {
-      setEditingProduct({ ...emptyProduct });
+      setEditingProduct({ ...emptyProduct, weight_prices: [{ weight: "", price: 0 }] });
     } else if (action === "edit" && id && products.length > 0) {
       const p = products.find(p => p.id === id);
       if (p) {
+        let weightPrices = (p.weight_prices as { weight: string | number; price: number }[]) || [];
+        if (weightPrices.length === 0) {
+          weightPrices = [{ weight: p.weight ? String(p.weight) : "", price: p.price || 0 }];
+        }
         setEditingProduct({
           id: p.id,
           name: p.name,
@@ -113,8 +117,8 @@ const AdminProducts = () => {
           long_description_en: p.long_description_en || "",
           materials_ar: p.materials_ar || "",
           materials_en: p.materials_en || "",
-          weight: p.weight ?? undefined,
-          weight_prices: (p.weight_prices as { weight: number; price: number }[]) || [],
+          weight: p.weight ? String(p.weight) : undefined,
+          weight_prices: weightPrices,
           stock: p.stock,
           active: p.active,
           visible: p.visible,
@@ -201,8 +205,9 @@ const AdminProducts = () => {
   };
 
   const handleSave = async () => {
-    if (!editingProduct?.name || editingProduct.category_ids.length === 0 || !editingProduct.price) {
-      toast({ title: "Erreur", description: "Remplissez les champs obligatoires (nom, catégorie, prix)", variant: "destructive" });
+    const firstWeightPrice = editingProduct.weight_prices?.[0];
+    if (!editingProduct?.name || editingProduct.category_ids.length === 0 || !firstWeightPrice || !firstWeightPrice.price) {
+      toast({ title: "Erreur", description: "Remplissez les champs obligatoires (nom, catégorie, prix du premier poids)", variant: "destructive" });
       return;
     }
     setSaving(true);
@@ -213,6 +218,9 @@ const AdminProducts = () => {
     const cleanedFlavorsAr = editingProduct.flavors_ar.map(f => f.trim()).filter(Boolean);
     const cleanedFlavorsEn = editingProduct.flavors_en.map(f => f.trim()).filter(Boolean);
 
+    const basePrice = Number(firstWeightPrice.price);
+    const baseWeight = firstWeightPrice.weight ? String(firstWeightPrice.weight) : null;
+
     try {
       if (editingProduct.id) {
         await updateProduct.mutateAsync({
@@ -220,7 +228,7 @@ const AdminProducts = () => {
           updates: {
             name: editingProduct.name,
             slug,
-            price: editingProduct.price,
+            price: basePrice,
             description: editingProduct.description,
             long_description: editingProduct.long_description,
             materials: editingProduct.materials,
@@ -232,7 +240,7 @@ const AdminProducts = () => {
             long_description_en: editingProduct.long_description_en,
             materials_ar: editingProduct.materials_ar,
             materials_en: editingProduct.materials_en,
-            weight: editingProduct.weight || null,
+            weight: baseWeight,
             weight_prices: editingProduct.weight_prices || [],
             stock: editingProduct.stock,
             active: editingProduct.active,
@@ -251,7 +259,7 @@ const AdminProducts = () => {
         await addProduct.mutateAsync({
           name: editingProduct.name,
           slug,
-          price: editingProduct.price,
+          price: basePrice,
           description: editingProduct.description,
           long_description: editingProduct.long_description,
           materials: editingProduct.materials,
@@ -263,7 +271,7 @@ const AdminProducts = () => {
           long_description_en: editingProduct.long_description_en,
           materials_ar: editingProduct.materials_ar,
           materials_en: editingProduct.materials_en,
-          weight: editingProduct.weight,
+          weight: baseWeight,
           weight_prices: editingProduct.weight_prices || [],
           stock: editingProduct.stock,
           active: editingProduct.active,
@@ -549,36 +557,19 @@ const AdminProducts = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Prix (DH) *</label>
-                      <Input 
-                        type="number" 
-                        step="any"
-                        min="0"
-                        placeholder="0"
-                        value={editingProduct.price === 0 ? "" : editingProduct.price} 
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setEditingProduct({ ...editingProduct, price: val === "" ? 0 : Math.max(0, Number(val)) });
-                        }}
-                        onKeyDown={(e) => ["e", "E", "+", "-"].includes(e.key) && e.preventDefault()}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Stock</label>
-                      <Input 
-                        type="number" 
-                        min="0"
-                        placeholder="0"
-                        value={editingProduct.stock === 0 ? "" : editingProduct.stock} 
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setEditingProduct({ ...editingProduct, stock: val === "" ? 0 : Math.max(0, Math.floor(Number(val))) });
-                        }}
-                        onKeyDown={(e) => ["e", "E", "+", "-", ".", ","].includes(e.key) && e.preventDefault()}
-                      />
-                    </div>
+                  <div className="mb-4">
+                    <label className="text-sm font-medium mb-1.5 block">Stock</label>
+                    <Input 
+                      type="number" 
+                      min="0"
+                      placeholder="0"
+                      value={editingProduct.stock === 0 ? "" : editingProduct.stock} 
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setEditingProduct({ ...editingProduct, stock: val === "" ? 0 : Math.max(0, Math.floor(Number(val))) });
+                      }}
+                      onKeyDown={(e) => ["e", "E", "+", "-", ".", ","].includes(e.key) && e.preventDefault()}
+                    />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/20 rounded-lg border border-border">
@@ -599,14 +590,9 @@ const AdminProducts = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Poids (g)</label>
-                    <Input type="number" value={editingProduct.weight || ""} onChange={(e) => setEditingProduct({ ...editingProduct, weight: e.target.value ? Number(e.target.value) : undefined })} placeholder="Ex: 120" />
-                  </div>
-
                   <div className="space-y-4 p-4 bg-muted/20 rounded-lg border border-border">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Prix par poids optionnels</label>
+                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Prix par poids *</label>
                       <Button
                         type="button"
                         variant="outline"
@@ -616,7 +602,7 @@ const AdminProducts = () => {
                           const current = editingProduct.weight_prices || [];
                           setEditingProduct({
                             ...editingProduct,
-                            weight_prices: [...current, { weight: 0, price: 0 }]
+                            weight_prices: [...current, { weight: "", price: 0 }]
                           });
                         }}
                       >
@@ -626,14 +612,14 @@ const AdminProducts = () => {
                     {(editingProduct.weight_prices || []).map((wp, idx) => (
                       <div key={idx} className="flex gap-2 items-center">
                         <div className="flex-1">
-                          <span className="text-[10px] text-muted-foreground block mb-0.5 ml-1">Poids (g)</span>
+                          <span className="text-[10px] text-muted-foreground block mb-0.5 ml-1">Poids</span>
                           <Input
-                            type="number"
+                            type="text"
                             value={wp.weight || ""}
-                            placeholder="Ex: 250"
+                            placeholder="Ex: 250g, 100ml"
                             onChange={(e) => {
                               const newWeightPrices = [...editingProduct.weight_prices];
-                              newWeightPrices[idx] = { ...newWeightPrices[idx], weight: Number(e.target.value) };
+                              newWeightPrices[idx] = { ...newWeightPrices[idx], weight: e.target.value };
                               setEditingProduct({ ...editingProduct, weight_prices: newWeightPrices });
                             }}
                           />
@@ -656,6 +642,7 @@ const AdminProducts = () => {
                           variant="ghost"
                           size="icon"
                           className="text-destructive self-end"
+                          disabled={editingProduct.weight_prices.length <= 1}
                           onClick={() => {
                             const newWeightPrices = editingProduct.weight_prices.filter((_, i) => i !== idx);
                             setEditingProduct({ ...editingProduct, weight_prices: newWeightPrices });

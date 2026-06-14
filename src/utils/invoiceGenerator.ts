@@ -113,7 +113,10 @@ export const generateInvoice = async (order: DbOrder) => {
     const tableData = order.items.map(item => {
       let name = item.product_name;
       if (item.selected_weight) {
-        name += ` (${item.selected_weight} g)`;
+        const weightStr = /^\d+(\.\d+)?$/.test(String(item.selected_weight).trim())
+          ? `${item.selected_weight} g`
+          : item.selected_weight;
+        name += ` (${weightStr})`;
       }
       const description = item.selected_flavors && item.selected_flavors.length > 0
         ? `${name}\n(Goût(s): ${item.selected_flavors.join(", ")})`

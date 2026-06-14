@@ -44,7 +44,7 @@ export interface Product {
   materials: string;
   materials_ar?: string;
   materials_en?: string;
-  weight?: number;
+  weight?: string | number;
   stock?: number;
   images: string[];
   featured?: boolean;

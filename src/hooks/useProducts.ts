@@ -16,8 +16,8 @@ export interface DbProduct {
   long_description_ar?: string | null;
   long_description_en?: string | null;
   materials: string | null;
-  weight: number | null;
-  weight_prices: { weight: number; price: number }[] | null;
+  weight: string | number | null;
+  weight_prices: { weight: string | number; price: number }[] | null;
   stock: number;
   active: boolean;
   visible: boolean;
@@ -74,8 +74,8 @@ export function useAddProduct() {
       description?: string;
       long_description?: string;
       materials?: string;
-      weight?: number;
-      weight_prices?: { weight: number; price: number }[];
+      weight?: string | number;
+      weight_prices?: { weight: string | number; price: number }[];
       stock?: number;
       active?: boolean;
       visible?: boolean;
@@ -125,7 +125,7 @@ export function useUpdateProduct() {
   return useMutation({
     mutationFn: async (input: {
       id: string;
-      updates: Partial<{ active: boolean; cost_price: number | null; description: string | null; description_ar: string | null; description_en: string | null; featured: boolean | null; is_new: boolean | null; long_description: string | null; long_description_ar: string | null; long_description_en: string | null; materials: string | null; materials_ar: string | null; materials_en: string | null; name: string; name_ar: string | null; name_en: string | null; original_price: number | null; price: number; slug: string; stock: number; visible: boolean; weight: number | null; weight_prices: { weight: number; price: number }[] | null; flavors: string[] | null; flavors_ar: string[] | null; flavors_en: string[] | null }>;
+      updates: Partial<{ active: boolean; cost_price: number | null; description: string | null; description_ar: string | null; description_en: string | null; featured: boolean | null; is_new: boolean | null; long_description: string | null; long_description_ar: string | null; long_description_en: string | null; materials: string | null; materials_ar: string | null; materials_en: string | null; name: string; name_ar: string | null; name_en: string | null; original_price: number | null; price: number; slug: string; stock: number; visible: boolean; weight: string | number | null; weight_prices: { weight: string | number; price: number }[] | null; flavors: string[] | null; flavors_ar: string[] | null; flavors_en: string[] | null }>;
       images?: string[];
       category_ids?: string[];
     }) => {

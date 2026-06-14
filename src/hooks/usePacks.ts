@@ -26,12 +26,15 @@ export interface DbPackItem {
   pack_id: string;
   product_id: string;
   quantity: number;
+  selected_weight?: string | null;
   product_name?: string;
   product_image?: string;
   product_price?: number;
   product_flavors?: string[];
   product_flavors_ar?: string[];
   product_flavors_en?: string[];
+  product_weight?: string | number | null;
+  product_weight_prices?: { weight: string | number; price: number }[] | null;
 }
 
 async function fetchPacks(): Promise<DbPack[]> {
@@ -43,6 +46,7 @@ async function fetchPacks(): Promise<DbPack[]> {
         *,
         product:products(
           id, name, price, slug,
+          weight, weight_prices,
           flavors, flavors_ar, flavors_en,
           images:product_images(image_url, position)
         )
@@ -67,6 +71,8 @@ async function fetchPacks(): Promise<DbPack[]> {
       product_flavors: item.product?.flavors || [],
       product_flavors_ar: item.product?.flavors_ar || [],
       product_flavors_en: item.product?.flavors_en || [],
+      product_weight: item.product?.weight || null,
+      product_weight_prices: item.product?.weight_prices || null,
     })),
   })) as unknown as DbPack[];
 }
@@ -85,7 +91,7 @@ export function useAddPack() {
     mutationFn: async (input: {
       name: string; slug: string; description: string; long_description: string;
       price: number; image: string; active: boolean; featured: boolean;
-      product_ids: string[];
+      items: { product_id: string; quantity: number; selected_weight?: string | null }[];
       name_ar?: string;
       name_en?: string;
       description_ar?: string;
@@ -93,7 +99,7 @@ export function useAddPack() {
       long_description_ar?: string;
       long_description_en?: string;
     }) => {
-      const { product_ids, ...packData } = input;
+      const { items, ...packData } = input;
       const { data, error } = await supabase
         .from("packs")
         .insert(packData)
@@ -101,9 +107,14 @@ export function useAddPack() {
         .single();
       if (error) throw error;
 
-      if (product_ids.length > 0 && data) {
-        const items = product_ids.map((pid) => ({ pack_id: data.id, product_id: pid, quantity: 1 }));
-        const { error: itemsError } = await supabase.from("pack_items").insert(items);
+      if (items.length > 0 && data) {
+        const packItems = items.map((i) => ({ 
+          pack_id: data.id, 
+          product_id: i.product_id, 
+          quantity: i.quantity,
+          selected_weight: i.selected_weight || null
+        }));
+        const { error: itemsError } = await supabase.from("pack_items").insert(packItems);
         if (itemsError) throw itemsError;
       }
       return data;
@@ -118,7 +129,7 @@ export function useUpdatePack() {
     mutationFn: async (input: {
       id: string;
       updates: { name: string; slug: string; description: string; long_description: string; price: number; image: string; active: boolean; featured: boolean; name_ar?: string | null; name_en?: string | null; description_ar?: string | null; description_en?: string | null; long_description_ar?: string | null; long_description_en?: string | null };
-      product_ids: string[];
+      items: { product_id: string; quantity: number; selected_weight?: string | null }[];
     }) => {
       const { error } = await supabase
         .from("packs")
@@ -127,9 +138,14 @@ export function useUpdatePack() {
       if (error) throw error;
 
       await supabase.from("pack_items").delete().eq("pack_id", input.id);
-      if (input.product_ids.length > 0) {
-        const items = input.product_ids.map((pid) => ({ pack_id: input.id, product_id: pid, quantity: 1 }));
-        await supabase.from("pack_items").insert(items);
+      if (input.items.length > 0) {
+        const packItems = input.items.map((i) => ({ 
+          pack_id: input.id, 
+          product_id: i.product_id, 
+          quantity: i.quantity,
+          selected_weight: i.selected_weight || null
+        }));
+        await supabase.from("pack_items").insert(packItems);
       }
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["packs"] }),

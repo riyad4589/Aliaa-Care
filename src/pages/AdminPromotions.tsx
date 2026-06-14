@@ -49,6 +49,7 @@ const defaultForm = {
   product_ids: [] as string[],
   category_ids: [] as string[],
   pack_ids: [] as string[],
+  target_weights: {} as Record<string, string[]>,
   active: true,
 };
 
@@ -108,6 +109,7 @@ const AdminPromotions = () => {
           product_ids: p.product_ids || [],
           category_ids: p.category_ids || [],
           pack_ids: p.pack_ids || [],
+          target_weights: (p.target_weights as Record<string, string[]>) || {},
           active: p.active,
         });
       }
@@ -166,6 +168,7 @@ const AdminPromotions = () => {
       product_ids: form.target_type === "specific_products" ? form.product_ids : [],
       category_ids: (form.target_type === "specific_categories" || form.target_type === "all_categories") ? form.category_ids : [],
       pack_ids: form.target_type === "specific_packs" ? form.pack_ids : [],
+      target_weights: form.target_type === "specific_products" ? form.target_weights : null,
       active: form.active,
     };
     try {
@@ -526,14 +529,53 @@ const AdminPromotions = () => {
 
                 <div className="bg-muted/10 border border-border rounded-lg p-3 min-h-[300px]">
                   {form.target_type === "specific_products" && (
-                    <div className="space-y-1 max-h-[350px] overflow-y-auto">
-                      {products.map(p => (
-                        <label key={p.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-2 rounded-md transition-colors">
-                          <Checkbox checked={form.product_ids.includes(p.id)}
-                            onCheckedChange={() => toggleProductId(p.id)} />
-                          <span className="truncate">{p.name}</span>
-                        </label>
-                      ))}
+                    <div className="space-y-3 max-h-[350px] overflow-y-auto">
+                      {products.map(p => {
+                        const isChecked = form.product_ids.includes(p.id);
+                        const weights = p.weight_prices && p.weight_prices.length > 0
+                          ? p.weight_prices.map(wp => String(wp.weight))
+                          : (p.weight ? [String(p.weight)] : []);
+                        const selectedWeights = form.target_weights?.[p.id] || [];
+
+                        return (
+                          <div key={p.id} className="border border-border/40 rounded p-2 bg-background/50 space-y-2">
+                            <label className="flex items-center gap-3 text-sm cursor-pointer">
+                              <Checkbox 
+                                checked={isChecked}
+                                onCheckedChange={() => toggleProductId(p.id)} 
+                              />
+                              <span className="truncate font-medium">{p.name}</span>
+                            </label>
+                            {isChecked && weights.length > 0 && (
+                              <div className="pl-6 pt-1 flex flex-wrap gap-3">
+                                {weights.map(w => {
+                                  const isWeightChecked = selectedWeights.includes(w);
+                                  return (
+                                    <label key={w} className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
+                                      <Checkbox
+                                        checked={isWeightChecked}
+                                        onCheckedChange={(checked) => {
+                                          const newWeights = checked
+                                            ? [...selectedWeights, w]
+                                            : selectedWeights.filter(sw => sw !== w);
+                                          setForm(f => ({
+                                            ...f,
+                                            target_weights: {
+                                              ...f.target_weights,
+                                              [p.id]: newWeights
+                                            }
+                                          }));
+                                        }}
+                                      />
+                                      <span>{w}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
 

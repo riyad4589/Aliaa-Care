@@ -10,7 +10,7 @@ export interface OrderItem {
   unit_price: number;
   selected_flavors?: string[];
   pack_item_flavors?: Record<string, string[]>;
-  selected_weight?: number;
+  selected_weight?: string | number;
 }
 
 export interface OrderData {
@@ -63,7 +63,10 @@ export const sendOrderWhatsAppNotification = async (
   
   const itemsList = items
     .map((item) => {
-      const nameWithWeight = item.selected_weight ? `${item.product_name} (${item.selected_weight}g)` : item.product_name;
+      const formattedWeight = item.selected_weight
+        ? (/^\d+(\.\d+)?$/.test(String(item.selected_weight).trim()) ? `${item.selected_weight}g` : item.selected_weight)
+        : "";
+      const nameWithWeight = formattedWeight ? `${item.product_name} (${formattedWeight})` : item.product_name;
       let text = `• ${item.quantity}x ${nameWithWeight} (${item.unit_price} DH)`;
       
       if (item.selected_flavors && item.selected_flavors.length > 0) {

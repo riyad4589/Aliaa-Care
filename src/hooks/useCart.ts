@@ -6,15 +6,15 @@ export interface CartItem {
   product: Product;
   quantity: number;
   selectedFlavors?: string[];
-  selectedWeight?: number;
+  selectedWeight?: string | number;
   packItemFlavors?: Record<string, string[]>; // product_id -> array of flavors
 }
 
 interface CartState {
   items: CartItem[];
-  addItem: (product: Product, quantity?: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>, selectedWeight?: number) => void;
-  updateQuantity: (productId: string, quantity: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>, selectedWeight?: number) => void;
-  removeItem: (productId: string, selectedWeight?: number) => void;
+  addItem: (product: Product, quantity?: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>, selectedWeight?: string | number) => void;
+  updateQuantity: (productId: string, quantity: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>, selectedWeight?: string | number) => void;
+  removeItem: (productId: string, selectedWeight?: string | number) => void;
   clearCart: () => void;
   getSubtotal: () => number;
   getItemCount: () => number;
@@ -72,7 +72,7 @@ export const useCart = create<CartState>()(
         });
       },
 
-      updateQuantity: (productId: string, quantity: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>, selectedWeight?: number) => {
+      updateQuantity: (productId: string, quantity: number, selectedFlavors?: string[], packItemFlavors?: Record<string, string[]>, selectedWeight?: string | number) => {
         if (quantity < 1) {
           get().removeItem(productId, selectedWeight);
           return;
@@ -109,7 +109,7 @@ export const useCart = create<CartState>()(
         }));
       },
 
-      removeItem: (productId: string, selectedWeight?: number) => {
+      removeItem: (productId: string, selectedWeight?: string | number) => {
         set((state) => ({
           items: state.items.filter((item) => !(item.product.id === productId && item.selectedWeight === selectedWeight)),
         }));

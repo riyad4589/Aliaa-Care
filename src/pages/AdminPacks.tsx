@@ -34,7 +34,7 @@ interface EditingPack {
   image: string;
   active: boolean;
   featured: boolean;
-  product_ids: string[];
+  items: { product_id: string; quantity: number; selected_weight?: string | null }[];
   name_ar: string;
   name_en: string;
   description_ar: string;
@@ -45,9 +45,20 @@ interface EditingPack {
 
 const emptyPack: EditingPack = {
   name: "", slug: "", description: "", long_description: "",
-  price: 0, image: "/placeholder.svg", active: true, featured: false, product_ids: [],
+  price: 0, image: "/placeholder.svg", active: true, featured: false, items: [],
   name_ar: "", name_en: "", description_ar: "", description_en: "",
   long_description_ar: "", long_description_en: "",
+};
+
+const getProductPriceForWeight = (
+  prod: { price: number; weight_prices?: { weight: string | number; price: number }[] | null },
+  selectedWeight: string | null | undefined
+) => {
+  if (selectedWeight && prod.weight_prices && prod.weight_prices.length > 0) {
+    const found = prod.weight_prices.find((wp) => String(wp.weight) === String(selectedWeight));
+    if (found) return found.price;
+  }
+  return prod.price;
 };
 
 const AdminPacks = () => {
@@ -85,16 +96,20 @@ const AdminPacks = () => {
     }
 
     if (action === "new") {
-      setEditing({ ...emptyPack });
+      setEditing({ ...emptyPack, items: [] });
     } else if (action === "edit" && id && packs.length > 0) {
       const p = packs.find(p => p.id === id);
       if (p) {
-        const productIds = (p.items || []).map((i) => i.product_id).filter(Boolean);
+        const packItems = (p.items || []).map((i) => ({ 
+          product_id: i.product_id, 
+          quantity: i.quantity || 1,
+          selected_weight: i.selected_weight || null
+        })).filter(i => i.product_id);
         setEditing({
           id: p.id, name: p.name, slug: p.slug, description: p.description,
           long_description: p.long_description, price: p.price, image: p.image,
           active: p.active, featured: p.featured,
-          product_ids: productIds,
+          items: packItems,
           name_ar: p.name_ar || "",
           name_en: p.name_en || "",
           description_ar: p.description_ar || "",
@@ -138,10 +153,28 @@ const AdminPacks = () => {
 
   const toggleProduct = (pid: string) => {
     if (!editing) return;
-    const ids = editing.product_ids.includes(pid)
-      ? editing.product_ids.filter((id) => id !== pid)
-      : [...editing.product_ids, pid];
-    setEditing({ ...editing, product_ids: ids });
+    const exists = editing.items.some((item) => item.product_id === pid);
+    let updatedItems;
+    if (exists) {
+      updatedItems = editing.items.filter((item) => item.product_id !== pid);
+    } else {
+      const prod = products.find(p => p.id === pid);
+      const defaultWeight = prod?.weight_prices?.[0]?.weight || prod?.weight || null;
+      updatedItems = [...editing.items, { 
+        product_id: pid, 
+        quantity: 1, 
+        selected_weight: defaultWeight ? String(defaultWeight) : null 
+      }];
+    }
+    setEditing({ ...editing, items: updatedItems });
+  };
+
+  const updateProductWeight = (pid: string, weight: string) => {
+    if (!editing) return;
+    const updatedItems = editing.items.map((item) =>
+      item.product_id === pid ? { ...item, selected_weight: weight } : item
+    );
+    setEditing({ ...editing, items: updatedItems });
   };
 
   const handleDelete = async () => {
@@ -174,7 +207,7 @@ const AdminPacks = () => {
   };
 
   const handleSave = async () => {
-    if (!editing?.name || !editing.price || editing.product_ids.length === 0) {
+    if (!editing?.name || !editing.price || editing.items.length === 0) {
       toast({ title: "Erreur", description: "Remplissez nom, prix et sélectionnez des produits", variant: "destructive" });
       return;
     }
@@ -200,14 +233,14 @@ const AdminPacks = () => {
             long_description_ar: editing.long_description_ar,
             long_description_en: editing.long_description_en,
           },
-          product_ids: editing.product_ids,
+          items: editing.items,
         });
         toast({ title: "Pack mis à jour" });
       } else {
         await addPack.mutateAsync({
           name: editing.name, slug, description: editing.description, long_description: editing.long_description,
           price: editing.price, image: editing.image, active: editing.active, featured: editing.featured,
-          product_ids: editing.product_ids,
+          items: editing.items,
           name_ar: editing.name_ar,
           name_en: editing.name_en,
           description_ar: editing.description_ar,
@@ -307,7 +340,7 @@ const AdminPacks = () => {
                       </div>
                     </td>
                     <td className="p-3 text-muted-foreground text-xs">
-                      {p.items.map((i) => i.product_name).join(", ")}
+                      {p.items.map((i) => `${i.product_name}${i.selected_weight ? ` (${i.selected_weight})` : ""}`).join(", ")}
                     </td>
                     <td className="p-3 text-right font-medium">{p.price} DH</td>
                     <td className="p-3 text-center">
@@ -529,15 +562,15 @@ const AdminPacks = () => {
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-medium">Produits inclus dans le pack *</label>
                     <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">
-                      {editing.product_ids.length} sélectionné(s)
+                      {editing.items.length} sélectionné(s)
                     </span>
                   </div>
 
-                  <div className="space-y-2 max-h-[350px] overflow-y-auto border border-border rounded-lg p-3 bg-muted/10">
+                  <div className="space-y-2 max-h-[250px] overflow-y-auto border border-border rounded-lg p-3 bg-muted/10">
                     {products.filter(p => p.active).map((p) => (
                       <label key={p.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-2 rounded-md transition-colors border border-transparent hover:border-border">
                         <Checkbox
-                          checked={editing.product_ids.includes(p.id)}
+                          checked={editing.items.some((i) => i.product_id === p.id)}
                           onCheckedChange={() => toggleProduct(p.id)}
                         />
                         <div className="relative w-10 h-10 rounded overflow-hidden border border-border shrink-0">
@@ -551,18 +584,74 @@ const AdminPacks = () => {
                     ))}
                   </div>
 
-                  {editing.product_ids.length > 0 && (
+                  {/* Weights for selected products */}
+                  {editing.items.length > 0 && (
+                    <div className="space-y-3 pt-2">
+                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Poids des produits</label>
+                      <div className="space-y-2 border border-border rounded-lg p-3 bg-muted/5 max-h-[200px] overflow-y-auto">
+                        {editing.items.map((item) => {
+                          const prod = products.find(p => p.id === item.product_id);
+                          if (!prod) return null;
+                          return (
+                            <div key={item.product_id} className="flex items-center justify-between gap-4 p-2 bg-background rounded-md border border-border">
+                              <div className="flex items-center gap-3 min-w-0">
+                                <img src={prod.images[0] || "/placeholder.svg"} className="w-8 h-8 rounded object-cover shrink-0" />
+                                <div className="min-w-0">
+                                  <p className="text-xs font-medium truncate">{prod.name}</p>
+                                  <p className="text-[10px] text-muted-foreground">
+                                    {getProductPriceForWeight(prod, item.selected_weight)} DH
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className="text-[10px] text-muted-foreground">Poids :</span>
+                                {(() => {
+                                  const weights = prod.weight_prices && prod.weight_prices.length > 0
+                                    ? prod.weight_prices.map(wp => String(wp.weight))
+                                    : (prod.weight ? [String(prod.weight)] : []);
+                                  if (weights.length === 0) {
+                                    return <span className="text-xs text-muted-foreground">Aucun</span>;
+                                  }
+                                  return (
+                                    <select
+                                      value={item.selected_weight || weights[0] || ""}
+                                      onChange={(e) => updateProductWeight(item.product_id, e.target.value)}
+                                      className="border border-input bg-background rounded px-2 py-1 text-xs focus:ring-1 focus:ring-ring focus:outline-none"
+                                    >
+                                      {weights.map((w) => (
+                                        <option key={w} value={w}>{w}</option>
+                                      ))}
+                                    </select>
+                                  );
+                                })()}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {editing.items.length > 0 && (
                     <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
                       <div className="flex justify-between items-center text-xs">
                         <span className="text-muted-foreground">Valeur totale des produits :</span>
                         <span className="font-bold line-through text-muted-foreground/70">
-                          {products.filter(p => editing.product_ids.includes(p.id)).reduce((s, p) => s + p.price, 0)} DH
+                          {editing.items.reduce((s, item) => {
+                            const prod = products.find(p => p.id === item.product_id);
+                            if (!prod) return s;
+                            return s + getProductPriceForWeight(prod, item.selected_weight) * (item.quantity || 1);
+                          }, 0)} DH
                         </span>
                       </div>
                       <div className="flex justify-between items-center text-sm mt-1">
                         <span className="font-medium text-primary">Économie réalisée :</span>
                         <span className="font-bold text-primary">
-                          {products.filter(p => editing.product_ids.includes(p.id)).reduce((s, p) => s + p.price, 0) - editing.price} DH
+                          {editing.items.reduce((s, item) => {
+                            const prod = products.find(p => p.id === item.product_id);
+                            if (!prod) return s;
+                            return s + getProductPriceForWeight(prod, item.selected_weight) * (item.quantity || 1);
+                          }, 0) - editing.price} DH
                         </span>
                       </div>
                     </div>
