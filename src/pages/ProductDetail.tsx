@@ -248,11 +248,11 @@ const ProductDetail = () => {
                 );
               })()}
               <div className="w-12 h-px bg-border mb-8" />
-              <p className="text-muted-foreground leading-[1.8] mb-10">{getTranslated(product, "longDescription", lang)}</p>
+              <p className="text-muted-foreground leading-normal mb-10 whitespace-pre-wrap">{getTranslated(product, "longDescription", lang)}</p>
               <div className="space-y-5 mb-10 pb-10 border-b border-border">
                 <div>
                   <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-1.5">{t("productDetail.ingredients")}</span>
-                  <span className="text-sm text-foreground">{getTranslated(product, "materials", lang)}</span>
+                  <span className="text-sm text-foreground whitespace-pre-wrap">{getTranslated(product, "materials", lang)}</span>
                 </div>
                  {product.weight_prices && product.weight_prices.length > 1 ? (
                   <div>

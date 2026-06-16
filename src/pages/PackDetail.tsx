@@ -158,7 +158,7 @@ const PackDetail = () => {
               )}
             </div>
             <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-4">{getTranslated(pack, "name", lang)}</h1>
-            <p className="text-muted-foreground leading-relaxed mb-6">{getTranslated(pack, "long_description", lang) || getTranslated(pack, "description", lang)}</p>
+            <p className="text-muted-foreground leading-normal mb-6 whitespace-pre-wrap">{getTranslated(pack, "long_description", lang) || getTranslated(pack, "description", lang)}</p>
             <div className="flex items-baseline gap-4 mb-8">
               {discount > 0 ? (
                 <>
