@@ -9,7 +9,7 @@ const translations = {
   "common.cart": { fr: "Panier", en: "Cart", ar: "السلة" },
   "common.viewAll": { fr: "Tout Voir", en: "View All", ar: "عرض الكل" },
   "common.discover": { fr: "Découvrir", en: "Discover", ar: "اكتشفي" },
-  "common.addToCart": { fr: "Ajouter au Panier", en: "Add to Cart", ar: "أضيفي إلى السلة" },
+  "common.addToCart": { fr: "Ajouter au Panier", en: "Add to Cart", ar: "أضيف إلى السلة" },
   "common.add": { fr: "Ajouter", en: "Add", ar: "أضف" },
   "common.viewProduct": { fr: "Voir le Produit", en: "View Product", ar: "عرض المنتج" },
   "common.explore": { fr: "Explorer", en: "Explore", ar: "استكشفي" },
@@ -144,13 +144,13 @@ const translations = {
 
   // Product detail
   "productDetail.notFound": { fr: "Produit Introuvable", en: "Product Not Found", ar: "المنتج غير موجود" },
-  "productDetail.notFoundDesc": { fr: "Le produit que vous recherchez n'existe pas.", en: "The product you're looking for doesn't exist.", ar: "المنتج الذي تبحثين عنه غير موجود." },
+  "productDetail.notFoundDesc": { fr: "Le produit que vous recherchez n'existe pas.", en: "The product you're looking for doesn't exist.", ar: "المنتج الذي تبحث عنه غير موجود." },
   "productDetail.ingredients": { fr: "Ingrédients", en: "Ingredients", ar: "المكونات" },
   "productDetail.addedToCart": { fr: "Ajouté au panier", en: "Added to cart", ar: "تمت الإضافة إلى السلة" },
   "productDetail.addedToFavorites": { fr: "Ajouté aux favoris", en: "Added to favorites", ar: "تمت الإضافة إلى المفضلة" },
   "productDetail.removedFromFavorites": { fr: "Retiré des favoris", en: "Removed from favorites", ar: "تمت الإزالة من المفضلة" },
   "productDetail.saved": { fr: "Sauvegardé", en: "Saved", ar: "محفوظ" },
-  "productDetail.addToFavorites": { fr: "Ajouter aux Favoris", en: "Add to Favorites", ar: "أضيفي إلى المفضلة" },
+  "productDetail.addToFavorites": { fr: "Ajouter aux Favoris", en: "Add to Favorites", ar: "أضيف إلى المفضلة" },
   "productDetail.freeShipping": { fr: "Livraison offerte dès 500 DH", en: "Free shipping from 500 DH", ar: "شحن مجاني ابتداءً من 500 درهم" },
   "productDetail.shipping": { fr: "Livraison", en: "Shipping", ar: "التوصيل" },
 

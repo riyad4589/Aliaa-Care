@@ -28,7 +28,7 @@ const PackDetail = () => {
   const { toast } = useToast();
   const { t, lang } = useT();
   const [quantity, setQuantity] = useState(1);
-  const [selectedPackFlavors, setSelectedPackFlavors] = useState<Record<string, string[]>>({});
+  const [selectedPackFlavors, setSelectedPackFlavors] = useState<Record<number, Record<string, string[]>>>({});
 
   const pack = packs?.find((p) => p.slug === slug && p.active);
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
@@ -89,7 +89,7 @@ const PackDetail = () => {
         longDescription: getTranslated(pack, "long_description", lang),
         materials: "",
         images: [firstImage],
-        packItemFlavors: selectedPackFlavors,
+        packItemFlavors: selectedPackFlavors[i] || {},
       });
     }
     toast({ title: t("pack.addedToCart"), description: `${getTranslated(pack, "name", lang)} x${quantity}` });
@@ -198,34 +198,53 @@ const PackDetail = () => {
                       
                       {/* Flavor selection for pack items */}
                       {item.product_flavors && item.product_flavors.length > 0 && (
-                        <div className="mt-3 space-y-2">
-                          {Array.from({ length: item.quantity }).map((_, i) => {
-                            const currentFlavors = getTranslated(item, "product_flavors", lang) as string[];
-                            if (!currentFlavors || currentFlavors.length === 0) return null;
-                            
-                            const selections = selectedPackFlavors[item.product_name || ""] || [];
-                            const currentVal = selections[i] || currentFlavors[0];
+                        <div className="mt-3 space-y-3">
+                          {Array.from({ length: quantity }).map((_, packIdx) => (
+                            <div key={packIdx} className="space-y-1.5 border-t border-border/40 pt-2 first:border-0 first:pt-0">
+                              {quantity > 1 && (
+                                <span className="text-[9px] font-bold uppercase tracking-wider text-primary block">
+                                  Pack {packIdx + 1}
+                                </span>
+                              )}
+                              {Array.from({ length: item.quantity || 1 }).map((_, i) => {
+                                const currentFlavors = getTranslated(item, "product_flavors", lang) as string[];
+                                if (!currentFlavors || currentFlavors.length === 0) return null;
+                                
+                                const packSelections = selectedPackFlavors[packIdx] || {};
+                                const selections = packSelections[item.product_name || ""] || [];
+                                const currentVal = selections[i] || currentFlavors[0];
 
-                            return (
-                              <div key={i} className="flex flex-col gap-1">
-                                {item.quantity > 1 && <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Unité {i + 1}</span>}
-                                <select
-                                  className="w-full bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer rounded"
-                                  value={currentVal}
-                                  onChange={(e) => {
-                                    const newSelections = [...selections];
-                                    while (newSelections.length <= i) newSelections.push(currentFlavors[0]);
-                                    newSelections[i] = e.target.value;
-                                    setSelectedPackFlavors({ ...selectedPackFlavors, [item.product_name || ""]: newSelections });
-                                  }}
-                                >
-                                  {currentFlavors.map((f) => (
-                                    <option key={f} value={f}>{f}</option>
-                                  ))}
-                                </select>
-                              </div>
-                            );
-                          })}
+                                return (
+                                  <div key={i} className="flex flex-col gap-1">
+                                    {item.quantity > 1 && (
+                                      <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Unité {i + 1}</span>
+                                    )}
+                                    <select
+                                      className="w-full bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer rounded"
+                                      value={currentVal}
+                                      onChange={(e) => {
+                                        const newSelections = [...selections];
+                                        while (newSelections.length <= i) newSelections.push(currentFlavors[0]);
+                                        newSelections[i] = e.target.value;
+                                        
+                                        setSelectedPackFlavors({
+                                          ...selectedPackFlavors,
+                                          [packIdx]: {
+                                            ...packSelections,
+                                            [item.product_name || ""]: newSelections
+                                          }
+                                        });
+                                      }}
+                                    >
+                                      {currentFlavors.map((f) => (
+                                        <option key={f} value={f}>{f}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>
