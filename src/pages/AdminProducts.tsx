@@ -738,18 +738,6 @@ const AdminProducts = () => {
                       <Input value={editingProduct.name_en} onChange={(e) => setEditingProduct({ ...editingProduct, name_en: e.target.value })} />
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Ingrédients (Arabe)</label>
-                      <Input dir="rtl" value={editingProduct.materials_ar} onChange={(e) => setEditingProduct({ ...editingProduct, materials_ar: e.target.value })} />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Ingrédients (Anglais)</label>
-                      <Input value={editingProduct.materials_en} onChange={(e) => setEditingProduct({ ...editingProduct, materials_en: e.target.value })} />
-                    </div>
-                  </div>
-
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium mb-1.5 block">Description courte (Arabe)</label>
