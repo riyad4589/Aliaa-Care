@@ -130,7 +130,7 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
             <h3 className="font-serif text-xl text-foreground group-hover:text-primary transition-colors leading-snug">{getTranslated(product, "name", lang)}</h3>
           </div>
           
-          <p className="text-sm text-muted-foreground/80 line-clamp-2 leading-relaxed h-10 italic">
+          <p className="text-sm text-muted-foreground/80 leading-relaxed italic">
             {getTranslated(product, "description", lang)}
           </p>
           
