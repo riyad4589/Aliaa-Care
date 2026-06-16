@@ -262,7 +262,7 @@ const AdminOrders = () => {
 
           <div className="flex items-center gap-4 w-full sm:w-auto">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-[180px] h-10">
+              <SelectTrigger className="w-full sm:w-[180px] h-10 sm:-translate-x-3">
                 <SelectValue placeholder="Filtrer par statut" />
               </SelectTrigger>
               <SelectContent>

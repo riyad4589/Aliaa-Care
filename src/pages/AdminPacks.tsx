@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -22,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Package, Loader2, Search, X, AlertTriangle, Upload, ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Package, Loader2, Search, X, AlertTriangle, Upload, ImageIcon, Globe } from "lucide-react";
 
 interface EditingPack {
   id?: string;
@@ -79,6 +80,7 @@ const AdminPacks = () => {
   const [packToDelete, setPackToDelete] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [productSearch, setProductSearch] = useState("");
 
   // Sync dialog state with URL
   const dialogOpen = searchParams.get("action") === "edit" || searchParams.get("action") === "new";
@@ -412,256 +414,366 @@ const AdminPacks = () => {
           </DialogHeader>
           {editing && (
             <div className="space-y-6 pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Left Column: Details */}
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Nom du pack *</label>
-                    <Input value={editing.name} onChange={(e) => setEditing({ ...editing, name: e.target.value })} placeholder="Ex: Pack Rituel Matinal" />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Prix du pack (DH) *</label>
-                    <Input type="number" value={editing.price} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })} />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Description courte</label>
-                    <Textarea value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} rows={2} />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Left Column: Details & Products Selection */}
+                <div className="lg:col-span-5 space-y-6">
+                  {/* General Info */}
+                  <div className="p-4 border border-border rounded-lg bg-muted/20 space-y-4">
+                    <h3 className="font-semibold text-xs tracking-wider uppercase text-muted-foreground flex items-center gap-2">
+                      <Package className="w-4 h-4" /> Informations Générales
+                    </h3>
+                    
                     <div>
-                      <label className="text-sm font-medium mb-1.5 block">Nom (Arabe)</label>
-                      <Input dir="rtl" value={editing.name_ar} onChange={(e) => setEditing({ ...editing, name_ar: e.target.value })} />
+                      <label className="text-sm font-medium mb-1.5 block">Nom du pack (Français) *</label>
+                      <Input 
+                        value={editing.name} 
+                        onChange={(e) => {
+                          const name = e.target.value;
+                          const slug = name.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+                          setEditing({ ...editing, name, slug });
+                        }} 
+                        placeholder="Ex: Pack Rituel Matinal" 
+                      />
                     </div>
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Nom (Anglais)</label>
-                      <Input value={editing.name_en} onChange={(e) => setEditing({ ...editing, name_en: e.target.value })} />
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Description courte (Arabe)</label>
-                      <Textarea dir="rtl" value={editing.description_ar} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} rows={2} />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Description courte (Anglais)</label>
-                      <Textarea value={editing.description_en} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} rows={2} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Description longue</label>
-                    <Textarea value={editing.long_description} onChange={(e) => setEditing({ ...editing, long_description: e.target.value })} rows={4} />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Description longue (Arabe)</label>
-                      <Textarea dir="rtl" value={editing.long_description_ar} onChange={(e) => setEditing({ ...editing, long_description_ar: e.target.value })} rows={3} />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Description longue (Anglais)</label>
-                      <Textarea value={editing.long_description_en} onChange={(e) => setEditing({ ...editing, long_description_en: e.target.value })} rows={3} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Image du pack</label>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        setUploading(true);
-                        try {
-                          const compressed = await compressImage(file);
-                          const path = `packs/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-                          const { error } = await supabase.storage.from("product-images").upload(path, compressed, {
-                            contentType: "image/webp",
-                          });
-                          if (error) throw error;
-                          const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-                          setEditing({ ...editing, image: data.publicUrl });
-                          toast({ title: "Image uploadée" });
-                        } catch (err) {
-                          toast({ title: "Erreur", description: "Impossible d'uploader l'image", variant: "destructive" });
-                        } finally {
-                          setUploading(false);
-                          if (fileInputRef.current) fileInputRef.current.value = "";
-                        }
-                      }}
-                    />
-                    {editing.image && editing.image !== "/placeholder.svg" ? (
-                      <div className="relative w-full h-40 rounded-lg overflow-hidden border border-border bg-muted/10 group">
-                        <img 
-                          src={editing.image} 
-                          alt="Aperçu" 
-                          className="w-full h-full object-cover"
-                          onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="secondary"
-                            disabled={uploading}
-                            onClick={() => fileInputRef.current?.click()}
-                          >
-                            {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-                            Changer
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => setEditing({ ...editing, image: "/placeholder.svg" })}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium mb-1.5 block">Prix du pack (DH) *</label>
+                        <Input type="number" value={editing.price === 0 ? "" : editing.price} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })} placeholder="0" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-1.5 block">Statut</label>
+                        <div className="flex flex-col gap-2 pt-1">
+                          <label className="flex items-center gap-2 text-xs cursor-pointer">
+                            <Checkbox checked={editing.active} onCheckedChange={(v) => setEditing({ ...editing, active: !!v })} />
+                            <span>Pack actif</span>
+                          </label>
+                          <label className="flex items-center gap-2 text-xs cursor-pointer">
+                            <Checkbox checked={editing.featured} onCheckedChange={(v) => setEditing({ ...editing, featured: !!v })} />
+                            <span>Mettre en vedette</span>
+                          </label>
                         </div>
                       </div>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled={uploading}
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-full h-40 rounded-lg border-2 border-dashed border-border hover:border-primary/50 bg-muted/10 hover:bg-muted/20 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground"
-                      >
-                        {uploading ? (
-                          <Loader2 className="w-6 h-6 animate-spin" />
-                        ) : (
-                          <>
-                            <ImageIcon className="w-8 h-8" />
-                            <span className="text-sm">Cliquez pour ajouter une image</span>
-                          </>
-                        )}
-                      </button>
-                    )}
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-6 p-3 bg-muted/30 rounded-lg border border-border">
-                    <label className="flex items-center gap-2 text-sm cursor-pointer">
-                      <Checkbox checked={editing.featured} onCheckedChange={(v) => setEditing({ ...editing, featured: !!v })} />
-                      Mettre en vedette
-                    </label>
-                    <label className="flex items-center gap-2 text-sm cursor-pointer">
-                      <Checkbox checked={editing.active} onCheckedChange={(v) => setEditing({ ...editing, active: !!v })} />
-                      Pack actif
-                    </label>
+                  {/* Image */}
+                  <div className="p-4 border border-border rounded-lg bg-muted/20 space-y-4">
+                    <h3 className="font-semibold text-xs tracking-wider uppercase text-muted-foreground">
+                      Image du pack
+                    </h3>
+                    <div>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          setUploading(true);
+                          try {
+                            const compressed = await compressImage(file);
+                            const path = `packs/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+                            const { error } = await supabase.storage.from("product-images").upload(path, compressed, {
+                              contentType: "image/webp",
+                            });
+                            if (error) throw error;
+                            const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+                            setEditing({ ...editing, image: data.publicUrl });
+                            toast({ title: "Image uploadée" });
+                          } catch (err) {
+                            toast({ title: "Erreur", description: "Impossible d'uploader l'image", variant: "destructive" });
+                          } finally {
+                            setUploading(false);
+                            if (fileInputRef.current) fileInputRef.current.value = "";
+                          }
+                        }}
+                      />
+                      {editing.image && editing.image !== "/placeholder.svg" ? (
+                        <div className="relative w-full h-40 rounded-lg overflow-hidden border border-border bg-muted/10 group">
+                          <img 
+                            src={editing.image} 
+                            alt="Aperçu" 
+                            className="w-full h-full object-cover"
+                            onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="secondary"
+                              disabled={uploading}
+                              onClick={() => fileInputRef.current?.click()}
+                            >
+                              {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                              Changer
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => setEditing({ ...editing, image: "/placeholder.svg" })}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={uploading}
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-full h-40 rounded-lg border-2 border-dashed border-border hover:border-primary/50 bg-muted/10 hover:bg-muted/20 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground"
+                        >
+                          {uploading ? (
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                          ) : (
+                            <>
+                              <ImageIcon className="w-8 h-8" />
+                              <span className="text-sm">Cliquez pour ajouter une image</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Products Selection */}
+                  <div className="p-4 border border-border rounded-lg bg-muted/20 space-y-4">
+                    <div className="flex items-center justify-between border-b border-border pb-2">
+                      <h3 className="font-semibold text-xs tracking-wider uppercase text-muted-foreground">
+                        Produits inclus *
+                      </h3>
+                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">
+                        {editing.items.length} sélectionné(s)
+                      </span>
+                    </div>
+
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                      <Input
+                        placeholder="Rechercher un produit..."
+                        value={productSearch}
+                        onChange={(e) => setProductSearch(e.target.value)}
+                        className="pl-9 h-9 text-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                      />
+                      {productSearch && (
+                        <button 
+                          type="button"
+                          onClick={() => setProductSearch("")} 
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="space-y-2 max-h-[200px] overflow-y-auto border border-border rounded-lg p-3 bg-muted/10">
+                      {products
+                        .filter(p => p.active)
+                        .filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase()))
+                        .map((p) => (
+                          <label key={p.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-2 rounded-md transition-colors border border-transparent hover:border-border">
+                            <Checkbox
+                              checked={editing.items.some((i) => i.product_id === p.id)}
+                              onCheckedChange={() => toggleProduct(p.id)}
+                            />
+                            <div className="relative w-8 h-8 rounded overflow-hidden border border-border shrink-0">
+                              <img src={p.images[0] || "/placeholder.svg"} alt={p.name} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate text-xs">{p.name}</p>
+                              <p className="text-[10px] text-muted-foreground">{p.price} DH</p>
+                            </div>
+                          </label>
+                        ))}
+                      {products.filter(p => p.active).filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase())).length === 0 && (
+                        <p className="text-center text-xs text-muted-foreground py-4">Aucun produit trouvé</p>
+                      )}
+                    </div>
+
+                    {/* Weights for selected products */}
+                    {editing.items.length > 0 && (
+                      <div className="space-y-2 pt-2">
+                        <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Poids des produits</label>
+                        <div className="space-y-2 border border-border rounded-lg p-3 bg-muted/5 max-h-[160px] overflow-y-auto">
+                          {editing.items.map((item) => {
+                            const prod = products.find(p => p.id === item.product_id);
+                            if (!prod) return null;
+                            return (
+                              <div key={item.product_id} className="flex items-center justify-between gap-4 p-2 bg-background rounded-md border border-border">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <img src={prod.images[0] || "/placeholder.svg"} className="w-7 h-7 rounded object-cover shrink-0" />
+                                  <div className="min-w-0">
+                                    <p className="text-[11px] font-medium truncate">{prod.name}</p>
+                                    <p className="text-[9px] text-muted-foreground">
+                                      {getProductPriceForWeight(prod, item.selected_weight)} DH
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <span className="text-[9px] text-muted-foreground">Poids :</span>
+                                  {(() => {
+                                    const weights = prod.weight_prices && prod.weight_prices.length > 0
+                                      ? prod.weight_prices.map(wp => String(wp.weight))
+                                      : (prod.weight ? [String(prod.weight)] : []);
+                                    if (weights.length === 0) {
+                                      return <span className="text-[10px] text-muted-foreground">Aucun</span>;
+                                    }
+                                    return (
+                                      <select
+                                        value={item.selected_weight || weights[0] || ""}
+                                        onChange={(e) => updateProductWeight(item.product_id, e.target.value)}
+                                        className="border border-input bg-background rounded px-1.5 py-0.5 text-[11px] focus:ring-1 focus:ring-primary/20 focus:border-primary focus:outline-none"
+                                      >
+                                        {weights.map((w) => (
+                                          <option key={w} value={w}>{w}</option>
+                                        ))}
+                                      </select>
+                                    );
+                                  })()}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Summary */}
+                    {editing.items.length > 0 && (
+                      <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-muted-foreground">Valeur totale des produits :</span>
+                          <span className="font-bold line-through text-muted-foreground/70">
+                            {editing.items.reduce((s, item) => {
+                              const prod = products.find(p => p.id === item.product_id);
+                              if (!prod) return s;
+                              return s + getProductPriceForWeight(prod, item.selected_weight) * (item.quantity || 1);
+                            }, 0)} DH
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs mt-1">
+                          <span className="font-medium text-primary">Économie réalisée :</span>
+                          <span className="font-bold text-primary">
+                            {editing.items.reduce((s, item) => {
+                              const prod = products.find(p => p.id === item.product_id);
+                              if (!prod) return s;
+                              return s + getProductPriceForWeight(prod, item.selected_weight) * (item.quantity || 1);
+                            }, 0) - editing.price} DH
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Right Column: Products Selection */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium">Produits inclus dans le pack *</label>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">
-                      {editing.items.length} sélectionné(s)
-                    </span>
-                  </div>
-
-                  <div className="space-y-2 max-h-[250px] overflow-y-auto border border-border rounded-lg p-3 bg-muted/10">
-                    {products.filter(p => p.active).map((p) => (
-                      <label key={p.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-2 rounded-md transition-colors border border-transparent hover:border-border">
-                        <Checkbox
-                          checked={editing.items.some((i) => i.product_id === p.id)}
-                          onCheckedChange={() => toggleProduct(p.id)}
-                        />
-                        <div className="relative w-10 h-10 rounded overflow-hidden border border-border shrink-0">
-                          <img src={p.images[0] || "/placeholder.svg"} alt={p.name} className="w-full h-full object-cover" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{p.name}</p>
-                          <p className="text-[11px] text-muted-foreground">{p.price} DH</p>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-
-                  {/* Weights for selected products */}
-                  {editing.items.length > 0 && (
-                    <div className="space-y-3 pt-2">
-                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Poids des produits</label>
-                      <div className="space-y-2 border border-border rounded-lg p-3 bg-muted/5 max-h-[200px] overflow-y-auto">
-                        {editing.items.map((item) => {
-                          const prod = products.find(p => p.id === item.product_id);
-                          if (!prod) return null;
-                          return (
-                            <div key={item.product_id} className="flex items-center justify-between gap-4 p-2 bg-background rounded-md border border-border">
-                              <div className="flex items-center gap-3 min-w-0">
-                                <img src={prod.images[0] || "/placeholder.svg"} className="w-8 h-8 rounded object-cover shrink-0" />
-                                <div className="min-w-0">
-                                  <p className="text-xs font-medium truncate">{prod.name}</p>
-                                  <p className="text-[10px] text-muted-foreground">
-                                    {getProductPriceForWeight(prod, item.selected_weight)} DH
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                <span className="text-[10px] text-muted-foreground">Poids :</span>
-                                {(() => {
-                                  const weights = prod.weight_prices && prod.weight_prices.length > 0
-                                    ? prod.weight_prices.map(wp => String(wp.weight))
-                                    : (prod.weight ? [String(prod.weight)] : []);
-                                  if (weights.length === 0) {
-                                    return <span className="text-xs text-muted-foreground">Aucun</span>;
-                                  }
-                                  return (
-                                    <select
-                                      value={item.selected_weight || weights[0] || ""}
-                                      onChange={(e) => updateProductWeight(item.product_id, e.target.value)}
-                                      className="border border-input bg-background rounded px-2 py-1 text-xs focus:ring-1 focus:ring-ring focus:outline-none"
-                                    >
-                                      {weights.map((w) => (
-                                        <option key={w} value={w}>{w}</option>
-                                      ))}
-                                    </select>
-                                  );
-                                })()}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
+                {/* Right Column: Localized content & Translations */}
+                <div className="lg:col-span-7 space-y-6">
+                  <div className="p-4 border border-border rounded-lg bg-muted/20 space-y-4">
+                    <div className="flex items-center justify-between border-b border-border pb-2">
+                      <h3 className="font-semibold text-xs tracking-wider uppercase text-muted-foreground flex items-center gap-2">
+                        <Globe className="w-4 h-4" /> Traductions & Descriptions
+                      </h3>
                     </div>
-                  )}
 
-                  {editing.items.length > 0 && (
-                    <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="text-muted-foreground">Valeur totale des produits :</span>
-                        <span className="font-bold line-through text-muted-foreground/70">
-                          {editing.items.reduce((s, item) => {
-                            const prod = products.find(p => p.id === item.product_id);
-                            if (!prod) return s;
-                            return s + getProductPriceForWeight(prod, item.selected_weight) * (item.quantity || 1);
-                          }, 0)} DH
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm mt-1">
-                        <span className="font-medium text-primary">Économie réalisée :</span>
-                        <span className="font-bold text-primary">
-                          {editing.items.reduce((s, item) => {
-                            const prod = products.find(p => p.id === item.product_id);
-                            if (!prod) return s;
-                            return s + getProductPriceForWeight(prod, item.selected_weight) * (item.quantity || 1);
-                          }, 0) - editing.price} DH
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                    <Tabs defaultValue="fr" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/60 p-1 rounded-lg">
+                        <TabsTrigger value="fr" className="rounded-md text-xs py-2 font-medium">Français (FR)</TabsTrigger>
+                        <TabsTrigger value="ar" className="rounded-md text-xs py-2 font-medium">العربية (AR)</TabsTrigger>
+                        <TabsTrigger value="en" className="rounded-md text-xs py-2 font-medium">English (EN)</TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent value="fr" className="space-y-4 mt-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Description courte (Français) *</label>
+                          <Textarea 
+                            value={editing.description} 
+                            onChange={(e) => setEditing({ ...editing, description: e.target.value })} 
+                            placeholder="Saisissez une description courte du pack..."
+                            rows={3} 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Description longue (Français)</label>
+                          <Textarea 
+                            value={editing.long_description} 
+                            onChange={(e) => setEditing({ ...editing, long_description: e.target.value })} 
+                            placeholder="Saisissez la description complète du pack..."
+                            rows={7} 
+                          />
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="ar" className="space-y-4 mt-0 focus-visible:ring-0 focus-visible:ring-offset-0" dir="rtl">
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block text-right font-medium">اسم المنتج (بالعربية)</label>
+                          <Input 
+                            value={editing.name_ar} 
+                            onChange={(e) => setEditing({ ...editing, name_ar: e.target.value })} 
+                            placeholder="اسم الباقة بالعربية..."
+                            className="text-right"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block text-right font-medium">الوصف القصير (بالعربية)</label>
+                          <Textarea 
+                            value={editing.description_ar} 
+                            onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} 
+                            placeholder="اكتب وصفاً قصيراً للباقة..."
+                            rows={3}
+                            className="text-right"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block text-right font-medium">الوصف التفصيلي (بالعربية)</label>
+                          <Textarea 
+                            value={editing.long_description_ar} 
+                            onChange={(e) => setEditing({ ...editing, long_description_ar: e.target.value })} 
+                            placeholder="اكتب وصفاً مفصلاً للباقة..."
+                            rows={7}
+                            className="text-right"
+                          />
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="en" className="space-y-4 mt-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Pack Name (English)</label>
+                          <Input 
+                            value={editing.name_en} 
+                            onChange={(e) => setEditing({ ...editing, name_en: e.target.value })} 
+                            placeholder="Pack name in English..."
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Short Description (English)</label>
+                          <Textarea 
+                            value={editing.description_en} 
+                            onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} 
+                            placeholder="Enter a brief description..."
+                            rows={3} 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Long Description (English)</label>
+                          <Textarea 
+                            value={editing.long_description_en} 
+                            onChange={(e) => setEditing({ ...editing, long_description_en: e.target.value })} 
+                            placeholder="Enter the full description..."
+                            rows={7} 
+                          />
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-6 border-t border-border">
-                <Button variant="outline" className="flex-1 rounded-none" onClick={() => setDialogOpen(false)}>Annuler</Button>
-                <Button onClick={handleSave} disabled={saving} className="flex-1 rounded-none gap-2">
+              <div className="flex gap-3 pt-4 border-t border-border">
+                <Button variant="outline" className="flex-1 rounded-none h-11" onClick={() => setDialogOpen(false)}>Annuler</Button>
+                <Button onClick={handleSave} disabled={saving} className="flex-1 rounded-none h-11 gap-2">
                   {saving && <Loader2 className="w-4 h-4 animate-spin" />}
                   {editing.id ? "Mettre à jour le pack" : "Créer le pack"}
                 </Button>

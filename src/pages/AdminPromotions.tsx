@@ -24,7 +24,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Zap, Tag, Percent, ShoppingCart, Star, Loader2, AlertTriangle, Search, Calendar, Clock } from "lucide-react";
+import { Plus, Pencil, Trash2, Zap, Tag, Percent, ShoppingCart, Star, Loader2, AlertTriangle, Search, Calendar, Clock, Check, ChevronsUpDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 
 const PROMO_TYPES = [
   { value: "percentage", label: "Réduction %", icon: Percent },
@@ -44,6 +46,7 @@ const defaultForm = {
   buy_quantity: 2,
   get_quantity: 1,
   get_product_id: "" as string | null,
+  buy_product_id: "" as string,
   tier_rules: [{ min_qty: 3, discount_percent: 10 }, { min_qty: 5, discount_percent: 20 }] as TierRule[],
   target_type: "all",
   product_ids: [] as string[],
@@ -71,6 +74,8 @@ const AdminPromotions = () => {
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [promoToDelete, setPromoToDelete] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [productXSearchOpen, setProductXSearchOpen] = useState(false);
+  const [productYSearchOpen, setProductYSearchOpen] = useState(false);
 
   // Sync dialog state with URL
   const dialogOpen = searchParams.get("action") === "edit" || searchParams.get("action") === "new";
@@ -104,6 +109,9 @@ const AdminPromotions = () => {
           buy_quantity: p.buy_quantity || 2,
           get_quantity: p.get_quantity || 1,
           get_product_id: p.get_product_id || "",
+          buy_product_id: p.type === "buy_x_get_y"
+            ? ((p.product_ids && p.product_ids.length > 0) ? p.product_ids[0] : ((p.pack_ids && p.pack_ids.length > 0) ? p.pack_ids[0] : ""))
+            : "",
           tier_rules: p.tier_rules || [{ min_qty: 3, discount_percent: 10 }],
           target_type: p.target_type,
           product_ids: p.product_ids || [],
@@ -146,6 +154,23 @@ const AdminPromotions = () => {
 
   const filtered = promotions.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
 
+  const selectableItems = [
+    ...products.map(p => ({
+      id: p.id,
+      name: p.name,
+      type: "product" as const,
+      image: p.images?.[0] || "/placeholder.svg",
+      label: `[Produit] ${p.name}`
+    })),
+    ...packs.map(p => ({
+      id: p.id,
+      name: p.name,
+      type: "pack" as const,
+      image: p.image || "/placeholder.svg",
+      label: `[Pack] ${p.name}`
+    }))
+  ];
+
 
 
   const handleSave = async () => {
@@ -153,6 +178,15 @@ const AdminPromotions = () => {
       toast({ title: "Le nom est requis", variant: "destructive" });
       return;
     }
+    const isBuyXGetY = form.type === "buy_x_get_y";
+    if (isBuyXGetY && !form.buy_product_id) {
+      toast({ title: "Le produit ou pack acheté (X) est requis", variant: "destructive" });
+      return;
+    }
+
+    const selectedXIsPack = isBuyXGetY && packs.some(pk => pk.id === form.buy_product_id);
+    const selectedYIsPack = isBuyXGetY && packs.some(pk => pk.id === form.get_product_id);
+
     const payload = {
       name: form.name,
       type: form.type,
@@ -160,15 +194,19 @@ const AdminPromotions = () => {
       starts_at: new Date(form.starts_at).toISOString(),
       ends_at: new Date(form.ends_at).toISOString(),
       is_flash: form.type === "flash",
-      buy_quantity: form.type === "buy_x_get_y" ? form.buy_quantity : null,
-      get_quantity: form.type === "buy_x_get_y" ? form.get_quantity : null,
-      get_product_id: form.type === "buy_x_get_y" && form.get_product_id ? form.get_product_id : null,
+      buy_quantity: isBuyXGetY ? form.buy_quantity : null,
+      get_quantity: isBuyXGetY ? form.get_quantity : null,
+      get_product_id: isBuyXGetY && form.get_product_id ? form.get_product_id : null,
       tier_rules: form.type === "tiered" ? form.tier_rules : null,
-      target_type: form.target_type,
-      product_ids: form.target_type === "specific_products" ? form.product_ids : [],
-      category_ids: (form.target_type === "specific_categories" || form.target_type === "all_categories") ? form.category_ids : [],
-      pack_ids: form.target_type === "specific_packs" ? form.pack_ids : [],
-      target_weights: form.target_type === "specific_products" ? form.target_weights : null,
+      target_type: isBuyXGetY ? (selectedXIsPack ? "specific_packs" : "specific_products") : form.target_type,
+      product_ids: isBuyXGetY
+        ? (!selectedXIsPack && form.buy_product_id ? [form.buy_product_id] : [])
+        : (form.target_type === "specific_products" ? form.product_ids : []),
+      category_ids: (!isBuyXGetY && (form.target_type === "specific_categories" || form.target_type === "all_categories")) ? form.category_ids : [],
+      pack_ids: isBuyXGetY
+        ? (selectedXIsPack && form.buy_product_id ? [form.buy_product_id] : [])
+        : (form.target_type === "specific_packs" ? form.pack_ids : []),
+      target_weights: (!isBuyXGetY && form.target_type === "specific_products") ? form.target_weights : null,
       active: form.active,
     };
     try {
@@ -398,245 +436,517 @@ const AdminPromotions = () => {
         >
           <DialogHeader>
             <DialogTitle className="font-serif text-2xl">{editing ? "Modifier la promotion" : "Nouvelle promotion"}</DialogTitle>
-            <DialogDescription>
-              Configurez les détails et les règles de votre promotion ci-dessous.
-            </DialogDescription>
+             <DialogDescription>
+               Configurez les détails et les règles de votre promotion ci-dessous.
+             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 pt-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Left Column: Rules & Config */}
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Nom de la promotion *</label>
-                  <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ex: Black Friday -30%" />
-                </div>
+              <div className="space-y-6">
+                {/* General Info */}
+                <div className="p-4 border border-border rounded-lg bg-muted/20 space-y-4">
+                  <h3 className="font-semibold text-xs tracking-wider uppercase text-muted-foreground flex items-center gap-2">
+                    <Tag className="w-4 h-4" /> Détails de la Promotion
+                  </h3>
+                  
+                  <div>
+                    <label className="text-sm font-medium mb-1.5 block">Nom de la promotion *</label>
+                    <Input 
+                      value={form.name} 
+                      onChange={(e) => setForm({ ...form, name: e.target.value })} 
+                      placeholder="Ex: Black Friday -30%" 
+                      className="h-10 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                      spellCheck={false}
+                    />
+                  </div>
 
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Type de promotion</label>
-                  <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v, is_flash: v === "flash" })}>
-                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {PROMO_TYPES.map(t => (
-                        <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="p-4 bg-muted/20 rounded-lg border border-border">
-                  {(form.type === "percentage" || form.type === "flash" || form.type === "product_of_day") && (
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-sm font-medium mb-1.5 block">Réduction (%)</label>
-                      <Input type="number" min={1} max={100} value={form.discount_percent}
-                        onChange={(e) => setForm({ ...form, discount_percent: Number(e.target.value) })} />
+                      <label className="text-sm font-medium mb-1.5 block">Type de promotion</label>
+                      <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v, is_flash: v === "flash" })}>
+                        <SelectTrigger className="h-10 focus:ring-1 focus:ring-primary/20 focus:border-primary"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {PROMO_TYPES.map(t => (
+                            <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                  )}
-
-                  {form.type === "buy_x_get_y" && (
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-sm font-medium mb-1.5 block">Acheter X</label>
-                        <Input type="number" min={1} value={form.buy_quantity}
-                          onChange={(e) => setForm({ ...form, buy_quantity: Number(e.target.value) })} />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium mb-1.5 block">Offrir Y</label>
-                        <Input type="number" min={1} value={form.get_quantity}
-                          onChange={(e) => setForm({ ...form, get_quantity: Number(e.target.value) })} />
-                      </div>
-                    </div>
-                  )}
-
-                  {form.type === "tiered" && (
-                    <div className="space-y-3">
-                      <label className="text-sm font-medium block">Paliers de réduction</label>
-                      <div className="space-y-2">
-                        {form.tier_rules.map((rule, i) => (
-                          <div key={i} className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground shrink-0">Dès</span>
-                            <Input type="number" min={1} value={rule.min_qty} className="w-16 h-8 text-xs"
-                              onChange={(e) => updateTierRule(i, "min_qty", Number(e.target.value))} />
-                            <span className="text-xs text-muted-foreground shrink-0">art. →</span>
-                            <Input type="number" min={1} max={100} value={rule.discount_percent} className="w-16 h-8 text-xs"
-                              onChange={(e) => updateTierRule(i, "discount_percent", Number(e.target.value))} />
-                            <span className="text-xs text-muted-foreground shrink-0">%</span>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive shrink-0"
-                              onClick={() => removeTierRule(i)}><Trash2 className="w-3 h-3" /></Button>
-                          </div>
-                        ))}
-                      </div>
-                      <Button variant="outline" size="sm" onClick={addTierRule} className="text-[10px] h-7 w-full border-dashed">+ Ajouter un palier</Button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 p-4 bg-muted/20 rounded-xl border border-border/50">
-                  <div className="space-y-3">
-                    <label className="text-xs font-semibold tracking-wider uppercase text-muted-foreground flex items-center gap-2">
-                      <Calendar className="w-3 h-3 text-primary" />
-                      Période de validité
-                    </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <span className="text-[10px] text-muted-foreground ml-1">Date de début</span>
-                        <div className="relative group">
-                          <Input 
-                            type="datetime-local" 
-                            value={form.starts_at}
-                            onChange={(e) => setForm({ ...form, starts_at: e.target.value })}
-                            className="h-10 pl-3 bg-background border-border/50 transition-all focus:border-primary focus:ring-1 focus:ring-primary/20"
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <span className="text-[10px] text-muted-foreground ml-1">Date de fin</span>
-                        <div className="relative group">
-                          <Input 
-                            type="datetime-local" 
-                            value={form.ends_at}
-                            onChange={(e) => setForm({ ...form, ends_at: e.target.value })}
-                            className="h-10 pl-3 bg-background border-border/50 transition-all focus:border-primary focus:ring-1 focus:ring-primary/20"
-                          />
-                        </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Statut</label>
+                      <div className="flex items-center h-10 gap-3 pl-1">
+                        <Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} />
+                        <span className="text-xs text-muted-foreground">{form.active ? "Active" : "Inactive"}</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border">
-                  <Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} />
-                  <span className="text-sm font-medium">Promotion active</span>
+                {/* Rules Details */}
+                <div className="p-4 border border-border rounded-lg bg-muted/20 space-y-4">
+                  <h3 className="font-semibold text-xs tracking-wider uppercase text-muted-foreground">
+                    Configuration des Règles
+                  </h3>
+
+                  <div className="p-4 bg-background rounded-lg border border-border space-y-3">
+                    {(form.type === "percentage" || form.type === "flash" || form.type === "product_of_day") && (
+                      <div>
+                        <label className="text-sm font-medium mb-1.5 block">Réduction (%)</label>
+                        <Input 
+                          type="number" 
+                          min={1} 
+                          max={100} 
+                          value={form.discount_percent}
+                          onChange={(e) => setForm({ ...form, discount_percent: Number(e.target.value) })} 
+                          className="h-10 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                        />
+                      </div>
+                    )}
+
+                    {form.type === "buy_x_get_y" && (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Produit / Pack X acheté *</label>
+                          <Popover open={productXSearchOpen} onOpenChange={setProductXSearchOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full h-10 px-3 justify-between font-normal focus:ring-1 focus:ring-primary/20 focus:border-primary border-border bg-background"
+                              >
+                                {form.buy_product_id ? (
+                                  (() => {
+                                    const selectedItem = selectableItems.find(item => item.id === form.buy_product_id);
+                                    return (
+                                      <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
+                                        <div className="w-6 h-6 rounded overflow-hidden border border-border shrink-0 bg-muted">
+                                          <img src={selectedItem?.image || "/placeholder.svg"} alt="" className="w-full h-full object-cover" />
+                                        </div>
+                                        <span className="truncate">{selectedItem?.label || "Sélection inconnue"}</span>
+                                      </div>
+                                    );
+                                  })()
+                                ) : (
+                                  <span className="text-muted-foreground">Choisir le produit ou pack acheté...</span>
+                                )}
+                                <ChevronsUpDown className="w-4 h-4 opacity-50 shrink-0 ml-2" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent 
+                              className="p-0 w-[320px] max-w-full" 
+                              align="start"
+                              onWheel={(e) => e.stopPropagation()}
+                            >
+                              <Command>
+                                <CommandInput placeholder="Rechercher un produit ou pack..." className="h-9" />
+                                <CommandList>
+                                  <CommandEmpty>Aucun article trouvé.</CommandEmpty>
+                                  <CommandGroup heading="Produits disponibles">
+                                    {selectableItems.filter(item => item.type === "product").map((p) => (
+                                      <CommandItem
+                                        key={p.id}
+                                        value={p.name}
+                                        onSelect={() => {
+                                          setForm({ ...form, buy_product_id: p.id });
+                                          setProductXSearchOpen(false);
+                                        }}
+                                        className="cursor-pointer flex items-center justify-between py-2"
+                                      >
+                                        <div className="flex items-center gap-3 overflow-hidden">
+                                          <div className="w-8 h-8 rounded overflow-hidden border border-border shrink-0 bg-muted">
+                                            <img src={p.image} alt="" className="w-full h-full object-cover" />
+                                          </div>
+                                          <span className="truncate font-medium text-xs">{p.name}</span>
+                                        </div>
+                                        {form.buy_product_id === p.id && (
+                                          <Check className="w-4 h-4 text-primary shrink-0 ml-2" />
+                                        )}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                  <CommandGroup heading="Packs disponibles">
+                                    {selectableItems.filter(item => item.type === "pack").map((p) => (
+                                      <CommandItem
+                                        key={p.id}
+                                        value={p.name}
+                                        onSelect={() => {
+                                          setForm({ ...form, buy_product_id: p.id });
+                                          setProductXSearchOpen(false);
+                                        }}
+                                        className="cursor-pointer flex items-center justify-between py-2"
+                                      >
+                                        <div className="flex items-center gap-3 overflow-hidden">
+                                          <div className="w-8 h-8 rounded overflow-hidden border border-border shrink-0 bg-muted">
+                                            <img src={p.image} alt="" className="w-full h-full object-cover" />
+                                          </div>
+                                          <span className="truncate font-medium text-xs">{p.name}</span>
+                                        </div>
+                                        {form.buy_product_id === p.id && (
+                                          <Check className="w-4 h-4 text-primary shrink-0 ml-2" />
+                                        )}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-sm font-medium mb-1.5 block">Acheter X (Quantité)</label>
+                            <Input 
+                              type="number" 
+                              min={1} 
+                              value={form.buy_quantity}
+                              onChange={(e) => setForm({ ...form, buy_quantity: Number(e.target.value) })} 
+                              className="h-10 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium mb-1.5 block">Offrir Y (Quantité)</label>
+                            <Input 
+                              type="number" 
+                              min={1} 
+                              value={form.get_quantity}
+                              onChange={(e) => setForm({ ...form, get_quantity: Number(e.target.value) })} 
+                              className="h-10 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Produit / Pack Y offert</label>
+                          <Popover open={productYSearchOpen} onOpenChange={setProductYSearchOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full h-10 px-3 justify-between font-normal focus:ring-1 focus:ring-primary/20 focus:border-primary border-border bg-background"
+                              >
+                                {form.get_product_id ? (
+                                  (() => {
+                                    const selectedItem = selectableItems.find(item => item.id === form.get_product_id);
+                                    return (
+                                      <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
+                                        <div className="w-6 h-6 rounded overflow-hidden border border-border shrink-0 bg-muted">
+                                          <img src={selectedItem?.image || "/placeholder.svg"} alt="" className="w-full h-full object-cover" />
+                                        </div>
+                                        <span className="truncate">{selectedItem?.label || "Sélection inconnue"}</span>
+                                      </div>
+                                    );
+                                  })()
+                                ) : (
+                                  <span className="text-muted-foreground">Aucun (Même produit X acheté)</span>
+                                )}
+                                <ChevronsUpDown className="w-4 h-4 opacity-50 shrink-0 ml-2" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent 
+                              className="p-0 w-[320px] max-w-full" 
+                              align="start"
+                              onWheel={(e) => e.stopPropagation()}
+                            >
+                              <Command>
+                                <CommandInput placeholder="Rechercher un produit ou pack..." className="h-9" />
+                                <CommandList>
+                                  <CommandEmpty>Aucun article trouvé.</CommandEmpty>
+                                  <CommandGroup>
+                                    <CommandItem
+                                      value="aucun meme produit x achete"
+                                      onSelect={() => {
+                                        setForm({ ...form, get_product_id: "" });
+                                        setProductYSearchOpen(false);
+                                      }}
+                                      className="cursor-pointer flex items-center justify-between py-2"
+                                    >
+                                      <span className="text-xs font-medium text-muted-foreground">Aucun (Même produit X acheté)</span>
+                                      {!form.get_product_id && (
+                                        <Check className="w-4 h-4 text-primary shrink-0 ml-2" />
+                                      )}
+                                    </CommandItem>
+                                  </CommandGroup>
+                                  <CommandGroup heading="Produits disponibles">
+                                    {selectableItems.filter(item => item.type === "product").map((p) => (
+                                      <CommandItem
+                                        key={p.id}
+                                        value={p.name}
+                                        onSelect={() => {
+                                          setForm({ ...form, get_product_id: p.id });
+                                          setProductYSearchOpen(false);
+                                        }}
+                                        className="cursor-pointer flex items-center justify-between py-2"
+                                      >
+                                        <div className="flex items-center gap-3 overflow-hidden">
+                                          <div className="w-8 h-8 rounded overflow-hidden border border-border shrink-0 bg-muted">
+                                            <img src={p.image} alt="" className="w-full h-full object-cover" />
+                                          </div>
+                                          <span className="truncate font-medium text-xs">{p.name}</span>
+                                        </div>
+                                        {form.get_product_id === p.id && (
+                                          <Check className="w-4 h-4 text-primary shrink-0 ml-2" />
+                                        )}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                  <CommandGroup heading="Packs disponibles">
+                                    {selectableItems.filter(item => item.type === "pack").map((p) => (
+                                      <CommandItem
+                                        key={p.id}
+                                        value={p.name}
+                                        onSelect={() => {
+                                          setForm({ ...form, get_product_id: p.id });
+                                          setProductYSearchOpen(false);
+                                        }}
+                                        className="cursor-pointer flex items-center justify-between py-2"
+                                      >
+                                        <div className="flex items-center gap-3 overflow-hidden">
+                                          <div className="w-8 h-8 rounded overflow-hidden border border-border shrink-0 bg-muted">
+                                            <img src={p.image} alt="" className="w-full h-full object-cover" />
+                                          </div>
+                                          <span className="truncate font-medium text-xs">{p.name}</span>
+                                        </div>
+                                        {form.get_product_id === p.id && (
+                                          <Check className="w-4 h-4 text-primary shrink-0 ml-2" />
+                                        )}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </div>
+                    )}
+
+                    {form.type === "tiered" && (
+                      <div className="space-y-3">
+                        <label className="text-sm font-medium block">Paliers de réduction</label>
+                        <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+                          {form.tier_rules.map((rule, i) => (
+                            <div key={i} className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground shrink-0">Dès</span>
+                              <Input 
+                                type="number" 
+                                min={1} 
+                                value={rule.min_qty} 
+                                className="w-16 h-8 text-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                                onChange={(e) => updateTierRule(i, "min_qty", Number(e.target.value))} 
+                              />
+                              <span className="text-xs text-muted-foreground shrink-0">art. →</span>
+                              <Input 
+                                type="number" 
+                                min={1} 
+                                max={100} 
+                                value={rule.discount_percent} 
+                                className="w-16 h-8 text-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                                onChange={(e) => updateTierRule(i, "discount_percent", Number(e.target.value))} 
+                              />
+                              <span className="text-xs text-muted-foreground shrink-0">%</span>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-destructive shrink-0 hover:bg-destructive/5 rounded-md"
+                                onClick={() => removeTierRule(i)}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                        <Button variant="outline" size="sm" onClick={addTierRule} className="text-[10px] h-8 w-full border-dashed rounded-md">+ Ajouter un palier</Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Period */}
+                <div className="p-4 border border-border rounded-lg bg-muted/20 space-y-4">
+                  <h3 className="font-semibold text-xs tracking-wider uppercase text-muted-foreground flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-primary" /> Période de validité
+                  </h3>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-muted-foreground ml-1">Date de début</span>
+                      <Input 
+                        type="datetime-local" 
+                        value={form.starts_at}
+                        onChange={(e) => setForm({ ...form, starts_at: e.target.value })}
+                        className="h-10 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <span className="text-[10px] text-muted-foreground ml-1">Date de fin</span>
+                      <Input 
+                        type="datetime-local" 
+                        value={form.ends_at}
+                        onChange={(e) => setForm({ ...form, ends_at: e.target.value })}
+                        className="h-10 focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Right Column: Targeting */}
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Cible de la promotion</label>
-                  <Select value={form.target_type} onValueChange={(v) => setForm({ ...form, target_type: v })}>
-                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tout (Boutique entière)</SelectItem>
-                      <SelectItem value="all_products">Tous les produits</SelectItem>
-                      <SelectItem value="all_packs">Tous les packs</SelectItem>
-                      <SelectItem value="all_categories">Toutes les catégories</SelectItem>
-                      <SelectItem value="specific_products">Produits spécifiques</SelectItem>
-                      <SelectItem value="specific_categories">Catégories spécifiques</SelectItem>
-                      <SelectItem value="specific_packs">Packs spécifiques</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-6">
+                <div className="p-4 border border-border rounded-lg bg-muted/20 space-y-4">
+                  <div className="flex items-center justify-between border-b border-border pb-2">
+                    <h3 className="font-semibold text-xs tracking-wider uppercase text-muted-foreground">
+                      Cible de la promotion
+                    </h3>
+                  </div>
 
-                <div className="bg-muted/10 border border-border rounded-lg p-3 min-h-[300px]">
-                  {form.target_type === "specific_products" && (
-                    <div className="space-y-3 max-h-[350px] overflow-y-auto">
-                      {products.map(p => {
-                        const isChecked = form.product_ids.includes(p.id);
-                        const weights = p.weight_prices && p.weight_prices.length > 0
-                          ? p.weight_prices.map(wp => String(wp.weight))
-                          : (p.weight ? [String(p.weight)] : []);
-                        const selectedWeights = form.target_weights?.[p.id] || [];
+                  <div className="space-y-4">
+                    <div>
+                      {form.type !== "buy_x_get_y" && (
+                        <>
+                          <label className="text-xs text-muted-foreground block mb-1">Type de cible</label>
+                          <Select value={form.target_type} onValueChange={(v) => setForm({ ...form, target_type: v })}>
+                            <SelectTrigger className="h-10 focus:ring-1 focus:ring-primary/20 focus:border-primary"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">Tout (Boutique entière)</SelectItem>
+                              <SelectItem value="all_products">Tous les produits</SelectItem>
+                              <SelectItem value="all_packs">Tous les packs</SelectItem>
+                              <SelectItem value="all_categories">Toutes les catégories</SelectItem>
+                              <SelectItem value="specific_products">Produits spécifiques</SelectItem>
+                              <SelectItem value="specific_categories">Catégories spécifiques</SelectItem>
+                              <SelectItem value="specific_packs">Packs spécifiques</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </>
+                      )}
+                    </div>
 
-                        return (
-                          <div key={p.id} className="border border-border/40 rounded p-2 bg-background/50 space-y-2">
-                            <label className="flex items-center gap-3 text-sm cursor-pointer">
-                              <Checkbox 
-                                checked={isChecked}
-                                onCheckedChange={() => toggleProductId(p.id)} 
-                              />
-                              <span className="truncate font-medium">{p.name}</span>
-                            </label>
-                            {isChecked && weights.length > 0 && (
-                              <div className="pl-6 pt-1 flex flex-wrap gap-3">
-                                {weights.map(w => {
-                                  const isWeightChecked = selectedWeights.includes(w);
-                                  return (
-                                    <label key={w} className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
-                                      <Checkbox
-                                        checked={isWeightChecked}
-                                        onCheckedChange={(checked) => {
-                                          const newWeights = checked
-                                            ? [...selectedWeights, w]
-                                            : selectedWeights.filter(sw => sw !== w);
-                                          setForm(f => ({
-                                            ...f,
-                                            target_weights: {
-                                              ...f.target_weights,
-                                              [p.id]: newWeights
-                                            }
-                                          }));
-                                        }}
-                                      />
-                                      <span>{w}</span>
-                                    </label>
-                                  );
-                                })}
+                    <div className="bg-muted/10 border border-border rounded-lg p-3 min-h-[300px]">
+                      {form.type === "buy_x_get_y" && (
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
+                          <ShoppingCart className="w-12 h-12 text-primary/30 mb-3 animate-pulse" />
+                          <p className="text-sm font-medium text-primary">Type "X acheté Y offert" sélectionné</p>
+                          <p className="text-xs text-muted-foreground mt-2 max-w-[280px] mx-auto">
+                            Le produit acheté (X), sa quantité, le produit offert (Y) et sa quantité sont configurés dans les règles à gauche.
+                          </p>
+                        </div>
+                      )}
+
+                      {form.type !== "buy_x_get_y" && form.target_type === "specific_products" && (
+                        <div className="space-y-3 max-h-[350px] overflow-y-auto">
+                          {products.map(p => {
+                            const isChecked = form.product_ids.includes(p.id);
+                            const weights = p.weight_prices && p.weight_prices.length > 0
+                              ? p.weight_prices.map(wp => String(wp.weight))
+                              : (p.weight ? [String(p.weight)] : []);
+                            const selectedWeights = form.target_weights?.[p.id] || [];
+
+                            return (
+                              <div key={p.id} className="border border-border/40 rounded p-2 bg-background/50 space-y-2">
+                                <label className="flex items-center gap-3 text-sm cursor-pointer">
+                                  <Checkbox 
+                                    checked={isChecked}
+                                    onCheckedChange={() => toggleProductId(p.id)} 
+                                  />
+                                  <div className="relative w-8 h-8 rounded overflow-hidden border border-border shrink-0 bg-muted">
+                                    <img src={p.images?.[0] || "/placeholder.svg"} alt={p.name} className="w-full h-full object-cover" />
+                                  </div>
+                                  <span className="truncate font-medium text-xs">{p.name}</span>
+                                </label>
+                                {isChecked && weights.length > 0 && (
+                                  <div className="pl-6 pt-1 flex flex-wrap gap-3">
+                                    {weights.map(w => {
+                                      const isWeightChecked = selectedWeights.includes(w);
+                                      return (
+                                        <label key={w} className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
+                                          <Checkbox
+                                            checked={isWeightChecked}
+                                            onCheckedChange={(checked) => {
+                                              const newWeights = checked
+                                                ? [...selectedWeights, w]
+                                                : selectedWeights.filter(sw => sw !== w);
+                                              setForm(f => ({
+                                                ...f,
+                                                target_weights: {
+                                                  ...f.target_weights,
+                                                  [p.id]: newWeights
+                                                }
+                                              }));
+                                            }}
+                                          />
+                                          <span>{w}</span>
+                                        </label>
+                                      );
+                                    })}
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                            );
+                          })}
+                        </div>
+                      )}
 
-                  {form.target_type === "specific_categories" && (
-                    <div className="space-y-1 max-h-[350px] overflow-y-auto">
-                      {categories.map(c => (
-                        <label key={c.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-2 rounded-md transition-colors">
-                          <Checkbox checked={form.category_ids.includes(c.id)}
-                            onCheckedChange={() => toggleCategoryId(c.id)} />
-                          <span className="truncate">{c.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
+                      {form.target_type === "specific_categories" && (
+                        <div className="space-y-1 max-h-[350px] overflow-y-auto">
+                          {categories.map(c => (
+                            <label key={c.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-2 rounded-md transition-colors">
+                              <Checkbox checked={form.category_ids.includes(c.id)}
+                                onCheckedChange={() => toggleCategoryId(c.id)} />
+                              <span className="truncate text-xs">{c.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
 
-                  {form.target_type === "specific_packs" && (
-                    <div className="space-y-1 max-h-[350px] overflow-y-auto">
-                      {packs.map(p => (
-                        <label key={p.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-2 rounded-md transition-colors">
-                          <Checkbox checked={form.pack_ids.includes(p.id)}
-                            onCheckedChange={() => togglePackId(p.id)} />
-                          <span className="truncate">{p.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  )}
+                      {form.target_type === "specific_packs" && (
+                        <div className="space-y-1 max-h-[350px] overflow-y-auto">
+                          {packs.map(p => (
+                            <label key={p.id} className="flex items-center gap-3 text-sm cursor-pointer hover:bg-background p-2 rounded-md transition-colors">
+                              <Checkbox checked={form.pack_ids.includes(p.id)}
+                                onCheckedChange={() => togglePackId(p.id)} />
+                              <span className="truncate text-xs">{p.name}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
 
-                  {form.target_type === "all" && (
-                    <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
-                      <Zap className="w-12 h-12 text-primary/30 mb-3" />
-                      <p className="text-sm text-muted-foreground">Cette promotion sera appliquée à TOUS les articles (produits et packs) sans exception.</p>
-                    </div>
-                  )}
+                      {form.target_type === "all" && (
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
+                          <Zap className="w-12 h-12 text-primary/30 mb-3" />
+                          <p className="text-xs text-muted-foreground">Cette promotion sera appliquée à TOUS les articles (produits et packs) sans exception.</p>
+                        </div>
+                      )}
 
-                  {form.target_type === "all_products" && (
-                    <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
-                      <Zap className="w-12 h-12 text-primary/30 mb-3" />
-                      <p className="text-sm text-muted-foreground">Cette promotion sera appliquée à tous les produits individuels (hors packs).</p>
-                    </div>
-                  )}
+                      {form.target_type === "all_products" && (
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
+                          <Zap className="w-12 h-12 text-primary/30 mb-3" />
+                          <p className="text-xs text-muted-foreground">Cette promotion sera appliquée à tous les produits individuels (hors packs).</p>
+                        </div>
+                      )}
 
-                  {form.target_type === "all_packs" && (
-                    <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
-                      <Zap className="w-12 h-12 text-primary/30 mb-3" />
-                      <p className="text-sm text-muted-foreground">Cette promotion sera appliquée à tous les packs de produits uniquement.</p>
-                    </div>
-                  )}
+                      {form.target_type === "all_packs" && (
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
+                          <Zap className="w-12 h-12 text-primary/30 mb-3" />
+                          <p className="text-xs text-muted-foreground">Cette promotion sera appliquée à tous les packs de produits uniquement.</p>
+                        </div>
+                      )}
 
-                  {form.target_type === "all_categories" && (
-                    <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
-                      <Zap className="w-12 h-12 text-primary/30 mb-3" />
-                      <p className="text-sm text-muted-foreground">Cette promotion sera appliquée à tous les produits qui appartiennent à au moins une catégorie.</p>
+                      {form.target_type === "all_categories" && (
+                        <div className="h-full flex flex-col items-center justify-center p-8 text-center mt-12">
+                          <Zap className="w-12 h-12 text-primary/30 mb-3" />
+                          <p className="text-xs text-muted-foreground">Cette promotion sera appliquée à tous les produits qui appartiennent à au moins une catégorie.</p>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="flex gap-3 pt-6 border-t border-border">
-              <Button variant="outline" className="flex-1 rounded-none" onClick={() => setDialogOpen(false)}>Annuler</Button>
-              <Button onClick={handleSave} className="flex-1 rounded-none h-11" disabled={createMut.isPending || updateMut.isPending}>
+              <Button variant="outline" className="flex-1 rounded-none h-11" onClick={() => setDialogOpen(false)}>Annuler</Button>
+              <Button onClick={handleSave} className="flex-1 rounded-none h-11 bg-primary text-primary-foreground hover:bg-primary/90" disabled={createMut.isPending || updateMut.isPending}>
                 {(createMut.isPending || updateMut.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {editing ? "Enregistrer les modifications" : "Créer la promotion"}
               </Button>

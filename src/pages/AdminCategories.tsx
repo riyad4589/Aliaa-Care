@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, FolderOpen, Loader2, Search, X, AlertTriangle, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderOpen, Loader2, Search, X, AlertTriangle, Upload, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage } from "@/utils/imageCompression";
 
@@ -403,102 +404,155 @@ const AdminCategories = () => {
           {editing && (
             <div className="space-y-6 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Left side: Text inputs */}
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-1.5 block">Nom de la Catégorie *</label>
-                    <Input 
-                      value={editing.name} 
-                      onChange={(e) => {
-                        const name = e.target.value;
-                        const slug = name.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-                        setEditing({ ...editing, name, slug });
-                      }} 
-                      placeholder="Ex: Soins du Visage" 
-                      className="h-11"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-1.5 block">Description</label>
-                    <Textarea 
-                      value={editing.description} 
-                      onChange={(e) => setEditing({ ...editing, description: e.target.value })} 
-                      rows={4} 
-                      placeholder="Décrivez les produits de cette catégorie..."
-                      className="resize-none"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
+                {/* Left Column: General Configuration */}
+                <div className="space-y-6">
+                  {/* General Info */}
+                  <div className="p-4 border border-border rounded-lg bg-muted/20 space-y-4">
+                    <h3 className="font-semibold text-xs tracking-wider uppercase text-muted-foreground flex items-center gap-2">
+                      <FolderOpen className="w-4 h-4" /> Informations Générales
+                    </h3>
+                    
                     <div>
-                      <label className="text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-1.5 block">Nom (Arabe)</label>
-                      <Input dir="rtl" value={editing.name_ar} onChange={(e) => setEditing({ ...editing, name_ar: e.target.value })} />
-                    </div>
-                    <div>
-                      <label className="text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-1.5 block">Nom (Anglais)</label>
-                      <Input value={editing.name_en} onChange={(e) => setEditing({ ...editing, name_en: e.target.value })} />
+                      <label className="text-sm font-medium mb-1.5 block">Nom de la Catégorie (Français) *</label>
+                      <Input 
+                        value={editing.name} 
+                        onChange={(e) => {
+                          const name = e.target.value;
+                          const slug = name.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+                          setEditing({ ...editing, name, slug });
+                        }} 
+                        placeholder="Ex: Soins du Visage" 
+                        className="h-10"
+                      />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-1.5 block">Description (Arabe)</label>
-                      <Textarea dir="rtl" value={editing.description_ar} onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} rows={3} />
-                    </div>
-                    <div>
-                      <label className="text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-1.5 block">Description (Anglais)</label>
-                      <Textarea value={editing.description_en} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} rows={3} />
+                  {/* Image Cover */}
+                  <div className="p-4 border border-border rounded-lg bg-muted/20 space-y-4">
+                    <h3 className="font-semibold text-xs tracking-wider uppercase text-muted-foreground">
+                      Image de couverture
+                    </h3>
+                    <div className="relative group border-2 border-dashed border-border rounded-xl bg-muted/10 p-4 flex flex-col items-center justify-center text-center transition-colors hover:bg-muted/20">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                      />
+                      
+                      {editing.image ? (
+                        <div className="relative w-full aspect-square max-w-[150px] rounded-lg overflow-hidden shadow-md border border-border group">
+                          <img src={editing.image} alt="Aperçu" className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Button 
+                              type="button" 
+                              variant="secondary" 
+                              size="sm" 
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={uploading}
+                            >
+                              Changer l'image
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="py-4 flex flex-col items-center">
+                          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3">
+                            <Upload className="w-6 h-6 text-muted-foreground/40" />
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-3">Aucune image sélectionnée</p>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={uploading}
+                            onClick={() => fileInputRef.current?.click()}
+                            className="gap-2 h-9 text-xs"
+                          >
+                            {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
+                            Choisir une image
+                          </Button>
+                        </div>
+                      )}
+                      <p className="text-[9px] text-muted-foreground mt-3 uppercase tracking-widest font-medium">Recommandé: 800x800px</p>
                     </div>
                   </div>
                 </div>
 
-                {/* Right side: Image upload */}
-                <div className="space-y-4">
-                  <label className="text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-1.5 block">Image de couverture</label>
-                  <div className="relative group border-2 border-dashed border-border rounded-xl bg-muted/10 p-4 flex flex-col items-center justify-center text-center transition-colors hover:bg-muted/20">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageUpload}
-                    />
-                    
-                    {editing.image ? (
-                      <div className="relative w-full aspect-square max-w-[180px] rounded-lg overflow-hidden shadow-lg border border-border group">
-                        <img src={editing.image} alt="Aperçu" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <Button 
-                            type="button" 
-                            variant="secondary" 
-                            size="sm" 
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={uploading}
-                          >
-                            Changer l'image
-                          </Button>
+                {/* Right Column: Localized content & Translations */}
+                <div className="space-y-6">
+                  <div className="p-4 border border-border rounded-lg bg-muted/20 space-y-4">
+                    <div className="flex items-center justify-between border-b border-border pb-2">
+                      <h3 className="font-semibold text-xs tracking-wider uppercase text-muted-foreground flex items-center gap-2">
+                        <Globe className="w-4 h-4" /> Traductions & Descriptions
+                      </h3>
+                    </div>
+
+                    <Tabs defaultValue="fr" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/60 p-1 rounded-lg">
+                        <TabsTrigger value="fr" className="rounded-md text-xs py-2 font-medium">Français (FR)</TabsTrigger>
+                        <TabsTrigger value="ar" className="rounded-md text-xs py-2 font-medium">العربية (AR)</TabsTrigger>
+                        <TabsTrigger value="en" className="rounded-md text-xs py-2 font-medium">English (EN)</TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent value="fr" className="space-y-4 mt-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Description (Français)</label>
+                          <Textarea 
+                            value={editing.description} 
+                            onChange={(e) => setEditing({ ...editing, description: e.target.value })} 
+                            rows={5} 
+                            placeholder="Décrivez les produits de cette catégorie en français..."
+                            className="resize-none"
+                          />
                         </div>
-                      </div>
-                    ) : (
-                      <div className="py-8 flex flex-col items-center">
-                        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                          <Upload className="w-8 h-8 text-muted-foreground/40" />
+                      </TabsContent>
+
+                      <TabsContent value="ar" className="space-y-4 mt-0 focus-visible:ring-0 focus-visible:ring-offset-0" dir="rtl">
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block text-right font-medium">اسم الفئة (بالعربية)</label>
+                          <Input 
+                            value={editing.name_ar} 
+                            onChange={(e) => setEditing({ ...editing, name_ar: e.target.value })} 
+                            placeholder="اسم الفئة بالعربية..."
+                            className="text-right h-10"
+                          />
                         </div>
-                        <p className="text-sm text-muted-foreground mb-4">Aucune image sélectionnée</p>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          disabled={uploading}
-                          onClick={() => fileInputRef.current?.click()}
-                          className="gap-2"
-                        >
-                          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                          Choisir une image
-                        </Button>
-                      </div>
-                    )}
-                    <p className="text-[10px] text-muted-foreground mt-4 uppercase tracking-widest font-medium">Recommandé: 800x800px</p>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block text-right font-medium">الوصف (بالعربية)</label>
+                          <Textarea 
+                            value={editing.description_ar} 
+                            onChange={(e) => setEditing({ ...editing, description_ar: e.target.value })} 
+                            rows={5} 
+                            placeholder="اكتب وصفاً لهذه الفئة بالعربية..."
+                            className="text-right resize-none"
+                          />
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="en" className="space-y-4 mt-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Category Name (English)</label>
+                          <Input 
+                            value={editing.name_en} 
+                            onChange={(e) => setEditing({ ...editing, name_en: e.target.value })} 
+                            placeholder="Category name in English..."
+                            className="h-10"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Description (English)</label>
+                          <Textarea 
+                            value={editing.description_en} 
+                            onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} 
+                            rows={5} 
+                            placeholder="Write category description in English..."
+                            className="resize-none"
+                          />
+                        </div>
+                      </TabsContent>
+                    </Tabs>
                   </div>
                 </div>
               </div>
