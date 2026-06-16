@@ -254,130 +254,149 @@ const ProductDetail = () => {
                   <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-1.5">{t("productDetail.ingredients")}</span>
                   <span className="text-sm text-foreground whitespace-pre-wrap">{getTranslated(product, "materials", lang)}</span>
                 </div>
-                 {product.weight_prices && product.weight_prices.length > 1 ? (
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
+                   {product.weight_prices && product.weight_prices.length > 1 ? (
+                    <div>
+                      <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-3">
+                        {lang === 'ar' ? "اختر الوزن" : lang === 'en' ? "Choose weight" : "Choisir le poids"}
+                      </span>
+                      <div className="flex flex-wrap gap-3">
+                        {product.weight_prices.map((wp) => (
+                          <button
+                            key={wp.weight}
+                            type="button"
+                            onClick={() => setSelectedWeight(wp.weight)}
+                            className={cn(
+                              "px-4 py-2 text-xs font-semibold tracking-wider uppercase border transition-all duration-300",
+                              String(selectedWeight) === String(wp.weight)
+                                ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                                : "border-border hover:border-foreground bg-transparent text-foreground"
+                            )}
+                          >
+                            {formatWeight(wp.weight)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    (product.weight || (product.weight_prices && product.weight_prices.length === 1)) && (
+                      <div>
+                        <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-1.5">{t("common.netWeight")}</span>
+                        <span className="text-sm text-foreground">
+                          {t("common.netWeight")} : {formatWeight(product.weight || product.weight_prices?.[0]?.weight)}
+                        </span>
+                      </div>
+                    )
+                  )}
+
                   <div>
                     <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-3">
-                      {lang === 'ar' ? "اختر الوزن" : lang === 'en' ? "Choose weight" : "Choisir le poids"}
+                      {lang === 'ar' ? "السعر" : lang === 'en' ? "Price" : "Prix"}
                     </span>
-                    <div className="flex flex-wrap gap-3">
-                      {product.weight_prices.map((wp) => (
-                        <button
-                          key={wp.weight}
-                          type="button"
-                          onClick={() => setSelectedWeight(wp.weight)}
-                          className={cn(
-                            "px-4 py-2 text-xs font-semibold tracking-wider uppercase border transition-all duration-300",
-                            String(selectedWeight) === String(wp.weight)
-                              ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                              : "border-border hover:border-foreground bg-transparent text-foreground"
-                          )}
-                        >
-                          {formatWeight(wp.weight)}
-                        </button>
-                      ))}
+                    <div className="text-2xl font-sans font-bold text-foreground">
+                      {discountedPrice.toLocaleString()}<span className="text-sm font-medium text-muted-foreground/70 ml-1.5">DH</span>
+                      {discount > 0 && (
+                        <span className="text-sm font-sans text-muted-foreground line-through opacity-60 ml-2">
+                          {basePrice.toLocaleString()} DH
+                        </span>
+                      )}
                     </div>
                   </div>
-                ) : (
-                  (product.weight || (product.weight_prices && product.weight_prices.length === 1)) && (
-                    <div>
-                      <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-1.5">{t("common.netWeight")}</span>
-                      <span className="text-sm text-foreground">
-                        {t("common.netWeight")} : {formatWeight(product.weight || product.weight_prices?.[0]?.weight)}
-                      </span>
+                </div>
+              </div>
+              <div className={cn("grid gap-6 mb-8", product.flavors && product.flavors.length > 0 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1")}>
+                <div>
+                  <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-3">{t("common.quantity")}</span>
+                  <QuantitySelector
+                    quantity={quantity}
+                    onQuantityChange={(q) => {
+                      setQuantity(q);
+                      const currentFlavors = getTranslated(product, "flavors", lang) as string[];
+                      if (currentFlavors && currentFlavors.length > 0) {
+                        const newFlavors = [...selectedFlavors];
+                        if (newFlavors.length < q) {
+                          const defaultFlavor = currentFlavors[0];
+                          while (newFlavors.length < q) newFlavors.push(defaultFlavor);
+                        } else if (newFlavors.length > q) {
+                          newFlavors.splice(q);
+                        }
+                        setSelectedFlavors(newFlavors);
+                      }
+                    }}
+                  />
+                </div>
+
+                {product.flavors && product.flavors.length > 0 && (
+                  <div className="space-y-4">
+                    <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-3">
+                      {lang === 'ar' ? (quantity > 1 ? "اختر النكهات" : "اختر النكهة") : 
+                       lang === 'en' ? (quantity > 1 ? "Choose flavors" : "Choose flavor") :
+                       (quantity > 1 ? "Choisir les goûts" : "Choisir le goût")}
+                    </span>
+                    <div className="grid gap-3">
+                      {(() => {
+                        const currentFlavors = getTranslated(product, "flavors", lang) as string[];
+                        return Array.from({ length: quantity }).map((_, i) => (
+                          <div key={i} className="flex flex-col gap-1.5">
+                            {quantity > 1 && <span className="text-[10px] text-muted-foreground">Unité {i + 1}</span>}
+                            <select
+                              className="w-full bg-background border border-border px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
+                              value={selectedFlavors[i] || currentFlavors[0]}
+                              onChange={(e) => {
+                                const newFlavors = [...selectedFlavors];
+                                if (newFlavors.length <= i) {
+                                  while (newFlavors.length <= i) newFlavors.push(currentFlavors[0]);
+                                }
+                                newFlavors[i] = e.target.value;
+                                setSelectedFlavors(newFlavors);
+                              }}
+                            >
+                              {currentFlavors.map((f) => (
+                                <option key={f} value={f}>{f}</option>
+                              ))}
+                            </select>
+                          </div>
+                        ));
+                      })()}
                     </div>
-                  )
+                  </div>
                 )}
               </div>
-              <div className="mb-6">
-                <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-3">{t("common.quantity")}</span>
-                <QuantitySelector
-                  quantity={quantity}
-                  onQuantityChange={(q) => {
-                    setQuantity(q);
-                    const currentFlavors = getTranslated(product, "flavors", lang) as string[];
-                    if (currentFlavors && currentFlavors.length > 0) {
-                      const newFlavors = [...selectedFlavors];
-                      if (newFlavors.length < q) {
-                        const defaultFlavor = currentFlavors[0];
-                        while (newFlavors.length < q) newFlavors.push(defaultFlavor);
-                      } else if (newFlavors.length > q) {
-                        newFlavors.splice(q);
-                      }
-                      setSelectedFlavors(newFlavors);
-                    }
-                  }}
-                />
-              </div>
+              <div className="flex flex-wrap sm:flex-nowrap gap-2 w-full">
+                <Button
+                  size="lg"
+                  onClick={handleAddToCart}
+                  disabled={product.stock === 0}
+                  className="flex-1 min-w-[150px] rounded-none py-6 text-sm tracking-[0.15em] uppercase btn-premium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ShoppingBag className="w-4 h-4 me-3" />
+                  {product.stock === 0 ? t("common.unavailable") : t("common.addToCart")}
+                </Button>
 
-              {product.flavors && product.flavors.length > 0 && (
-                <div className="mb-10 space-y-4">
-                  <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground block mb-3">
-                    {lang === 'ar' ? (quantity > 1 ? "اختر النكهات" : "اختر النكهة") : 
-                     lang === 'en' ? (quantity > 1 ? "Choose flavors" : "Choose flavor") :
-                     (quantity > 1 ? "Choisir les goûts" : "Choisir le goût")}
-                  </span>
-                  <div className="grid gap-3">
-                    {(() => {
-                      const currentFlavors = getTranslated(product, "flavors", lang) as string[];
-                      return Array.from({ length: quantity }).map((_, i) => (
-                        <div key={i} className="flex flex-col gap-1.5">
-                          {quantity > 1 && <span className="text-[10px] text-muted-foreground">Unité {i + 1}</span>}
-                          <select
-                            className="w-full bg-background border border-border px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
-                            value={selectedFlavors[i] || currentFlavors[0]}
-                            onChange={(e) => {
-                              const newFlavors = [...selectedFlavors];
-                              if (newFlavors.length <= i) {
-                                while (newFlavors.length <= i) newFlavors.push(currentFlavors[0]);
-                              }
-                              newFlavors[i] = e.target.value;
-                              setSelectedFlavors(newFlavors);
-                            }}
-                          >
-                            {currentFlavors.map((f) => (
-                              <option key={f} value={f}>{f}</option>
-                            ))}
-                          </select>
-                        </div>
-                      ));
-                    })()}
-                  </div>
-                </div>
-              )}
-              <div className="flex flex-col gap-3">
-                {/* --- START DEMO WHATSAPP SPLIT BUTTON (Proposition 3) --- */}
-                <div className="flex gap-2 w-full">
-                  <Button
-                    size="lg"
-                    onClick={handleAddToCart}
-                    disabled={product.stock === 0}
-                    className="flex-1 rounded-none py-6 text-sm tracking-[0.15em] uppercase btn-premium disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <ShoppingBag className="w-4 h-4 me-3" />
-                    {product.stock === 0 ? t("common.unavailable") : t("common.addToCart")}
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-16 rounded-none py-6 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all duration-300 flex-shrink-0 group"
-                    onClick={() => {
-                      const phone = "212699928463";
-                      const url = window.location.href;
-                      const weightText = selectedWeight ? ` (Poids : ${/^\d+(\.\d+)?$/.test(String(selectedWeight).trim()) ? `${selectedWeight}g` : selectedWeight})` : "";
-                      const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le produit : ${getTranslated(product, "name", lang)}${weightText}\nPrix : ${discountedPrice} DH\nLien : ${url}`);
-                      window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
-                    }}
-                    title={t("productDetail.whatsappQuestion")}
-                  >
-                    <WhatsAppIcon className="w-6 h-6 transition-transform group-hover:scale-110" />
-                  </Button>
-                </div>
-                {/* --- END DEMO WHATSAPP SPLIT BUTTON --- */}
-
-                <Button variant="outline" size="lg" className="rounded-none w-full py-6 text-sm tracking-[0.1em] uppercase" onClick={handleWishlistToggle}>
-                  <Heart className={cn("w-4 h-4 me-3 transition-all duration-300", inWishlist && "fill-primary text-primary")} />
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="flex-1 min-w-[150px] rounded-none py-6 text-sm tracking-[0.1em] uppercase group"
+                  onClick={handleWishlistToggle}
+                >
+                  <Heart className={cn("w-4 h-4 me-3 transition-all duration-300 group-hover:scale-110", inWishlist && "fill-primary text-primary")} />
                   {inWishlist ? t("productDetail.saved") : t("productDetail.addToFavorites")}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-16 rounded-none py-6 border-[#25D366] text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all duration-300 flex-shrink-0 group"
+                  onClick={() => {
+                    const phone = "212699928463";
+                    const url = window.location.href;
+                    const weightText = selectedWeight ? ` (Poids : ${/^\d+(\.\d+)?$/.test(String(selectedWeight).trim()) ? `${selectedWeight}g` : selectedWeight})` : "";
+                    const message = encodeURIComponent(`Bonjour Aliaa Care, j'aimerais avoir plus d'informations sur le produit : ${getTranslated(product, "name", lang)}${weightText}\nPrix : ${discountedPrice} DH\nLien : ${url}`);
+                    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+                  }}
+                  title={t("productDetail.whatsappQuestion")}
+                >
+                  <WhatsAppIcon className="w-6 h-6 transition-transform group-hover:scale-110" />
                 </Button>
               </div>
               <div className="mt-10 pt-8 border-t border-border">
