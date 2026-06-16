@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -21,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, AlertTriangle, Package, Upload, X, Loader2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertTriangle, Package, Upload, X, Loader2, Search, Globe } from "lucide-react";
 
 interface EditingProduct {
   id?: string;
@@ -528,76 +529,80 @@ const AdminProducts = () => {
           </DialogHeader>
           {editingProduct && (
             <div className="space-y-6 pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Nom du produit *</label>
-                    <Input 
-                      value={editingProduct.name} 
-                      onChange={(e) => {
-                        const name = e.target.value;
-                        const slug = name.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-                        setEditingProduct({ ...editingProduct, name, slug });
-                      }} 
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Catégories *</label>
-                    <div className="grid grid-cols-2 gap-2 p-3 border border-border rounded-md bg-muted/20">
-                      {categories.map((c) => (
-                        <label key={c.id} className="flex items-center gap-2 text-sm cursor-pointer hover:text-primary transition-colors">
-                          <Checkbox
-                            checked={editingProduct.category_ids.includes(c.id)}
-                            onCheckedChange={() => toggleCategory(c.id)}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Left Column: General & Operational info */}
+                <div className="lg:col-span-5 space-y-6">
+                  <div className="p-5 border border-border/80 rounded-xl bg-card shadow-sm space-y-4">
+                    <h3 className="font-semibold text-sm tracking-wide uppercase text-primary/80 border-b border-border pb-2 flex items-center gap-2">
+                      <Package className="w-4 h-4" /> Informations Générales
+                    </h3>
+                    
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Nom du produit (Français) *</label>
+                      <Input 
+                        value={editingProduct.name} 
+                        onChange={(e) => {
+                          const name = e.target.value;
+                          const slug = name.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+                          setEditingProduct({ ...editingProduct, name, slug });
+                        }} 
+                        placeholder="Ex: Thé amincissant"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium mb-1.5 block">Stock</label>
+                        <Input 
+                          type="number" 
+                          min="0"
+                          placeholder="0"
+                          value={editingProduct.stock === 0 ? "" : editingProduct.stock} 
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setEditingProduct({ ...editingProduct, stock: val === "" ? 0 : Math.max(0, Math.floor(Number(val))) });
+                          }}
+                          onKeyDown={(e) => ["e", "E", "+", "-", ".", ","].includes(e.key) && e.preventDefault()}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-1.5 block">Actif / En ligne</label>
+                        <div className="flex items-center h-10 gap-3 pl-1">
+                          <Switch 
+                            checked={editingProduct.active} 
+                            onCheckedChange={(checked) => setEditingProduct({ ...editingProduct, active: checked })} 
                           />
-                          {c.name}
-                        </label>
-                      ))}
+                          <span className="text-xs text-muted-foreground">{editingProduct.active ? "Actif" : "Inactif"}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Catégories *</label>
+                      <div className="grid grid-cols-2 gap-2 p-3 border border-border rounded-md bg-muted/10 max-h-[140px] overflow-y-auto">
+                        {categories.map((c) => (
+                          <label key={c.id} className="flex items-center gap-2 text-xs cursor-pointer hover:text-primary transition-colors py-0.5">
+                            <Checkbox
+                              checked={editingProduct.category_ids.includes(c.id)}
+                              onCheckedChange={() => toggleCategory(c.id)}
+                            />
+                            <span className="truncate">{c.name}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <label className="text-sm font-medium mb-1.5 block">Stock</label>
-                    <Input 
-                      type="number" 
-                      min="0"
-                      placeholder="0"
-                      value={editingProduct.stock === 0 ? "" : editingProduct.stock} 
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setEditingProduct({ ...editingProduct, stock: val === "" ? 0 : Math.max(0, Math.floor(Number(val))) });
-                      }}
-                      onKeyDown={(e) => ["e", "E", "+", "-", ".", ","].includes(e.key) && e.preventDefault()}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/20 rounded-lg border border-border">
-                    <div className="md:col-span-3 mb-1">
-                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Ingrédients</label>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Français</span>
-                      <Input value={editingProduct.materials} onChange={(e) => setEditingProduct({ ...editingProduct, materials: e.target.value })} placeholder="Ex: Eau, Aloé..." />
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Arabe</span>
-                      <Input value={editingProduct.materials_ar} onChange={(e) => setEditingProduct({ ...editingProduct, materials_ar: e.target.value })} placeholder="المكونات..." dir="rtl" />
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Anglais</span>
-                      <Input value={editingProduct.materials_en} onChange={(e) => setEditingProduct({ ...editingProduct, materials_en: e.target.value })} placeholder="Ingredients..." />
-                    </div>
-                  </div>
-
-                  <div className="space-y-4 p-4 bg-muted/20 rounded-lg border border-border">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Prix par poids *</label>
+                  <div className="p-4 border border-border rounded-lg bg-muted/20 space-y-4">
+                    <div className="flex items-center justify-between border-b border-border pb-2">
+                      <h3 className="font-semibold text-xs tracking-wider uppercase text-muted-foreground flex items-center gap-2">
+                        Prix par poids *
+                      </h3>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="h-7 text-xs"
+                        className="h-7 text-[11px] px-2.5 rounded-none"
                         onClick={() => {
                           const current = editingProduct.weight_prices || [];
                           setEditingProduct({
@@ -609,169 +614,254 @@ const AdminProducts = () => {
                         + Ajouter un prix
                       </Button>
                     </div>
-                    {(editingProduct.weight_prices || []).map((wp, idx) => (
-                      <div key={idx} className="flex gap-2 items-center">
-                        <div className="flex-1">
-                          <span className="text-[10px] text-muted-foreground block mb-0.5 ml-1">Poids</span>
-                          <Input
-                            type="text"
-                            value={wp.weight || ""}
-                            placeholder="Ex: 250g, 100ml"
-                            onChange={(e) => {
-                              const newWeightPrices = [...editingProduct.weight_prices];
-                              newWeightPrices[idx] = { ...newWeightPrices[idx], weight: e.target.value };
+                    <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
+                      {(editingProduct.weight_prices || []).map((wp, idx) => (
+                        <div key={idx} className="flex gap-2 items-end">
+                          <div className="flex-1">
+                            <span className="text-[10px] text-muted-foreground block mb-1 ml-0.5 font-medium">Poids</span>
+                            <Input
+                              type="text"
+                              value={wp.weight || ""}
+                              placeholder="Ex: 250g, 100ml"
+                              className="h-9 text-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                              spellCheck={false}
+                              onChange={(e) => {
+                                const newWeightPrices = [...editingProduct.weight_prices];
+                                newWeightPrices[idx] = { ...newWeightPrices[idx], weight: e.target.value };
+                                setEditingProduct({ ...editingProduct, weight_prices: newWeightPrices });
+                              }}
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <span className="text-[10px] text-muted-foreground block mb-1 ml-0.5 font-medium">Prix (DH)</span>
+                            <Input
+                              type="number"
+                              value={wp.price || ""}
+                              placeholder="Ex: 40"
+                              className="h-9 text-xs focus-visible:ring-0 focus-visible:ring-offset-0 focus:border-primary focus:ring-1 focus:ring-primary/20"
+                              spellCheck={false}
+                              onChange={(e) => {
+                                const newWeightPrices = [...editingProduct.weight_prices];
+                                newWeightPrices[idx] = { ...newWeightPrices[idx], price: Number(e.target.value) };
+                                setEditingProduct({ ...editingProduct, weight_prices: newWeightPrices });
+                              }}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive h-9 w-9 shrink-0 hover:bg-destructive/5 rounded-md"
+                            disabled={editingProduct.weight_prices.length <= 1}
+                            onClick={() => {
+                              const newWeightPrices = editingProduct.weight_prices.filter((_, i) => i !== idx);
                               setEditingProduct({ ...editingProduct, weight_prices: newWeightPrices });
                             }}
-                          />
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
-                        <div className="flex-1">
-                          <span className="text-[10px] text-muted-foreground block mb-0.5 ml-1">Prix (DH)</span>
-                          <Input
-                            type="number"
-                            value={wp.price || ""}
-                            placeholder="Ex: 40"
-                            onChange={(e) => {
-                              const newWeightPrices = [...editingProduct.weight_prices];
-                              newWeightPrices[idx] = { ...newWeightPrices[idx], price: Number(e.target.value) };
-                              setEditingProduct({ ...editingProduct, weight_prices: newWeightPrices });
-                            }}
-                          />
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive self-end"
-                          disabled={editingProduct.weight_prices.length <= 1}
-                          onClick={() => {
-                            const newWeightPrices = editingProduct.weight_prices.filter((_, i) => i !== idx);
-                            setEditingProduct({ ...editingProduct, weight_prices: newWeightPrices });
-                          }}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                    <p className="text-[10px] text-muted-foreground">Si renseigné, ces options remplaceront le prix de base sur la fiche produit.</p>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground/80 leading-normal">
+                      Ces options remplaceront le prix de base sur la fiche produit et s'afficheront en menu déroulant.
+                    </p>
                   </div>
 
-                  <div className="space-y-4 p-4 bg-muted/20 rounded-lg border border-border">
-                    <div className="mb-1">
-                      <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Goûts / Variantes (séparés par des virgules)</label>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Français</span>
-                      <Input 
-                        value={(editingProduct.flavors || []).join(", ")} 
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          const flavorsArray = val.split(",").map(s => s.trimStart());
-                          setEditingProduct({ ...editingProduct, flavors: flavorsArray });
-                        }} 
-                        placeholder="Vanille, Chocolat..." 
-                      />
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Arabe</span>
-                      <Input 
-                        value={(editingProduct.flavors_ar || []).join(", ")} 
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          const flavorsArray = val.split(",").map(s => s.trimStart());
-                          setEditingProduct({ ...editingProduct, flavors_ar: flavorsArray });
-                        }} 
-                        placeholder="الفانيليا، الشوكولاتة..." 
-                        dir="rtl"
-                      />
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-muted-foreground block mb-1 ml-1">Anglais</span>
-                      <Input 
-                        value={(editingProduct.flavors_en || []).join(", ")} 
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          const flavorsArray = val.split(",").map(s => s.trimStart());
-                          setEditingProduct({ ...editingProduct, flavors_en: flavorsArray });
-                        }} 
-                        placeholder="Vanilla, Chocolate..." 
-                      />
-                    </div>
-                    <p className="text-[10px] text-muted-foreground">Laissez vide si le produit n'a pas de variantes. Utilisez des virgules pour séparer.</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Images du produit</label>
-                    <div className="p-4 border border-border border-dashed rounded-lg bg-muted/10">
-                      <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="p-5 border border-border/80 rounded-xl bg-card shadow-sm space-y-4">
+                    <h3 className="font-semibold text-sm tracking-wide uppercase text-primary/80 border-b border-border pb-2 flex items-center gap-2">
+                      Images du produit
+                    </h3>
+                    <div className="p-4 border border-border border-dashed rounded-lg bg-muted/5">
+                      <div className="flex flex-wrap gap-2.5 mb-4">
                         {editingProduct.images.map((img, i) => (
-                          <div key={i} className="relative w-20 h-20 rounded overflow-hidden border border-border shadow-sm group">
+                          <div key={i} className="relative w-16 h-16 rounded-lg overflow-hidden border border-border shadow-sm group bg-muted">
                             <img src={img} alt={`Image ${i + 1}`} className="w-full h-full object-cover" />
                             <button type="button" onClick={() => removeImage(i)}
-                              className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                              className="absolute top-1 right-1 p-1 bg-destructive/90 text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md">
                               <X className="w-3 h-3" />
                             </button>
                           </div>
                         ))}
                       </div>
                       <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFileUpload} className="hidden" />
-                      <Button type="button" variant="outline" className="w-full gap-2 border-dashed" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+                      <Button type="button" variant="outline" className="w-full gap-2 border-dashed h-10 text-xs" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
                         {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                         {uploading ? "Chargement..." : "Ajouter des photos"}
                       </Button>
                     </div>
                   </div>
+                </div>
 
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Description courte</label>
-                    <Textarea value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} rows={2} />
-                  </div>
+                {/* Right Column: Localized content & Translations */}
+                <div className="lg:col-span-7 space-y-6">
+                  <div className="p-5 border border-border/80 rounded-xl bg-card shadow-sm space-y-4">
+                    <div className="flex items-center justify-between border-b border-border pb-2">
+                      <h3 className="font-semibold text-sm tracking-wide uppercase text-primary/80 flex items-center gap-2">
+                        <Globe className="w-4 h-4" /> Traductions & Descriptions
+                      </h3>
+                    </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Nom (Arabe)</label>
-                      <Input dir="rtl" value={editingProduct.name_ar} onChange={(e) => setEditingProduct({ ...editingProduct, name_ar: e.target.value })} />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Nom (Anglais)</label>
-                      <Input value={editingProduct.name_en} onChange={(e) => setEditingProduct({ ...editingProduct, name_en: e.target.value })} />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Description courte (Arabe)</label>
-                      <Textarea dir="rtl" value={editingProduct.description_ar} onChange={(e) => setEditingProduct({ ...editingProduct, description_ar: e.target.value })} rows={2} />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Description courte (Anglais)</label>
-                      <Textarea value={editingProduct.description_en} onChange={(e) => setEditingProduct({ ...editingProduct, description_en: e.target.value })} rows={2} />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Description longue</label>
-                    <Textarea value={editingProduct.long_description} onChange={(e) => setEditingProduct({ ...editingProduct, long_description: e.target.value })} rows={4} />
-                  </div>
+                    <Tabs defaultValue="fr" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/60 p-1 rounded-lg">
+                        <TabsTrigger value="fr" className="rounded-md text-xs py-2 font-medium">Français (FR)</TabsTrigger>
+                        <TabsTrigger value="ar" className="rounded-md text-xs py-2 font-medium">العربية (AR)</TabsTrigger>
+                        <TabsTrigger value="en" className="rounded-md text-xs py-2 font-medium">English (EN)</TabsTrigger>
+                      </TabsList>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Description longue (Arabe)</label>
-                      <Textarea dir="rtl" value={editingProduct.long_description_ar} onChange={(e) => setEditingProduct({ ...editingProduct, long_description_ar: e.target.value })} rows={3} />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-1.5 block">Description longue (Anglais)</label>
-                      <Textarea value={editingProduct.long_description_en} onChange={(e) => setEditingProduct({ ...editingProduct, long_description_en: e.target.value })} rows={3} />
-                    </div>
+                      <TabsContent value="fr" className="space-y-4 mt-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Description courte (Français) *</label>
+                          <Textarea 
+                            value={editingProduct.description} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} 
+                            placeholder="Saisissez une description concise..."
+                            rows={3} 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Description longue (Français)</label>
+                          <Textarea 
+                            value={editingProduct.long_description} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, long_description: e.target.value })} 
+                            placeholder="Saisissez la description complète du produit..."
+                            rows={6} 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Ingrédients / Matériaux (Français)</label>
+                          <Input 
+                            value={editingProduct.materials} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, materials: e.target.value })} 
+                            placeholder="Ex: Huile d'argan, Lavande..." 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Goûts / Variantes (Français - Séparés par des virgules)</label>
+                          <Input 
+                            value={(editingProduct.flavors || []).join(", ")} 
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const flavorsArray = val.split(",").map(s => s.trimStart());
+                              setEditingProduct({ ...editingProduct, flavors: flavorsArray });
+                            }} 
+                            placeholder="Ex: Nature, Menthe..." 
+                          />
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="ar" className="space-y-4 mt-0 focus-visible:ring-0 focus-visible:ring-offset-0" dir="rtl">
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block text-right font-medium">اسم المنتج (بالعربية)</label>
+                          <Input 
+                            value={editingProduct.name_ar} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, name_ar: e.target.value })} 
+                            placeholder="اسم المنتج باللغة العربية..."
+                            className="text-right"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block text-right font-medium">الوصف القصير (بالعربية)</label>
+                          <Textarea 
+                            value={editingProduct.description_ar} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, description_ar: e.target.value })} 
+                            placeholder="اكتب وصفاً قصيراً للمنتج..."
+                            rows={3}
+                            className="text-right"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block text-right font-medium">الوصف التفصيلي (بالعربية)</label>
+                          <Textarea 
+                            value={editingProduct.long_description_ar} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, long_description_ar: e.target.value })} 
+                            placeholder="اكتب وصفاً مفصلاً للمنتج..."
+                            rows={6}
+                            className="text-right"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block text-right font-medium">المكونات (بالعربية)</label>
+                          <Input 
+                            value={editingProduct.materials_ar} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, materials_ar: e.target.value })} 
+                            placeholder="المكونات مثل: زيت أركان..."
+                            className="text-right"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block text-right font-medium">النكهات / الأنواع (بالعربية - مفصولة بفاصلة)</label>
+                          <Input 
+                            value={(editingProduct.flavors_ar || []).join(", ")} 
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const flavorsArray = val.split(",").map(s => s.trimStart());
+                              setEditingProduct({ ...editingProduct, flavors_ar: flavorsArray });
+                            }} 
+                            placeholder="مثال: طبيعي, نعناع..."
+                            className="text-right"
+                          />
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="en" className="space-y-4 mt-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Product Name (English)</label>
+                          <Input 
+                            value={editingProduct.name_en} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, name_en: e.target.value })} 
+                            placeholder="Product name in English..."
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Short Description (English)</label>
+                          <Textarea 
+                            value={editingProduct.description_en} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, description_en: e.target.value })} 
+                            placeholder="Enter a brief description..."
+                            rows={3} 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Long Description (English)</label>
+                          <Textarea 
+                            value={editingProduct.long_description_en} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, long_description_en: e.target.value })} 
+                            placeholder="Enter the full description..."
+                            rows={6} 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Ingredients / Materials (English)</label>
+                          <Input 
+                            value={editingProduct.materials_en} 
+                            onChange={(e) => setEditingProduct({ ...editingProduct, materials_en: e.target.value })} 
+                            placeholder="Ingredients like: Argan oil, Lavender..." 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">Flavors / Varieties (English - Separated by commas)</label>
+                          <Input 
+                            value={(editingProduct.flavors_en || []).join(", ")} 
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const flavorsArray = val.split(",").map(s => s.trimStart());
+                              setEditingProduct({ ...editingProduct, flavors_en: flavorsArray });
+                            }} 
+                            placeholder="Ex: Natural, Mint..." 
+                          />
+                        </div>
+                      </TabsContent>
+                    </Tabs>
                   </div>
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4 border-t border-border">
-                <Button variant="outline" className="flex-1 rounded-none" onClick={() => setDialogOpen(false)}>Annuler</Button>
-                <Button onClick={handleSave} className="flex-1 rounded-none" disabled={saving}>
+              <div className="flex gap-3 pt-4 border-t border-border/85">
+                <Button variant="outline" className="flex-1 rounded-none h-11" onClick={() => setDialogOpen(false)}>Annuler</Button>
+                <Button onClick={handleSave} className="flex-1 rounded-none h-11" disabled={saving}>
                   {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                  {editingProduct.id ? "Mettre à jour" : "Créer le produit"}
+                  {editingProduct.id ? "Mettre à jour le produit" : "Créer le produit"}
                 </Button>
               </div>
             </div>
