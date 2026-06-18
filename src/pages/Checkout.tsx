@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, AlertCircle, Tag, Check, X, Loader2 } from "lucide-react";
@@ -15,6 +15,32 @@ import { sendOrderWhatsAppNotification } from "@/lib/whatsapp";
 import livraisonData from "@/data/livraison.json";
 import { cn } from "@/lib/utils";
 import { getTranslated } from "@/utils/translationUtils";
+
+// Helper to convert alpha2Code to flag emoji
+function getFlagEmoji(countryCode: string) {
+  const codePoints = countryCode
+    .toUpperCase()
+    .split("")
+    .map(char => 127397 + char.charCodeAt(0));
+  try {
+    return String.fromCodePoint(...codePoints);
+  } catch {
+    return "";
+  }
+}
+
+const defaultCountryCodes = [
+  { name: "Morocco", code: "212", flag: "MA" },
+  { name: "France", code: "33", flag: "FR" },
+  { name: "Spain", code: "34", flag: "ES" },
+  { name: "Senegal", code: "221", flag: "SN" },
+  { name: "Belgium", code: "32", flag: "BE" },
+  { name: "Switzerland", code: "41", flag: "CH" },
+  { name: "Canada", code: "1", flag: "CA" },
+  { name: "United States", code: "1", flag: "US" },
+  { name: "United Arab Emirates", code: "971", flag: "AE" },
+  { name: "Saudi Arabia", code: "966", flag: "SA" }
+];
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -36,6 +62,38 @@ const Checkout = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [countryCodes, setCountryCodes] = useState(defaultCountryCodes);
+  const [selectedDialCode, setSelectedDialCode] = useState("212");
+
+  useEffect(() => {
+    const fetchCountryCodes = async () => {
+      try {
+        const response = await fetch("https://api.countrylayer.com/v2/all?access_key=be0008e9900d6002169d47d249ef8387");
+        if (!response.ok) throw new Error("API error");
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          const parsed = data
+            .filter((c: any) => c.callingCodes && c.callingCodes[0] && c.name && c.alpha2Code)
+            .map((c: any) => ({
+              name: c.name,
+              code: c.callingCodes[0].replace(/\s+/g, ""),
+              flag: c.alpha2Code
+            }));
+
+          // Deduplicate by name and sort
+          const unique: Record<string, typeof parsed[0]> = {};
+          parsed.forEach((item: any) => {
+            unique[item.name] = item;
+          });
+          const sorted = Object.values(unique).sort((a: any, b: any) => a.name.localeCompare(b.name));
+          setCountryCodes(sorted);
+        }
+      } catch (err) {
+        console.warn("Failed to fetch country codes from API, using local fallback:", err);
+      }
+    };
+    fetchCountryCodes();
+  }, []);
 
   const subtotal = getSubtotal();
 
@@ -160,26 +218,26 @@ const Checkout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Basic validation for required fields
     if (!formData.firstName || !formData.lastName || !formData.phone || !formData.address || !formData.city) {
-       toast({ 
-        title: t("checkout.orderError"), 
-        description: t("checkout.requiredFields"), 
-        variant: "destructive" 
+      toast({
+        title: t("checkout.orderError"),
+        description: t("checkout.requiredFields"),
+        variant: "destructive"
       });
       return;
     }
-    
+
     // Email validation (only if provided)
     if (formData.email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) {
         setEmailError(t("checkout.emailInvalid"));
-        toast({ 
-          title: t("checkout.orderError"), 
-          description: t("checkout.emailInvalid"), 
-          variant: "destructive" 
+        toast({
+          title: t("checkout.orderError"),
+          description: t("checkout.emailInvalid"),
+          variant: "destructive"
         });
         return;
       }
@@ -190,12 +248,13 @@ const Checkout = () => {
     try {
       const orderNumber = `CMD-${Date.now().toString(36).toUpperCase()}`;
       const customerName = `${formData.firstName} ${formData.lastName}`;
+      const fullPhone = `+${selectedDialCode}${formData.phone}`;
       await addOrder.mutateAsync({
         order_number: orderNumber,
         total,
         total_cost: 0,
         customer_name: customerName,
-        customer_phone: formData.phone,
+        customer_phone: fullPhone,
         customer_address: formData.address,
         customer_city: formData.city,
         customer_region: formData.region,
@@ -222,12 +281,13 @@ const Checkout = () => {
 
       // Send WhatsApp notification
       try {
+        const fullPhone = `+${selectedDialCode}${formData.phone}`;
         await sendOrderWhatsAppNotification(
           {
             order_number: orderNumber,
             total,
             customerName,
-            phone: formData.phone,
+            phone: fullPhone,
             address: formData.address,
           },
           items.map((i) => {
@@ -293,11 +353,11 @@ const Checkout = () => {
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="firstName" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.firstName")} *</label>
-                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required maxLength={50} className="rounded-none h-12" />
+                      <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleInputChange} required maxLength={50} className="rounded-none h-12" autoComplete="given-name" />
                     </div>
                     <div>
                       <label htmlFor="lastName" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.lastName")} *</label>
-                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} required maxLength={50} className="rounded-none h-12" />
+                      <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleInputChange} required maxLength={50} className="rounded-none h-12" autoComplete="family-name" />
                     </div>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4 mt-4">
@@ -305,12 +365,25 @@ const Checkout = () => {
                       <label htmlFor="email" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">
                         {t("checkout.email")} <span className="text-muted-foreground/50 lowercase tracking-normal">({t("common.optional")})</span>
                       </label>
-                      <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} maxLength={100} className={cn("rounded-none h-12", emailError && "border-destructive focus-visible:ring-destructive")} />
+                      <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} maxLength={100} className={cn("rounded-none h-12", emailError && "border-destructive focus-visible:ring-destructive")} autoComplete="email" />
                       {emailError && <p className="text-xs text-destructive mt-1.5">{emailError}</p>}
                     </div>
                     <div>
                       <label htmlFor="phone" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.phone")} *</label>
-                      <Input id="phone" name="phone" type="tel" inputMode="numeric" value={formData.phone} onChange={handleInputChange} required maxLength={20} className="rounded-none h-12" />
+                      <div className="flex gap-2">
+                        <select
+                          value={selectedDialCode}
+                          onChange={(e) => setSelectedDialCode(e.target.value)}
+                          className="bg-background border border-border px-3 h-12 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer w-28 shrink-0 rounded-none"
+                        >
+                          {countryCodes.map((c) => (
+                            <option key={`${c.name}-${c.code}`} value={c.code}>
+                              {getFlagEmoji(c.flag)} +{c.code}
+                            </option>
+                          ))}
+                        </select>
+                        <Input id="phone" name="phone" type="tel" inputMode="numeric" value={formData.phone} onChange={handleInputChange} required maxLength={20} className="rounded-none h-12 flex-1" placeholder="612345678" autoComplete="tel" />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -320,14 +393,15 @@ const Checkout = () => {
                   <div className="space-y-4">
                     <div>
                       <label htmlFor="address" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.address")} *</label>
-                      <Input id="address" name="address" value={formData.address} onChange={handleInputChange} required maxLength={200} className="rounded-none h-12" />
+                      <Input id="address" name="address" value={formData.address} onChange={handleInputChange} required maxLength={200} className="rounded-none h-12" autoComplete="street-address" />
                     </div>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div className="relative">
                         <label htmlFor="city" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.city")} *</label>
-                        
+                        <input type="hidden" id="city" name="city" value={formData.city} required />
+
                         {/* Selected value button */}
-                        <div 
+                        <div
                           onClick={() => setIsOpen(!isOpen)}
                           className="w-full bg-background border border-border px-4 h-12 text-sm flex items-center justify-between cursor-pointer select-none"
                         >
@@ -340,11 +414,11 @@ const Checkout = () => {
                         {isOpen && (
                           <>
                             {/* Backdrop to close dropdown on click outside */}
-                            <div 
-                              className="fixed inset-0 z-40 cursor-default" 
+                            <div
+                              className="fixed inset-0 z-40 cursor-default"
                               onClick={() => { setIsOpen(false); setSearchQuery(""); }}
                             />
-                            
+
                             {/* Dropdown panel */}
                             <div className="absolute z-50 w-full mt-1 bg-background border border-border shadow-lg max-h-60 flex flex-col">
                               {/* Search bar inside dropdown */}
@@ -399,7 +473,7 @@ const Checkout = () => {
                       </div>
                       <div>
                         <label htmlFor="postalCode" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.postalCode")} *</label>
-                        <Input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleInputChange} required maxLength={10} className="rounded-none h-12" />
+                        <Input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleInputChange} required maxLength={10} className="rounded-none h-12" autoComplete="postal-code" />
                       </div>
                     </div>
                   </div>
@@ -504,11 +578,11 @@ const Checkout = () => {
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t("cart.shipping")}</span>
                     <span>
-                      {isFreeDelivery 
-                        ? t("cart.free") 
-                        : (formData.city === "" 
-                            ? (lang === 'ar' ? "حسب المدينة" : lang === 'en' ? "Depending on city" : "Selon ville") 
-                            : `${shipping} DH`)}
+                      {isFreeDelivery
+                        ? t("cart.free")
+                        : (formData.city === ""
+                          ? (lang === 'ar' ? "حسب المدينة" : lang === 'en' ? "Depending on city" : "Selon ville")
+                          : `${shipping} DH`)}
                     </span>
                   </div>
                 </div>
