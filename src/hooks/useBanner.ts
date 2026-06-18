@@ -8,6 +8,7 @@ export interface BannerSettings {
   scrolling_enabled: boolean;
   text_color: string;
   maintenance_mode: boolean;
+  free_shipping_threshold: number;
 }
 
 export function useBanner() {
@@ -29,7 +30,8 @@ export function useBanner() {
           message: "Livraison partout au Maroc 🚚",
           scrolling_enabled: false,
           text_color: "#FFFFFF",
-          maintenance_mode: false
+          maintenance_mode: false,
+          free_shipping_threshold: 500
         };
       }
       return data;
@@ -43,11 +45,18 @@ export function useUpdateBanner() {
   return useMutation({
     mutationFn: async (updates: Partial<BannerSettings>) => {
       const { id, ...data } = updates;
-      if (!id) {
-        const { error } = await supabase.from("banner_settings").insert(data);
+      // Check if a row exists in the database
+      const { data: existing } = await supabase
+        .from("banner_settings")
+        .select("id")
+        .limit(1)
+        .maybeSingle();
+
+      if (existing?.id) {
+        const { error } = await supabase.from("banner_settings").update(data).eq("id", existing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("banner_settings").update(data).eq("id", id);
+        const { error } = await supabase.from("banner_settings").insert(data);
         if (error) throw error;
       }
     },

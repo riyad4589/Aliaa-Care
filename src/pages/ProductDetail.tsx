@@ -13,6 +13,7 @@ import { useCart } from "@/hooks/useCart";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useT } from "@/hooks/useT";
+import { useBanner } from "@/hooks/useBanner";
 import { cn } from "@/lib/utils";
 import { getTranslated } from "@/utils/translationUtils";
 
@@ -52,6 +53,8 @@ const ProductDetail = () => {
   const { addItem: addToCart } = useCart();
   const { toast } = useToast();
   const { t, lang } = useT();
+  const { data: banner } = useBanner();
+  const freeShippingThreshold = Number(banner?.free_shipping_threshold ?? 500);
 
   if (!product) {
     return (
@@ -402,7 +405,7 @@ const ProductDetail = () => {
               <div className="mt-10 pt-8 border-t border-border">
                 <div>
                   <p className="text-[11px] font-semibold tracking-[0.15em] uppercase text-muted-foreground/60 mb-1">{t("productDetail.shipping")}</p>
-                  <p className="text-xs text-muted-foreground">{t("productDetail.freeShipping")}</p>
+                  <p className="text-xs text-muted-foreground">{t("productDetail.freeShipping").replace("500", freeShippingThreshold.toString())}</p>
                 </div>
               </div>
             </motion.div>

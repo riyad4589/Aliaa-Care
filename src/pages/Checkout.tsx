@@ -15,6 +15,7 @@ import { sendOrderWhatsAppNotification } from "@/lib/whatsapp";
 import livraisonData from "@/data/livraison.json";
 import { cn } from "@/lib/utils";
 import { getTranslated } from "@/utils/translationUtils";
+import { useBanner } from "@/hooks/useBanner";
 
 // Helper to convert alpha2Code to flag emoji
 function getFlagEmoji(countryCode: string) {
@@ -45,6 +46,7 @@ const defaultCountryCodes = [
 const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { data: banner } = useBanner();
   const { items, getSubtotal, clearCart } = useCart();
   const addOrder = useAddOrder();
   const validatePromo = useValidatePromoCode();
@@ -135,7 +137,8 @@ const Checkout = () => {
   // Calculate shipping based on selected city in livraisonData
   const selectedCity = livraisonData.find(c => c.nom === formData.city);
   const baseShipping = selectedCity ? selectedCity.livraison : 45;
-  const isFreeDelivery = afterDiscount > 500;
+  const freeShippingThreshold = Number(banner?.free_shipping_threshold ?? 500);
+  const isFreeDelivery = afterDiscount >= freeShippingThreshold;
 
   const shipping = isFreeDelivery ? 0 : (formData.city === "" ? 0 : baseShipping);
 
