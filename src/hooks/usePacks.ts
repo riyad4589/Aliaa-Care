@@ -28,6 +28,8 @@ export interface DbPackItem {
   quantity: number;
   selected_weight?: string | null;
   product_name?: string;
+  product_name_ar?: string | null;
+  product_name_en?: string | null;
   product_image?: string;
   product_price?: number;
   product_flavors?: string[];
@@ -45,7 +47,7 @@ async function fetchPacks(): Promise<DbPack[]> {
       items:pack_items(
         *,
         product:products(
-          id, name, price, slug,
+          id, name, name_ar, name_en, price, slug,
           weight, weight_prices,
           flavors, flavors_ar, flavors_en,
           images:product_images(image_url, position)
@@ -66,6 +68,8 @@ async function fetchPacks(): Promise<DbPack[]> {
     items: (pack.items || []).map((item) => ({
       ...item,
       product_name: item.product?.name || "Produit inconnu",
+      product_name_ar: item.product?.name_ar || null,
+      product_name_en: item.product?.name_en || null,
       product_image: item.product?.images?.[0]?.image_url || "/placeholder.svg",
       product_price: item.product?.price || 0,
       product_flavors: item.product?.flavors || [],

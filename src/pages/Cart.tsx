@@ -99,9 +99,10 @@ const Cart = () => {
                             {(item.product as any).items?.map((packItem: any) => {
                               const flavors = item.packItemFlavors?.[packItem.product_name];
                               if (!flavors || flavors.length === 0) return null;
+                              const packItemTranslatedName = getTranslated({ name: packItem.product_name, name_ar: packItem.product_name_ar, name_en: packItem.product_name_en }, "name", lang);
                               return (
                                 <div key={packItem.product_id} className="pl-3 border-l-2 border-primary/20">
-                                  <p className="text-xs font-medium">{packItem.product_name}</p>
+                                  <p className="text-xs font-medium">{packItemTranslatedName}</p>
                                   <div className="flex flex-wrap gap-1 mt-1">
                                     {flavors.map((f: string, i: number) => (
                                       <span key={i} className="text-[10px] px-1.5 py-0.5 bg-primary/5 rounded border border-primary/10">

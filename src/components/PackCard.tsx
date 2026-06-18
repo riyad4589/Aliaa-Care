@@ -51,15 +51,22 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
     // Add the pack as a product-like item to cart
     addItem({
       id: pack.id,
-      name: getTranslated(pack, "name", lang),
+      name: pack.name,
+      name_ar: pack.name_ar || undefined,
+      name_en: pack.name_en || undefined,
       slug: pack.slug,
       collection: "",
       price: discountedPrice,
-      description: getTranslated(pack, "description", lang),
-      longDescription: getTranslated(pack, "long_description", lang),
+      description: pack.description,
+      description_ar: pack.description_ar || undefined,
+      description_en: pack.description_en || undefined,
+      longDescription: pack.long_description,
+      longDescription_ar: pack.long_description_ar || undefined,
+      longDescription_en: pack.long_description_en || undefined,
       materials: "",
       images: [hasPackImage ? pack.image : firstProductImage],
-    });
+      items: pack.items,
+    } as any);
     toast({ title: t("pack.addedToCart"), description: getTranslated(pack, "name", lang) });
   };
 
@@ -72,15 +79,22 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
     } else {
       addToWishlist({
         id: pack.id,
-        name: getTranslated(pack, "name", lang),
+        name: pack.name,
+        name_ar: pack.name_ar || undefined,
+        name_en: pack.name_en || undefined,
         slug: pack.slug,
         collection: "",
         price: pack.price,
-        description: getTranslated(pack, "description", lang),
-        longDescription: getTranslated(pack, "long_description", lang),
+        description: pack.description,
+        description_ar: pack.description_ar || undefined,
+        description_en: pack.description_en || undefined,
+        longDescription: pack.long_description,
+        longDescription_ar: pack.long_description_ar || undefined,
+        longDescription_en: pack.long_description_en || undefined,
         materials: "",
         images: [hasPackImage ? pack.image : firstProductImage],
-      } as Product);
+        items: pack.items,
+      } as any);
       toast({ title: t("productDetail.addedToFavorites"), description: getTranslated(pack, "name", lang) });
     }
   };
@@ -98,14 +112,17 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
           />
         ) : pack.items.length >= 3 ? (
           <div className="grid grid-cols-2 grid-rows-2 h-full gap-0.5">
-            {pack.items.slice(0, 4).map((item, i) => (
-              <img
-                key={item.id}
-                src={item.product_image || "/placeholder.svg"}
-                alt={item.product_name}
-                className="w-full h-full object-cover"
-              />
-            ))}
+            {pack.items.slice(0, 4).map((item, i) => {
+              const itemTranslatedName = getTranslated({ name: item.product_name, name_ar: item.product_name_ar, name_en: item.product_name_en }, "name", lang);
+              return (
+                <img
+                  key={item.id}
+                  src={item.product_image || "/placeholder.svg"}
+                  alt={itemTranslatedName}
+                  className="w-full h-full object-cover"
+                />
+              );
+            })}
           </div>
         ) : (
           <img
@@ -148,11 +165,14 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
         <p className="text-sm text-muted-foreground line-clamp-2">{getTranslated(pack, "description", lang)}</p>
 
         <div className="flex flex-wrap gap-1.5">
-          {pack.items.map((item) => (
-            <span key={item.id} className="text-[11px] px-2 py-1 bg-muted rounded-sm text-muted-foreground">
-              {item.product_name}
-            </span>
-          ))}
+          {pack.items.map((item) => {
+            const itemTranslatedName = getTranslated({ name: item.product_name, name_ar: item.product_name_ar, name_en: item.product_name_en }, "name", lang);
+            return (
+              <span key={item.id} className="text-[11px] px-2 py-1 bg-muted rounded-sm text-muted-foreground">
+                {itemTranslatedName}
+              </span>
+            );
+          })}
         </div>
 
         <div className="flex items-center justify-between pt-2">

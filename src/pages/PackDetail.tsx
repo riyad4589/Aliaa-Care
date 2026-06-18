@@ -81,16 +81,23 @@ const PackDetail = () => {
     for (let i = 0; i < quantity; i++) {
       addItem({
         id: pack.id,
-        name: getTranslated(pack, "name", lang),
+        name: pack.name,
+        name_ar: pack.name_ar || undefined,
+        name_en: pack.name_en || undefined,
         slug: pack.slug,
         collection: "",
         price: discountedPrice,
-        description: getTranslated(pack, "description", lang),
-        longDescription: getTranslated(pack, "long_description", lang),
+        description: pack.description,
+        description_ar: pack.description_ar || undefined,
+        description_en: pack.description_en || undefined,
+        longDescription: pack.long_description,
+        longDescription_ar: pack.long_description_ar || undefined,
+        longDescription_en: pack.long_description_en || undefined,
         materials: "",
         images: [firstImage],
         packItemFlavors: selectedPackFlavors[i] || {},
-      });
+        items: pack.items,
+      } as any);
     }
     toast({ title: t("pack.addedToCart"), description: `${getTranslated(pack, "name", lang)} x${quantity}` });
   };
@@ -104,15 +111,22 @@ const PackDetail = () => {
       const firstImage = pack.items[0]?.product_image || pack.image;
       addToWishlist({
         id: pack.id,
-        name: getTranslated(pack, "name", lang),
+        name: pack.name,
+        name_ar: pack.name_ar || undefined,
+        name_en: pack.name_en || undefined,
         slug: pack.slug,
         collection: "",
         price: discountedPrice,
-        description: getTranslated(pack, "description", lang),
-        longDescription: getTranslated(pack, "long_description", lang),
+        description: pack.description,
+        description_ar: pack.description_ar || undefined,
+        description_en: pack.description_en || undefined,
+        longDescription: pack.long_description,
+        longDescription_ar: pack.long_description_ar || undefined,
+        longDescription_en: pack.long_description_en || undefined,
         materials: "",
         images: [firstImage],
-      } as Product);
+        items: pack.items,
+      } as any);
       toast({ title: t("productDetail.addedToFavorites"), description: getTranslated(pack, "name", lang) });
     }
   };
@@ -131,9 +145,12 @@ const PackDetail = () => {
             <div className="aspect-square bg-muted/30 rounded-lg overflow-hidden border border-border">
               {pack.items.length >= 3 ? (
                 <div className="grid grid-cols-2 grid-rows-2 h-full gap-1">
-                  {pack.items.slice(0, 4).map((item) => (
-                    <img key={item.id} src={item.product_image || "/placeholder.svg"} alt={item.product_name} className="w-full h-full object-cover" />
-                  ))}
+                  {pack.items.slice(0, 4).map((item) => {
+                    const itemTranslatedName = getTranslated({ name: item.product_name, name_ar: item.product_name_ar, name_en: item.product_name_en }, "name", lang);
+                    return (
+                      <img key={item.id} src={item.product_image || "/placeholder.svg"} alt={itemTranslatedName} className="w-full h-full object-cover" />
+                    );
+                  })}
                 </div>
               ) : (
                 <img src={firstImage} alt={getTranslated(pack, "name", lang)} className="w-full h-full object-cover" />
@@ -187,70 +204,73 @@ const PackDetail = () => {
                 {t("pack.contents")} ({pack.items.length} {t("pack.productsCount")})
               </h3>
               <div className="space-y-3">
-                {pack.items.map((item) => (
-                  <div key={item.id} className="flex items-center gap-4 p-3 border border-border rounded-lg">
-                    <img src={item.product_image || "/placeholder.svg"} alt={item.product_name} className="w-14 h-14 object-cover rounded" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{item.product_name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {t("common.netWeight")}: {item.selected_weight || item.product_weight || "Standard"}
-                      </p>
-                      
-                      {/* Flavor selection for pack items */}
-                      {item.product_flavors && item.product_flavors.length > 0 && (
-                        <div className="mt-3 space-y-3">
-                          {Array.from({ length: quantity }).map((_, packIdx) => (
-                            <div key={packIdx} className="space-y-1.5 border-t border-border/40 pt-2 first:border-0 first:pt-0">
-                              {quantity > 1 && (
-                                <span className="text-[9px] font-bold uppercase tracking-wider text-primary block">
-                                  Pack {packIdx + 1}
-                                </span>
-                              )}
-                              {Array.from({ length: item.quantity || 1 }).map((_, i) => {
-                                const currentFlavors = getTranslated(item, "product_flavors", lang) as string[];
-                                if (!currentFlavors || currentFlavors.length === 0) return null;
-                                
-                                const packSelections = selectedPackFlavors[packIdx] || {};
-                                const selections = packSelections[item.product_name || ""] || [];
-                                const currentVal = selections[i] || currentFlavors[0];
+                {pack.items.map((item) => {
+                  const itemTranslatedName = getTranslated({ name: item.product_name, name_ar: item.product_name_ar, name_en: item.product_name_en }, "name", lang);
+                  return (
+                    <div key={item.id} className="flex items-center gap-4 p-3 border border-border rounded-lg">
+                      <img src={item.product_image || "/placeholder.svg"} alt={itemTranslatedName} className="w-14 h-14 object-cover rounded" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{itemTranslatedName}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {t("common.netWeight")}: {item.selected_weight || item.product_weight || "Standard"}
+                        </p>
+                        
+                        {/* Flavor selection for pack items */}
+                        {item.product_flavors && item.product_flavors.length > 0 && (
+                          <div className="mt-3 space-y-3">
+                            {Array.from({ length: quantity }).map((_, packIdx) => (
+                              <div key={packIdx} className="space-y-1.5 border-t border-border/40 pt-2 first:border-0 first:pt-0">
+                                {quantity > 1 && (
+                                  <span className="text-[9px] font-bold uppercase tracking-wider text-primary block">
+                                    Pack {packIdx + 1}
+                                  </span>
+                                )}
+                                {Array.from({ length: item.quantity || 1 }).map((_, i) => {
+                                  const currentFlavors = getTranslated(item, "product_flavors", lang) as string[];
+                                  if (!currentFlavors || currentFlavors.length === 0) return null;
+                                  
+                                  const packSelections = selectedPackFlavors[packIdx] || {};
+                                  const selections = packSelections[item.product_name || ""] || [];
+                                  const currentVal = selections[i] || currentFlavors[0];
 
-                                return (
-                                  <div key={i} className="flex flex-col gap-1">
-                                    {item.quantity > 1 && (
-                                      <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Unité {i + 1}</span>
-                                    )}
-                                    <select
-                                      className="w-full bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer rounded"
-                                      value={currentVal}
-                                      onChange={(e) => {
-                                        const newSelections = [...selections];
-                                        while (newSelections.length <= i) newSelections.push(currentFlavors[0]);
-                                        newSelections[i] = e.target.value;
-                                        
-                                        setSelectedPackFlavors({
-                                          ...selectedPackFlavors,
-                                          [packIdx]: {
-                                            ...packSelections,
-                                            [item.product_name || ""]: newSelections
-                                          }
-                                        });
-                                      }}
-                                    >
-                                      {currentFlavors.map((f) => (
-                                        <option key={f} value={f}>{f}</option>
-                                      ))}
-                                    </select>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                                  return (
+                                    <div key={i} className="flex flex-col gap-1">
+                                      {item.quantity > 1 && (
+                                        <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Unité {i + 1}</span>
+                                      )}
+                                      <select
+                                        className="w-full bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer rounded"
+                                        value={currentVal}
+                                        onChange={(e) => {
+                                          const newSelections = [...selections];
+                                          while (newSelections.length <= i) newSelections.push(currentFlavors[0]);
+                                          newSelections[i] = e.target.value;
+                                          
+                                          setSelectedPackFlavors({
+                                            ...selectedPackFlavors,
+                                            [packIdx]: {
+                                              ...packSelections,
+                                              [item.product_name || ""]: newSelections
+                                            }
+                                          });
+                                        }}
+                                      >
+                                        {currentFlavors.map((f) => (
+                                          <option key={f} value={f}>{f}</option>
+                                        ))}
+                                      </select>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-sm text-muted-foreground">{getItemPrice(item).toLocaleString()} DH</span>
                     </div>
-                    <span className="text-sm text-muted-foreground">{getItemPrice(item).toLocaleString()} DH</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-4">
