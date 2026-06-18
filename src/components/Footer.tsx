@@ -92,10 +92,7 @@ export const Footer = () => {
 
         <div className="mt-8 pt-4 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[9px] uppercase tracking-widest text-white/20">
-            © {new Date().getFullYear()} ALIAA Natural Care. {t("common.allRightsReserved")}
-          </p>
-          <p className="text-[9px] uppercase tracking-widest text-white/20">
-            Natural Care
+            © {new Date().getFullYear()} ALIAA Care
           </p>
         </div>
       </div>

@@ -12,7 +12,7 @@ import { useAddOrder } from "@/hooks/useOrders";
 import { useValidatePromoCode, useIncrementPromoUsage, PromoCode } from "@/hooks/usePromoCodes";
 import { useT } from "@/hooks/useT";
 import { sendOrderWhatsAppNotification } from "@/lib/whatsapp";
-import { cities, regions } from "@/data/maroc";
+import livraisonData from "@/data/livraison.json";
 import { cn } from "@/lib/utils";
 import { getTranslated } from "@/utils/translationUtils";
 
@@ -33,6 +33,9 @@ const Checkout = () => {
     firstName: "", lastName: "", email: "", phone: "",
     address: "", region: "", city: "", postalCode: "", country: "Maroc", notes: "",
   });
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
 
   const subtotal = getSubtotal();
 
@@ -71,18 +74,12 @@ const Checkout = () => {
   const discount = Math.round(getDiscount());
   const afterDiscount = Math.max(0, subtotal - discount);
 
-  // Calculate shipping based on selected region and city
-  const selectedRegion = regions.find(r => r.name === formData.region);
-  const selectedCity = cities.find(c => c.name === formData.city);
+  // Calculate shipping based on selected city in livraisonData
+  const selectedCity = livraisonData.find(c => c.nom === formData.city);
+  const baseShipping = selectedCity ? selectedCity.livraison : 45;
+  const isFreeDelivery = afterDiscount > 500;
 
-  let baseShipping = 45;
-  if (selectedCity && selectedCity.shippingFeeOverride) {
-    baseShipping = selectedCity.shippingFeeOverride;
-  } else if (selectedRegion) {
-    baseShipping = selectedRegion.baseShippingFee;
-  }
-
-  const shipping = (afterDiscount > 500 || formData.region === "") ? 0 : baseShipping;
+  const shipping = isFreeDelivery ? 0 : (formData.city === "" ? 0 : baseShipping);
 
   const total = afterDiscount + shipping;
 
@@ -113,9 +110,9 @@ const Checkout = () => {
 
     setFormData((prev) => {
       const newData = { ...prev, [name]: value };
-      // Reset city if region changes
-      if (name === "region") {
-        newData.city = "";
+      // Automatically resolve region as "Maroc" when city is selected
+      if (name === "city") {
+        newData.region = "Maroc";
       }
       return newData;
     });
@@ -165,7 +162,7 @@ const Checkout = () => {
     e.preventDefault();
     
     // Basic validation for required fields
-    if (!formData.firstName || !formData.lastName || !formData.phone || !formData.address || !formData.city || !formData.region) {
+    if (!formData.firstName || !formData.lastName || !formData.phone || !formData.address || !formData.city) {
        toast({ 
         title: t("checkout.orderError"), 
         description: t("checkout.requiredFields"), 
@@ -326,54 +323,83 @@ const Checkout = () => {
                       <Input id="address" name="address" value={formData.address} onChange={handleInputChange} required maxLength={200} className="rounded-none h-12" />
                     </div>
                     <div className="grid sm:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="region" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">Région *</label>
-                        <select
-                          id="region"
-                          name="region"
-                          value={formData.region}
-                          onChange={handleInputChange}
-                          required
-                          className="w-full bg-background border border-border px-4 h-12 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
-                        >
-                          <option value="">Sélectionner une région</option>
-                          {regions.map((region) => (
-                            <option key={region.id} value={region.name}>{region.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
+                      <div className="relative">
                         <label htmlFor="city" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.city")} *</label>
-                        <select
-                          id="city"
-                          name="city"
-                          value={formData.city}
-                          onChange={handleInputChange}
-                          required
-                          disabled={!formData.region}
-                          className="w-full bg-background border border-border px-4 h-12 text-sm focus:outline-none focus:ring-1 focus:ring-primary appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        
+                        {/* Selected value button */}
+                        <div 
+                          onClick={() => setIsOpen(!isOpen)}
+                          className="w-full bg-background border border-border px-4 h-12 text-sm flex items-center justify-between cursor-pointer select-none"
                         >
-                          <option value="">{formData.region ? "Sélectionner une ville" : "Choisir d'abord une région"}</option>
-                          {cities
-                            .filter(city => {
-                              const region = regions.find(r => r.name === formData.region);
-                              return region ? city.regionId === region.id : false;
-                            })
-                            .map((city) => (
-                              <option key={city.name} value={city.name}>{city.name}</option>
-                            ))
-                          }
-                        </select>
+                          <span className={formData.city ? "text-foreground" : "text-muted-foreground"}>
+                            {formData.city || "Sélectionner une ville"}
+                          </span>
+                          <span className="text-muted-foreground text-xs">▼</span>
+                        </div>
+
+                        {isOpen && (
+                          <>
+                            {/* Backdrop to close dropdown on click outside */}
+                            <div 
+                              className="fixed inset-0 z-40 cursor-default" 
+                              onClick={() => { setIsOpen(false); setSearchQuery(""); }}
+                            />
+                            
+                            {/* Dropdown panel */}
+                            <div className="absolute z-50 w-full mt-1 bg-background border border-border shadow-lg max-h-60 flex flex-col">
+                              {/* Search bar inside dropdown */}
+                              <div className="p-2 border-b border-border bg-muted/20">
+                                <input
+                                  type="text"
+                                  className="w-full bg-background border border-border px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                                  placeholder="Rechercher une ville..."
+                                  value={searchQuery}
+                                  onChange={(e) => setSearchQuery(e.target.value)}
+                                  onClick={(e) => e.stopPropagation()}
+                                  autoFocus
+                                />
+                              </div>
+
+                              {/* Cities list */}
+                              <div className="overflow-y-auto flex-1 max-h-48">
+                                {(() => {
+                                  const filtered = [...livraisonData]
+                                    .filter(c => c.nom.toLowerCase().includes(searchQuery.toLowerCase()))
+                                    .sort((a, b) => a.nom.localeCompare(b.nom));
+
+                                  return filtered.length > 0 ? (
+                                    filtered.map((city) => (
+                                      <div
+                                        key={city.nom}
+                                        className={cn(
+                                          "px-4 py-2 text-sm cursor-pointer hover:bg-primary/5 transition-colors text-left",
+                                          formData.city === city.nom && "bg-primary/10 font-medium"
+                                        )}
+                                        onClick={() => {
+                                          handleInputChange({
+                                            target: { name: "city", value: city.nom }
+                                          } as any);
+                                          setIsOpen(false);
+                                          setSearchQuery("");
+                                        }}
+                                      >
+                                        {city.nom}
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <div className="px-4 py-3 text-xs text-muted-foreground text-center">
+                                      Aucune ville trouvée
+                                    </div>
+                                  );
+                                })()}
+                              </div>
+                            </div>
+                          </>
+                        )}
                       </div>
-                    </div>
-                    <div className="grid sm:grid-cols-2 gap-4">
                       <div>
                         <label htmlFor="postalCode" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.postalCode")} *</label>
                         <Input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleInputChange} required maxLength={10} className="rounded-none h-12" />
-                      </div>
-                      <div>
-                        <label htmlFor="country" className="block text-xs font-semibold tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("checkout.country")} *</label>
-                        <Input id="country" name="country" value={formData.country} onChange={handleInputChange} required maxLength={50} className="rounded-none h-12" />
                       </div>
                     </div>
                   </div>
@@ -477,7 +503,13 @@ const Checkout = () => {
                   )}
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t("cart.shipping")}</span>
-                    <span>{shipping === 0 ? t("cart.free") : `${shipping} DH`}</span>
+                    <span>
+                      {isFreeDelivery 
+                        ? t("cart.free") 
+                        : (formData.city === "" 
+                            ? (lang === 'ar' ? "حسب المدينة" : lang === 'en' ? "Depending on city" : "Selon ville") 
+                            : `${shipping} DH`)}
+                    </span>
                   </div>
                 </div>
                 <div className="border-t border-border pt-4">
