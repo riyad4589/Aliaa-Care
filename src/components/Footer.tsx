@@ -94,6 +94,9 @@ export const Footer = () => {
           <p className="text-[9px] uppercase tracking-widest text-white/20">
             © {new Date().getFullYear()} ALIAA Care
           </p>
+          <Link to="/privacy-policy" className="text-[9px] uppercase tracking-widest text-white/20 hover:text-white/60 transition-colors">
+            {t("common.privacyPolicy")}
+          </Link>
         </div>
       </div>
     </footer>

@@ -26,6 +26,7 @@ const Wishlist = lazy(() => import("./pages/Wishlist"));
 const PackDetail = lazy(() => import("./pages/PackDetail"));
 const Packs = lazy(() => import("./pages/Packs"));
 const TrackOrder = lazy(() => import("./pages/TrackOrder"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Auth Pages
@@ -160,6 +161,7 @@ const App = () => (
                 <Route path="packs" element={<Packs />} />
                 <Route path="pack/:slug" element={<PackDetail />} />
                 <Route path="track-order" element={<TrackOrder />} />
+                <Route path="privacy-policy" element={<PrivacyPolicy />} />
               </Route>
 
               {/* Auth Routes */}
