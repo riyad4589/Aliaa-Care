@@ -164,9 +164,9 @@ const Checkout = () => {
     const name = e.target.name;
     let value = e.target.value;
 
-    // Filter phone number to only accept digits
+    // Filter phone number to only accept digits and limit to 9 characters
     if (name === "phone") {
-      value = value.replace(/\D/g, "");
+      value = value.replace(/\D/g, "").slice(0, 9);
     }
 
     setFormData((prev) => {
@@ -385,7 +385,7 @@ const Checkout = () => {
                             </option>
                           ))}
                         </select>
-                        <Input id="phone" name="phone" type="tel" inputMode="numeric" value={formData.phone} onChange={handleInputChange} required maxLength={20} className="rounded-none h-12 flex-1" placeholder="612345678" autoComplete="tel" />
+                        <Input id="phone" name="phone" type="tel" inputMode="numeric" value={formData.phone} onChange={handleInputChange} required maxLength={9} className="rounded-none h-12 flex-1" placeholder="612345678" autoComplete="tel" />
                       </div>
                     </div>
                   </div>

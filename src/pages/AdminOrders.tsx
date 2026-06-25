@@ -616,20 +616,28 @@ const AdminOrders = () => {
                             </div>
                           ))}
                         </div>
-                        <div className="bg-muted/30 p-4 border-t border-border/50 space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Sous-total</span>
-                            <span className="font-medium">{selectedOrder.total.toLocaleString()} DH</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Livraison</span>
-                            <span className="font-medium text-green-600">Gratuite</span>
-                          </div>
-                          <div className="flex justify-between text-lg font-bold pt-2 border-t border-border/50">
-                            <span className="font-serif">Total</span>
-                            <span className="font-serif text-primary">{selectedOrder.total.toLocaleString()} DH</span>
-                          </div>
-                        </div>
+                        {(() => {
+                          const subtotal = selectedOrder.items?.reduce((acc, item) => acc + (item.unit_price * item.quantity), 0) ?? 0;
+                          const deliveryFee = Math.max(0, selectedOrder.total - subtotal);
+                          return (
+                            <div className="bg-muted/30 p-4 border-t border-border/50 space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Sous-total</span>
+                                <span className="font-medium">{subtotal.toLocaleString()} DH</span>
+                              </div>
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Livraison</span>
+                                <span className={deliveryFee === 0 ? "font-medium text-green-600" : "font-medium"}>
+                                  {deliveryFee === 0 ? "Gratuite" : `${deliveryFee.toLocaleString()} DH`}
+                                </span>
+                              </div>
+                              <div className="flex justify-between text-lg font-bold pt-2 border-t border-border/50">
+                                <span className="font-serif">Total</span>
+                                <span className="font-serif text-primary">{selectedOrder.total.toLocaleString()} DH</span>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
 
