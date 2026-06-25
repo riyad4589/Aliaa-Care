@@ -105,7 +105,7 @@ const Index = () => {
             <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-center">
               <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                 transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const }} className="relative aspect-square overflow-hidden group">
-                <img src={featuredCollection.heroImage || featuredCollection.image} alt={getTranslated(featuredCollection, "name", lang)}
+                <img src={featuredCollection.heroImage || featuredCollection.image} alt={getTranslated(featuredCollection, "name", lang)} loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 via-transparent to-transparent" />
               </motion.div>
@@ -215,7 +215,7 @@ const Index = () => {
                   key={index} 
                   className="w-[200px] md:w-[280px] aspect-[4/5] rounded-lg overflow-hidden bg-muted"
                 >
-                  <img src={image} alt="" className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
+                  <img src={image} alt="" loading="lazy" className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
                 </div>
               ))}
             </motion.div>

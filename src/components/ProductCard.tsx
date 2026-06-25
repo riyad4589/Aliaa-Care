@@ -73,10 +73,10 @@ export const ProductCard = ({ product, index = 0, variant = "default" }: Product
     >
       <Link to={`/product/${product.slug}`} className="block">
         <div className={cn("relative overflow-hidden bg-muted/50 mb-5 rounded-lg", variant === "large" ? "aspect-square" : "aspect-square")}>
-          <img src={product.images[0]} alt={getTranslated(product, "name", lang)}
+          <img src={product.images[0]} alt={getTranslated(product, "name", lang)} loading="lazy"
             className={cn("w-full h-full object-cover transition-all duration-1000 ease-out", hasSecondImage ? "group-hover:opacity-0 group-hover:scale-105" : "group-hover:scale-105")} />
           {hasSecondImage && (
-            <img src={product.images[1]} alt={getTranslated(product, "name", lang)}
+            <img src={product.images[1]} alt={getTranslated(product, "name", lang)} loading="lazy"
               className="absolute inset-0 w-full h-full object-cover opacity-0 scale-105 transition-all duration-1000 ease-out group-hover:opacity-100 group-hover:scale-100" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />

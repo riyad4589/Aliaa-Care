@@ -108,6 +108,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
           <img
             src={pack.image}
             alt={getTranslated(pack, "name", lang)}
+            loading="lazy"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         ) : pack.items.length >= 3 ? (
@@ -119,6 +120,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
                   key={item.id}
                   src={item.product_image || "/placeholder.svg"}
                   alt={itemTranslatedName}
+                  loading="lazy"
                   className="w-full h-full object-cover"
                 />
               );
@@ -128,6 +130,7 @@ export const PackCard = ({ pack, index = 0 }: PackCardProps) => {
           <img
             src={firstProductImage}
             alt={getTranslated(pack, "name", lang)}
+            loading="lazy"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
         )}

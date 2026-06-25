@@ -22,7 +22,7 @@ export const CollectionCard = ({ collection, index = 0, variant = "default" }: C
     >
       <Link to={`/products?collection=${collection.slug}`} className="group block relative">
         <div className={`relative overflow-hidden bg-muted/50 aspect-[3/2]`}>
-          <img src={collection.image} alt={getTranslated(collection, "name", lang)} className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110" />
+          <img src={collection.image} alt={getTranslated(collection, "name", lang)} loading="lazy" className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-110" />
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-charcoal/10 to-transparent" />
           <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/20 transition-colors duration-700" />
           <div className="absolute inset-0 flex flex-col justify-end p-7 md:p-8">

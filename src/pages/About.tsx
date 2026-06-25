@@ -80,7 +80,7 @@ const About = () => {
             </div>
             <div className="md:col-span-7 relative flex justify-center">
               <div className="aspect-square w-full max-w-md overflow-hidden group rounded-lg shadow-2xl">
-                <img src={chayNifasImg} alt="Chay Nifas" className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105" />
+                <img src={chayNifasImg} alt="Chay Nifas" loading="lazy" className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105" />
               </div>
               <div className={cn(
                 "absolute -bottom-8 bg-primary text-primary-foreground p-6 md:p-8 rounded-lg shadow-xl max-w-[220px]",
@@ -99,7 +99,7 @@ const About = () => {
       <section className="py-20 md:py-24 md:min-h-[calc(100vh-7rem)] md:flex md:items-center px-4 md:px-8">
         <div className="w-full">
           <div className="relative h-[60vh] md:h-[calc(100vh-12rem)] overflow-hidden rounded-[2rem] group w-full max-w-7xl mx-auto shadow-2xl">
-            <img src={guideImg} alt="Guide ALIAA" className="w-full h-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-105" />
+            <img src={guideImg} alt="Guide ALIAA" loading="lazy" className="w-full h-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/40 to-charcoal/30 flex items-center justify-center p-8">
               <div className="text-center max-w-4xl mx-auto">
                 <Sparkles className="w-10 h-10 text-white/50 mx-auto mb-8" />
@@ -118,7 +118,7 @@ const About = () => {
           <div className="grid md:grid-cols-12 gap-12 lg:gap-20 items-center">
             <div className="md:col-span-7 md:order-first relative flex justify-center">
               <div className="aspect-square w-full max-w-md overflow-hidden group rounded-lg shadow-2xl">
-                <img src={coffretArganImg} alt="Coffret ALIAA" className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105" />
+                <img src={coffretArganImg} alt="Coffret ALIAA" loading="lazy" className="w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-105" />
               </div>
               <div className={cn(
                 "absolute -bottom-8 bg-background border border-border p-6 md:p-8 rounded-lg shadow-xl max-w-[220px]",
