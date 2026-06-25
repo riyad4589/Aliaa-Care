@@ -30,10 +30,10 @@ import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, Command
 
 const PROMO_TYPES = [
   { value: "percentage", label: "Réduction %", icon: Percent },
-  { value: "flash", label: "Offre Flash", icon: Zap },
+  /* { value: "flash", label: "Offre Flash", icon: Zap },
   { value: "buy_x_get_y", label: "X acheté Y offert", icon: ShoppingCart },
   { value: "tiered", label: "Palier de réduction", icon: Tag },
-  { value: "product_of_day", label: "Produit du jour", icon: Star },
+  { value: "product_of_day", label: "Produit du jour", icon: Star }, */
 ];
 
 const defaultForm = {
